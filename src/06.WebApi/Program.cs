@@ -6,7 +6,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Register the AppDbContext with the dependency injection container
+/// Dependency Injection
+/// Register the AppDbContext with the dependency injection container
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseSqlServer(
