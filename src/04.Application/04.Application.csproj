@@ -1,13 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\02.Domain\Obscura.FinanceTracker.Domain.csproj" />
+    <ProjectReference Include="..\02.Domain\02.Domain.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+	<RootNamespace>Obscura.FinanceTracker.Application</RootNamespace>
+	<AssemblyName>Obscura.FinanceTracker.Application</AssemblyName>
   </PropertyGroup>
 
 </Project>

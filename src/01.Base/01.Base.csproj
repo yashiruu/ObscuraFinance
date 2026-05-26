@@ -4,6 +4,8 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+	<RootNamespace>Obscura.FinanceTracker.Base</RootNamespace>
+	<AssemblyName>Obscura.FinanceTracker.Base</AssemblyName>
   </PropertyGroup>
 
 </Project>

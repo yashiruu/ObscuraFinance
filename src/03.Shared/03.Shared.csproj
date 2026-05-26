@@ -1,13 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <ItemGroup>
-    <ProjectReference Include="..\04.Application\Obscura.FinanceTracker.Application.csproj" />
-  </ItemGroup>
-
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+	<RootNamespace>Obscura.FinanceTracker.Shared</RootNamespace>
+	<AssemblyName>Obscura.FinanceTracker.Shared</AssemblyName>
   </PropertyGroup>
 
 </Project>
