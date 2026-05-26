@@ -20,5 +20,6 @@ namespace Obscura.FinanceTracker.Infrastructure.Persistence
         }
 
         public DbSet<Transaction> Transactions => Set<Transaction>();
+        public DbSet<Category> Categories => Set<Category>();
     }
 }
