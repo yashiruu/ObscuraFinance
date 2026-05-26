@@ -4,12 +4,22 @@
     <ProjectReference Include="..\04.Application\04.Application.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.21" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.21" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.21">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-	<RootNamespace>Obscura.FinanceTracker.Infrastructure</RootNamespace>
-	<AssemblyName>Obscura.FinanceTracker.Infrastructure</AssemblyName>
+
+    <RootNamespace>Obscura.FinanceTracker.Infrastructure</RootNamespace>
+    <AssemblyName>Obscura.FinanceTracker.Infrastructure</AssemblyName>
   </PropertyGroup>
 
 </Project>
