@@ -7,6 +7,7 @@ namespace Obscura.FinanceTracker.Client.Categories
     public class CategoryClient
     {
         private readonly HttpClient _httpClient;
+        private const string BaseUrl = "api/category";
 
         public CategoryClient(HttpClient httpClient)
         {
@@ -15,27 +16,42 @@ namespace Obscura.FinanceTracker.Client.Categories
 
         public async Task<List<CategoryDto>> GetAllAsync()
         {
-            return await _httpClient.GetFromJsonAsync<List<CategoryDto>>("api/categories") ?? [];
+            return await _httpClient.GetFromJsonAsync<List<CategoryDto>>($"{BaseUrl}") ?? [];
         }
 
-        public async Task<CategoryDto> GetByIdAsync(Guid id)
+        public async Task<CategoryDto?> GetByIdAsync(Guid id)
         {
-            return await _httpClient.GetFromJsonAsync<CategoryDto>("api/categories/" + id) ?? new CategoryDto();
+            return await _httpClient.GetFromJsonAsync<CategoryDto>($"{BaseUrl}/" + id);
+        }
+
+        public async Task<List<CategoryDto>> GetBytypeAsync(int type)
+        {
+            return await _httpClient.GetFromJsonAsync<List<CategoryDto>>($"{BaseUrl}/type/" + type) ?? [];
+        }
+
+        public async Task<List<CategoryDto>> GetDeletedAsync()
+        {
+            return await _httpClient.GetFromJsonAsync<List<CategoryDto>>($"{BaseUrl}/deleted") ?? [];
         }
 
         public async Task CreateAsync(CreateCategoryRequest createCategoryRequest)
         {
-            await _httpClient.PostAsJsonAsync("api/categories", createCategoryRequest);
+            await _httpClient.PostAsJsonAsync($"{BaseUrl}", createCategoryRequest);
         }
 
         public async Task UpdateAsync(Guid id, UpdateCategoryRequest request)
         {
-            await _httpClient.PutAsJsonAsync($"api/category/{id}", request);
+            await _httpClient.PutAsJsonAsync($"{BaseUrl}/{id}", request);
         }
 
         public async Task DeleteAsync(Guid id)
         {
-            await _httpClient.DeleteAsync($"api/category/{id}");
+            await _httpClient.DeleteAsync($"{BaseUrl}/{id}");
+        }
+
+        public async Task RestoreAsync(Guid id)
+        {
+            await _httpClient.PostAsync($"{BaseUrl}/{id}/restore", null);
         }
     }
 }
