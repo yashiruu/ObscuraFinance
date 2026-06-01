@@ -1,0 +1,24 @@
+﻿@* T="string" is required in modern MudBlazor versions. *@
+<MudChip T="string" Color="@_chipColor" Size="Size.Small" Variant="Variant.Filled">
+    @_label
+</MudChip>
+
+@code {
+    [Parameter, EditorRequired]
+    public int Type { get; set; }
+
+    private string _label => Type switch
+    {
+        0 => "Income",
+        1 => "Expense",
+        _ => "Unknown"
+    };
+
+    // Maps integer types to MudBlazor built-in theme colors
+    private Color _chipColor => Type switch
+    {
+        0 => Color.Success, // Typically green
+        1 => Color.Error,   // Typically red
+        _ => Color.Default
+    };
+}

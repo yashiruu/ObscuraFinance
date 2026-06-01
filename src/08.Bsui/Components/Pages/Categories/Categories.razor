@@ -1,33 +1,184 @@
 ﻿@page "/categories"
 
+@using Obscura.FinanceTracker.Application.Categories.DTOs
+@using Obscura.FinanceTracker.Bsui.Components.Shared
+@using Obscura.FinanceTracker.Client.Categories
+
 @inject CategoryClient CategoryClient
+@inject NavigationManager NavigationManager
 
-<PageTitle>Categories</PageTitle>
+<PageTitle>Categories — Obscura</PageTitle>
 
-<h3>Categories</h3>
-
-@if (_categories is null)
-{
-    <p>Loading...</p>
-}
-else
-{
-    <ul>
-        @foreach (var category in _categories)
+@* MudContainer centers the page content and restricts max width (Lg = Large) *@
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-6">
+    
+    @* MudToolBar acts as the page header. DisableGutters removes horizontal padding. *@
+    <MudToolBar DisableGutters="true" Class="mb-4">
+        <MudText Typo="Typo.h5" Class="mr-4">Category</MudText>
+        @if (!_isLoading)
         {
-            <li>
-                @category.Name
-            </li>
+            @* MudText for the item count. Color.Secondary makes it look muted/grayed out. *@
+            <MudText Typo="Typo.body2" Color="Color.Secondary">
+                @_categories.Count @(_categories.Count == 1 ? "item" : "items")
+            </MudText>
         }
-    </ul>
-}
+        @* MudSpacer pushes the following elements (like the New button) to the far right *@
+        <MudSpacer />
+        @* MudButton triggers navigation to the create page. StartIcon adds a Material icon. *@
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="NavigateToCreate">
+            New Category
+        </MudButton>
+    </MudToolBar>
 
-@code
-{
-    private List<CategoryDto>? _categories;
+    @if (_errorMessage is not null)
+    {
+        @* MudAlert shows a stylized error banner instead of a custom div *@
+        <MudAlert Severity="Severity.Error" Class="mb-4">@_errorMessage</MudAlert>
+    }
 
+    @* MudTable handles displaying tabular data, including loading states and empty states automatically *@
+    <MudTable Items="@_categories" Loading="@_isLoading" Hover="true" Breakpoint="Breakpoint.Sm" Elevation="3">
+        <NoRecordsContent>
+            @if (!_isLoading)
+            {
+                <MudText Typo="Typo.body1" Align="Align.Center" Class="py-8">No categories defined yet.</MudText>
+            }
+        </NoRecordsContent>
+        <HeaderContent>
+            @* MudTh represents table header cells *@
+            <MudTh>Name</MudTh>
+            <MudTh>Description</MudTh>
+            <MudTh>Type</MudTh>
+            <MudTh Style="text-align: right;">Actions</MudTh>
+        </HeaderContent>
+        <RowTemplate Context="category">
+            @* MudTd represents table data cells. DataLabel is used for mobile view when Breakpoint hits *@
+            <MudTd DataLabel="Name">
+                <MudText Typo="Typo.subtitle2">@category.Name</MudText>
+            </MudTd>
+            <MudTd DataLabel="Description">
+                <MudText Typo="Typo.body2" Color="Color.Secondary">
+                    @(string.IsNullOrWhiteSpace(category.Description) ? "—" : category.Description)
+                </MudText>
+            </MudTd>
+            <MudTd DataLabel="Type">
+                <CategoryTypeBadge Type="@category.Type" />
+            </MudTd>
+            <MudTd DataLabel="Actions" Style="text-align: right;">
+                @* MudIconButton provides a small circular button with an icon for compact actions *@
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Info" OnClick="() => NavigateToEdit(category.Id)" Title="Edit" />
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => OpenDeleteConfirm(category)" Title="Delete" />
+            </MudTd>
+        </RowTemplate>
+        <LoadingContent>
+            <MudText>Loading categories...</MudText>
+        </LoadingContent>
+    </MudTable>
+
+    @* MudDialog acts as our inline modal replacing custom overlay CSS. IsVisible binds to our boolean state *@
+    <MudDialog @bind-Visible="_showDeleteConfirm" Options="new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Small }">
+        <TitleContent>
+            <MudText Typo="Typo.h6">
+                <MudIcon Icon="@Icons.Material.Filled.Warning" Color="Color.Warning" Class="mr-2" Style="vertical-align: text-bottom;" />
+                Delete Category
+            </MudText>
+        </TitleContent>
+        <DialogContent>
+            <MudText>
+                Are you sure you want to delete <strong>@_pendingDelete?.Name</strong>? This action cannot be undone.
+            </MudText>
+        </DialogContent>
+        <DialogActions>
+            <MudButton OnClick="CloseDeleteConfirm" Disabled="@_isDeleting">Cancel</MudButton>
+            <MudButton Color="Color.Error" Variant="Variant.Filled" OnClick="ExecuteDelete" Disabled="@_isDeleting">
+                @(_isDeleting ? "Deleting..." : "Delete")
+            </MudButton>
+        </DialogActions>
+    </MudDialog>
+</MudContainer>
+
+@code {
+    // ── State ────────────────────────────────────────────────────────
+    private List<CategoryDto> _categories = [];
+    private bool _isLoading = true;
+    private string? _errorMessage;
+
+    // Delete confirm state
+    private bool _showDeleteConfirm = false;
+    private CategoryDto? _pendingDelete;
+    private bool _isDeleting = false;
+
+    // ── Lifecycle ────────────────────────────────────────────────────
     protected override async Task OnInitializedAsync()
     {
-        _categories = await CategoryClient.GetAllAsync();
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _isLoading = true;
+        _errorMessage = null;
+        try
+        {
+            _categories = (await CategoryClient.GetAllAsync()).ToList();
+        }
+        catch (Exception)
+        {
+            _errorMessage = "Failed to load categories.";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    // ── Navigation ───────────────────────────────────────────────────
+    private void NavigateToCreate()
+        => NavigationManager.NavigateTo("/categories/create");
+
+    private void NavigateToEdit(Guid id)
+        => NavigationManager.NavigateTo($"/categories/edit/{id}");
+
+    // ── Delete Flow ──────────────────────────────────────────────────
+    private void OpenDeleteConfirm(CategoryDto category)
+    {
+        Console.WriteLine("Open Delete Confirmation");
+        _pendingDelete     = category;
+        _showDeleteConfirm = true;
+        _errorMessage      = null;
+        Console.WriteLine(_showDeleteConfirm);
+    }
+
+    private void CloseDeleteConfirm()
+    {
+        if (_isDeleting) return;
+        _pendingDelete     = null;
+        _showDeleteConfirm = false;
+    }
+
+    private async Task ExecuteDelete()
+    {
+        if (_pendingDelete is null) return;
+
+        _isDeleting   = true;
+        _errorMessage = null;
+
+        try
+        {
+            await CategoryClient.DeleteAsync(_pendingDelete.Id);
+            _showDeleteConfirm = false;
+            _pendingDelete     = null;
+            await LoadAsync();
+        }
+        catch (Exception)
+        {
+            _errorMessage      = $"Failed to delete category. Please try again.";
+            _showDeleteConfirm = false;
+            _pendingDelete     = null;
+        }
+        finally
+        {
+            _isDeleting = false;
+        }
     }
 }

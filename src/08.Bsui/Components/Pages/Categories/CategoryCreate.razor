@@ -1,0 +1,125 @@
+﻿@page "/categories/create"
+
+@using System.ComponentModel.DataAnnotations
+@using Obscura.FinanceTracker.Application.Categories.Requests
+@using Obscura.FinanceTracker.Client.Categories
+
+@inject CategoryClient CategoryClient
+@inject NavigationManager NavigationManager
+
+<PageTitle>New Category — Obscura</PageTitle>
+
+@* MudContainer centers the content and restricts the maximum width (MaxWidth.Md) *@
+<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-6">
+    
+    @* MudToolBar acts as a header container. DisableGutters removes default padding. *@
+    <MudToolBar DisableGutters="true" Class="mb-4">
+        @* MudButton with an icon for navigation back to the list *@
+        <MudButton StartIcon="@Icons.Material.Filled.ArrowBack" Href="/categories" Color="Color.Default">
+            Categories
+        </MudButton>
+        @* MudSpacer pushes the following elements to the right side *@
+        <MudSpacer />
+        @* MudText for typography styling (Header 5) *@
+        <MudText Typo="Typo.h5">New Category</MudText>
+    </MudToolBar>
+
+    @* MudPaper creates a card-like surface with shadow (Elevation) *@
+    <MudPaper Class="pa-6" Elevation="3">
+        <EditForm Model="@_model" OnValidSubmit="HandleSubmitAsync">
+            <DataAnnotationsValidator />
+            
+            @* MudGrid creates a responsive 12-column grid system *@
+            <MudGrid>
+                @* MudItem defines a column taking full width (xs=12) on extra small and up screens *@
+                <MudItem xs="12">
+                    @* MudTextField is the MudBlazor equivalent of InputText with built-in material styling and validation integration *@
+                    <MudTextField @bind-Value="_model.Name" Label="Name" For="@(() => _model.Name)" Required="true" Placeholder="e.g. Groceries" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                </MudItem>
+                <MudItem xs="12">
+                    @* MudTextField with Lines="3" turns it into a textarea *@
+                    <MudTextField @bind-Value="_model.Description" Label="Description" Lines="3" Placeholder="Optional description…" For="@(() => _model.Description)" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                </MudItem>
+                <MudItem xs="12">
+                    @* MudSelect is the dropdown component, substituting InputSelect *@
+                    <MudSelect @bind-Value="_model.Type" Label="Type" For="@(() => _model.Type)" Required="true" Variant="Variant.Outlined" Margin="Margin.Dense">
+                        <MudSelectItem Value="0">Income</MudSelectItem>
+                        <MudSelectItem Value="1">Expense</MudSelectItem>
+                    </MudSelect>
+                </MudItem>
+            </MudGrid>
+
+            @if (_errorMessage is not null)
+            {
+                @* MudAlert replaces the custom form-alert class for displaying error messages *@
+                <MudAlert Severity="Severity.Error" Class="mt-4">@_errorMessage</MudAlert>
+            }
+
+            @* Container for bottom buttons, removing X-axis padding (px-0) *@
+            <MudCardActions Class="mt-6 px-0">
+                <MudButton Variant="Variant.Text" OnClick="Cancel" Disabled="@_isSubmitting">Cancel</MudButton>
+                <MudSpacer />
+                @* MudButton with ButtonType.Submit triggers the EditForm submission *@
+                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Disabled="@_isSubmitting">
+                    @(_isSubmitting ? "Saving…" : "Save Category")
+                </MudButton>
+            </MudCardActions>
+        </EditForm>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    // ── Local validation model wrapping CreateCategoryRequest ────────
+    private sealed class CreateCategoryFormModel
+    {
+        [Required(ErrorMessage = "Name is required.")]
+        [StringLength(100, MinimumLength = 2, ErrorMessage = "Name must be between 2 and 100 characters.")]
+        public string Name { get; set; } = string.Empty;
+
+        [StringLength(500, ErrorMessage = "Description cannot exceed 500 characters.")]
+        public string? Description { get; set; }
+
+        [Range(0, 2, ErrorMessage = "Please select a valid type.")]
+        public int Type { get; set; }
+    }
+
+    // ── State ────────────────────────────────────────────────────────
+    private readonly CreateCategoryFormModel _model = new();
+    private bool _isSubmitting = false;
+    private string? _errorMessage;
+
+    // ── Handlers ─────────────────────────────────────────────────────
+    private async Task HandleSubmitAsync()
+    {
+        _isSubmitting = true;
+        _errorMessage = null;
+
+        try
+        {
+            var request = new CreateCategoryRequest
+            {
+                Name = _model.Name.Trim(),
+                Description = string.IsNullOrWhiteSpace(_model.Description)
+                                  ? null
+                                  : _model.Description.Trim(),
+                Type = _model.Type,
+                CreatedAt = DateTime.UtcNow,
+                CreatedBy = Guid.Empty
+            };
+
+            await CategoryClient.CreateAsync(request);
+            NavigationManager.NavigateTo("/categories");
+        }
+        catch (Exception)
+        {
+            _errorMessage = "Failed to save category. Please check your connection and try again.";
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
+    }
+
+    private void Cancel()
+        => NavigationManager.NavigateTo("/categories");
+}
