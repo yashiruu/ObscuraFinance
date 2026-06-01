@@ -1,28 +1,122 @@
-﻿@inherits LayoutComponentBase
+﻿@using MudBlazor
+@using Obscura.FinanceTracker.Bsui.Themes
+@inherits LayoutComponentBase
+@inject IJSRuntime JSRuntime
 
-<div class="page">
-    <div class="sidebar">
+@* Global Theme & Popover Providers *@
+<MudThemeProvider Theme="@_currentTheme" IsDarkMode="@_isDarkMode" />
+<MudDialogProvider />
+<MudSnackbarProvider />
+<MudPopoverProvider />
+
+<MudLayout>
+    @* TOP APP BAR *@
+    <MudAppBar Elevation="1">
+        @* Hamburger button to toggle the sidebar *@
+        <MudIconButton Icon="@Icons.Material.Filled.Menu"
+                       Color="Color.Inherit"
+                       Edge="Edge.Start"
+                       OnClick="@((e) => DrawerToggle())" />
+
+        <MudText Typo="Typo.h6" Class="ml-4">Obscura Finance</MudText>
+        <MudSpacer />
+        
+        @* Light / Dark Mode Toggle Button *@
+        <MudIconButton Icon="@(_isDarkMode ? Icons.Material.Filled.LightMode : Icons.Material.Filled.DarkMode)"
+                       Color="Color.Inherit"
+                       OnClick="ToggleDarkModeAsync"
+                       Title="Toggle Light/Dark Mode" />
+
+        @* Theme Selector Dropdown Menu (Using ColorLens icon) *@
+        <MudMenu Icon="@Icons.Material.Filled.ColorLens" Color="Color.Inherit" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
+            <MudMenuItem OnClick="@(() => SetThemeAsync("obsidian"))">Obsidian Theme</MudMenuItem>
+            <MudMenuItem OnClick="@(() => SetThemeAsync("cobalt"))">Cobalt Theme</MudMenuItem>
+            <MudMenuItem OnClick="@(() => SetThemeAsync("dracula"))">Dracula Theme</MudMenuItem>
+        </MudMenu>
+    </MudAppBar>
+    
+    @* SIDEBAR *@
+    <MudDrawer @bind-Open="_drawerOpen" Elevation="2" ClipMode="DrawerClipMode.Always">
         <NavMenu />
-    </div>
-
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
-
-        <article class="content px-4">
-            <MudThemeProvider />
-            <MudDialogProvider />
-            <MudSnackbarProvider />
-            <MudPopoverProvider />
-
-            @Body
-        </article>
-    </main>
-</div>
+    </MudDrawer>
+    
+    @* MAIN CONTENT AREA *@
+    <MudMainContent>
+        @Body
+    </MudMainContent>
+</MudLayout>
 
 <div id="blazor-error-ui">
     An unhandled error has occurred.
     <a href="" class="reload">Reload</a>
     <a class="dismiss">🗙</a>
 </div>
+
+@code {
+    // ── UI State ─────────────────────────────────────────────
+    private bool _drawerOpen = true;
+    
+    private void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+
+    // ── Theme State ──────────────────────────────────────────
+    private MudTheme _currentTheme = default!;
+    private bool _isDarkMode = true;
+    
+    protected override void OnInitialized()
+    {
+        // Provide a safe fallback theme for the initial server pre-render
+        _currentTheme = GetThemeConfig("obsidian");
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var savedTheme = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "preferred_theme");
+            var savedMode = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "is_dark_mode");
+
+            if (!string.IsNullOrEmpty(savedMode))
+            {
+                _isDarkMode = savedMode == "true";
+            }
+
+            if (string.IsNullOrEmpty(savedTheme))
+            {
+                await SetThemeAsync("obsidian");
+            }
+            else
+            {
+                await SetThemeAsync(savedTheme);
+            }
+        }
+    }
+
+    // ── Mode & Theme Switcher Logic ──────────────────────────
+    private async Task ToggleDarkModeAsync()
+    {
+        _isDarkMode = !_isDarkMode;
+        await JSRuntime.InvokeVoidAsync("localStorage.setItem", "is_dark_mode", _isDarkMode.ToString().ToLower());
+        StateHasChanged();
+    }
+
+    private async Task SetThemeAsync(string themeName)
+    {
+        _currentTheme = GetThemeConfig(themeName);
+        await JSRuntime.InvokeVoidAsync("localStorage.setItem", "preferred_theme", themeName);
+        StateHasChanged();
+    }
+
+    // Pull themes directly from the static AppThemes class
+    private MudTheme GetThemeConfig(string themeName)
+    {
+        return themeName switch
+        {
+            "cobalt" => AppThemes.CobaltTheme,
+            "dracula" => AppThemes.DraculaTheme,
+            _ => AppThemes.ObsidianTheme
+        };
+    }
+}
