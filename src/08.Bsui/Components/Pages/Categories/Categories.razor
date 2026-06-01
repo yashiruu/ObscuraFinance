@@ -12,8 +12,8 @@
 @* MudContainer centers the page content and restricts max width (Lg = Large) *@
 <MudContainer MaxWidth="MaxWidth.Large" Class="mt-6">
     
-    @* MudToolBar acts as the page header. DisableGutters removes horizontal padding. *@
-    <MudToolBar DisableGutters="true" Class="mb-4">
+    @* MudToolBar acts as the page header. *@
+    <MudToolBar Class="mb-4">
         <MudText Typo="Typo.h5" Class="mr-4">Category</MudText>
         @if (!_isLoading)
         {
@@ -66,8 +66,8 @@
             </MudTd>
             <MudTd DataLabel="Actions" Style="text-align: right;">
                 @* MudIconButton provides a small circular button with an icon for compact actions *@
-                <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Info" OnClick="() => NavigateToEdit(category.Id)" Title="Edit" />
-                <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => OpenDeleteConfirm(category)" Title="Delete" />
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Info" OnClick="() => NavigateToEdit(category.Id)" />
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => OpenDeleteConfirm(category)" />
             </MudTd>
         </RowTemplate>
         <LoadingContent>
