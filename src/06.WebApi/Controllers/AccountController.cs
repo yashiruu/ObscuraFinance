@@ -1,6 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Obscura.FinanceTracker.Application.Accounts.DTOs;
+using Obscura.FinanceTracker.Application.DTOs.Accounts.Requests;
 using Obscura.FinanceTracker.Application.DTOs.Accounts.Responses;
+using Obscura.FinanceTracker.Domain.Entities;
 using Obscura.FinanceTracker.Infrastructure.Persistence;
 
 namespace Obscura.FinanceTracker.WebApi.Controllers
@@ -56,6 +60,58 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
             if (account == null) return NotFound();
 
             return Ok(account);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> Create(CreateAccountRequest request)
+        {
+            var account = new Account
+            {
+                Id = Guid.NewGuid(),
+                Name = request.Name,
+                Description = request.Description,
+                InitialBalance = request.InitialBalance,
+                CurrentBalance = request.InitialBalance,
+                Currency = request.Currency,
+                Type = request.Type,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow,
+                CreatedBy = Guid.Empty
+            };
+
+            var exists = await _dbContext.Accounts.AnyAsync(x => x.Name == request.Name);
+
+            if (exists)
+            {
+                return BadRequest(new
+                {
+                    errors = new
+                    {
+                        Name = new[]
+                        {
+                            "Account name already exists."
+                        }
+                    }
+                });
+            }
+
+            _dbContext.Accounts.Add(account);
+            await _dbContext.SaveChangesAsync();
+
+            var response = new AccountDetailResponse
+            {
+                Id = account.Id,
+                Name = account.Name,
+                Description = account.Description,
+                InitialBalance = account.InitialBalance,
+                CurrentBalance = account.CurrentBalance,
+                Currency = account.Currency,
+                Type = account.Type.ToString(),
+                IsActive = account.IsActive,
+                CreatedAt = account.CreatedAt
+            };
+
+            return CreatedAtAction(nameof(GetById), new { id = account.Id }, response);
         }
     }
 }
