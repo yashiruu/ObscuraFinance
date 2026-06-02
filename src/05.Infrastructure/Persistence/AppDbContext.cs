@@ -13,6 +13,9 @@ namespace Obscura.FinanceTracker.Infrastructure.Persistence
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            // Apply all configurations from the assembly containing AppDbContext
+            // This will automatically apply any IEntityTypeConfiguration<T> implementations
+            // register services in the assembly
             modelBuilder.ApplyConfigurationsFromAssembly(
                 typeof(AppDbContext).Assembly);
 
