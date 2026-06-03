@@ -113,5 +113,74 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
 
             return CreatedAtAction(nameof(GetById), new { id = account.Id }, response);
         }
+
+        [HttpPut("{id:guid}")]
+        public async Task<ActionResult> Update(Guid id, UpdateAccountRequest request)
+        {
+            var account = await _dbContext.Accounts.FirstOrDefaultAsync(a=> a.Id == id && !a.IsDeleted);
+
+            if (account == null) return NotFound();
+
+            account.Name = request.Name;
+            account.Description = request.Description;
+            account.IsActive = request.IsActive;
+            account.UpdatedAt = DateTime.UtcNow;
+            account.UpdatedBy = Guid.Empty;
+
+            var exists = await _dbContext.Accounts.AnyAsync(x => x.Name == request.Name);
+
+            if (exists)
+            {
+                return BadRequest(new
+                {
+                    errors = new
+                    {
+                        Name = new[]
+                        {
+                            "Account name already exists."
+                        }
+                    }
+                });
+            }
+
+            await _dbContext.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpDelete("{id:guid}")]
+        public async Task<ActionResult> Delete(Guid id)
+        {
+            var account = await _dbContext.Accounts.FirstOrDefaultAsync(a => a.Id == id && !a.IsDeleted);
+
+            if (account == null) return NotFound();
+
+            account.IsDeleted = true;
+            account.DeletedAt = DateTime.UtcNow;
+            account.DeletedBy = Guid.Empty;
+
+            await _dbContext.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpPatch("{id:guid}/restore")]
+        public async Task<ActionResult> Restore(Guid id)
+        {
+            var account = await _dbContext.Accounts.FirstOrDefaultAsync(a => a.Id == id && a.IsDeleted);
+
+            if (account == null) return NotFound();
+
+            account.IsDeleted = false;
+            account.DeletedAt = null;
+            account.DeletedBy = null;
+
+            account.UpdatedAt = DateTime.UtcNow;
+            account.UpdatedBy = Guid.Empty;
+
+            await _dbContext.SaveChangesAsync();
+
+            return NoContent();
+        }
     }
 }
