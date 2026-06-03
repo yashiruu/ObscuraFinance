@@ -1,5 +1,6 @@
 using MudBlazor.Services;
 using Obscura.FinanceTracker.Bsui.Components;
+using Obscura.FinanceTracker.Client;
 using Obscura.FinanceTracker.Client.Categories;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,10 +10,7 @@ var apiBaseUrl = builder.Configuration["ApiSettings:BaseUrl"];
 builder.Services.AddRazorComponents().AddInteractiveServerComponents();
 
 // Register the CategoryClient with the base address from configuration
-builder.Services.AddHttpClient<CategoryClient>(client =>
-{
-    client.BaseAddress = new Uri(apiBaseUrl!);
-});
+builder.Services.AddClientServices(apiBaseUrl!);
 
 // Add MudBlazor services
 builder.Services.AddMudServices();
