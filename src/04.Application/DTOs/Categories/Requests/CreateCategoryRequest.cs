@@ -1,10 +1,12 @@
-﻿namespace Obscura.FinanceTracker.Application.Categories.Requests
+﻿using Obscura.FinanceTracker.Domain.Enums;
+
+namespace Obscura.FinanceTracker.Application.DTOs.Categories.Requests
 {
     public class CreateCategoryRequest
     {
         public string Name { get; set; } = default!;
         public string? Description { get; set; }
-        public int Type { get; set; }
+        public TransactionType Type { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public Guid CreatedBy { get; set; }
     }

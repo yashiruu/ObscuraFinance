@@ -1,8 +1,9 @@
 ﻿@page "/categories"
 
-@using Obscura.FinanceTracker.Application.Categories.DTOs
+@using Obscura.FinanceTracker.Application.DTOs.Categories.Responses
 @using Obscura.FinanceTracker.Bsui.Components.Shared
 @using Obscura.FinanceTracker.Client.Categories
+@using Obscura.FinanceTracker.Domain.Enums
 
 @inject CategoryClient CategoryClient
 @inject NavigationManager NavigationManager
@@ -62,11 +63,16 @@
                 </MudText>
             </MudTd>
             <MudTd DataLabel="Type">
-                <CategoryTypeBadge Type="@category.Type" />
+                <MudChip T="string"
+                         Color="@GetTypeColor(category.Type)"
+                         Size="Size.Small"
+                         Variant="Variant.Filled">
+                    @category.Type
+                </MudChip>
             </MudTd>
             <MudTd DataLabel="Actions" Style="text-align: right;">
                 @* MudIconButton provides a small circular button with an icon for compact actions *@
-                <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Info" OnClick="() => NavigateToEdit(category.Id)" />
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Info" OnClick="(() => NavigateToEdit(category.Id))" />
                 <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => OpenDeleteConfirm(category)" />
             </MudTd>
         </RowTemplate>
@@ -180,5 +186,16 @@
         {
             _isDeleting = false;
         }
+    }
+
+    // -- Helper -------------------------------------------------------
+    private static Color GetTypeColor(TransactionType type)
+    {
+        return type switch
+        {
+            TransactionType.Income => Color.Success,
+            TransactionType.Expense => Color.Error,
+            _ => Color.Default
+        };
     }
 }

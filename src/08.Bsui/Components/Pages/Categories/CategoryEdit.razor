@@ -1,8 +1,9 @@
 ﻿@page "/categories/edit/{Id:guid}"
 
 @using System.ComponentModel.DataAnnotations
-@using Obscura.FinanceTracker.Application.Categories.Requests
+@using Obscura.FinanceTracker.Application.DTOs.Categories.Requests
 @using Obscura.FinanceTracker.Client.Categories
+@using Obscura.FinanceTracker.Domain.Enums
 
 @inject CategoryClient CategoryClient
 @inject NavigationManager NavigationManager
@@ -54,9 +55,11 @@
                     </MudItem>
                     <MudItem xs="12">
                         @* MudSelect replaces InputSelect for dropdowns *@
-                        <MudSelect @bind-Value="_model.Type" Label="Type" For="@(() => _model.Type)" Required="true" Variant="Variant.Outlined" Margin="Margin.Dense">
-                            <MudSelectItem Value="0">Income</MudSelectItem>
-                            <MudSelectItem Value="1">Expense</MudSelectItem>
+                        <MudSelect @bind-Value="_model.Type" T="TransactionType" Label="Type" For="@(() => _model.Type)" Required="true" Variant="Variant.Outlined" Margin="Margin.Dense">
+                            @foreach (var type in Enum.GetValues<TransactionType>())
+                            {
+                                <MudSelectItem Value="@type">@type</MudSelectItem>
+                            }
                         </MudSelect>
                     </MudItem>
                 </MudGrid>
@@ -94,8 +97,8 @@
         [StringLength(500, ErrorMessage = "Description cannot exceed 500 characters.")]
         public string? Description { get; set; }
 
-        [Range(0, 2, ErrorMessage = "Please select a valid type.")]
-        public int Type { get; set; }
+        [Required(ErrorMessage = "Transaction type is required.")]
+        public TransactionType Type { get; set; }
     }
 
     // ── State ────────────────────────────────────────────────────────

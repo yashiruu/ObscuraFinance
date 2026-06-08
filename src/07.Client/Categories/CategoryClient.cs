@@ -1,5 +1,5 @@
-﻿using Obscura.FinanceTracker.Application.Categories.DTOs;
-using Obscura.FinanceTracker.Application.Categories.Requests;
+﻿using Obscura.FinanceTracker.Application.DTOs.Categories.Requests;
+using Obscura.FinanceTracker.Application.DTOs.Categories.Responses;
 using System.Net;
 using System.Net.Http.Json;
 

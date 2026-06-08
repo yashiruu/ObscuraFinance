@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Obscura.FinanceTracker.Application.Categories.DTOs;
-using Obscura.FinanceTracker.Application.Categories.Requests;
+using Obscura.FinanceTracker.Application.DTOs.Categories.Requests;
+using Obscura.FinanceTracker.Application.DTOs.Categories.Responses;
 using Obscura.FinanceTracker.Domain.Entities;
 using Obscura.FinanceTracker.Domain.Enums;
 using Obscura.FinanceTracker.Infrastructure.Persistence;
@@ -32,7 +32,7 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
                     Id = c.Id,
                     Name = c.Name,
                     Description = c.Description,
-                    Type = (int)c.Type
+                    Type = c.Type
                 })
                 .ToListAsync();
             return Ok(categories);
@@ -48,7 +48,7 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
                     Id = c.Id,
                     Name = c.Name,
                     Description = c.Description,
-                    Type = (int)c.Type
+                    Type = c.Type
                 })
                 .FirstOrDefaultAsync();
 
@@ -67,7 +67,7 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
                     Id = c.Id,
                     Name = c.Name,
                     Description = c.Description,
-                    Type = (int)c.Type
+                    Type = c.Type
                 })
                 .ToListAsync();
 
@@ -84,7 +84,7 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
                     Id = c.Id,
                     Name = c.Name,
                     Description = c.Description,
-                    Type = (int)c.Type
+                    Type = c.Type
                 })
                 .ToListAsync();
             return Ok(categories);
@@ -113,7 +113,7 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
                 Id = category.Id,
                 Name = category.Name,
                 Description = category.Description,
-                Type = (int)category.Type
+                Type = category.Type
             });
         }
 
