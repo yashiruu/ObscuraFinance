@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Obscura.FinanceTracker.Application.Accounts.DTOs;
 using Obscura.FinanceTracker.Application.DTOs.Accounts.Requests;
@@ -30,7 +29,7 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
                     Id = a.Id,
                     Name = a.Name,
                     CurrentBalance = a.CurrentBalance,
-                    Type = a.Type.ToString(),
+                    Type = a.Type,
                     IsActive = a.IsActive
                 })
                 .ToListAsync();
@@ -51,7 +50,7 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
                     CurrentBalance = a.CurrentBalance,
                     InitialBalance = a.InitialBalance,
                     Currency = a.Currency,
-                    Type = a.Type.ToString(),
+                    Type = a.Type,
                     IsActive = a.IsActive,
                     CreatedAt = a.CreatedAt
                 })
@@ -79,21 +78,9 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
                 CreatedBy = Guid.Empty
             };
 
-            var exists = await _dbContext.Accounts.AnyAsync(x => x.Name == request.Name);
+            var exists = await _dbContext.Accounts.AnyAsync(a => a.Name == request.Name);
 
-            if (exists)
-            {
-                return BadRequest(new
-                {
-                    errors = new
-                    {
-                        Name = new[]
-                        {
-                            "Account name already exists."
-                        }
-                    }
-                });
-            }
+            if (exists) return BadRequest(new { errors = new { Name = new[] { "Account name already exists." } } });
 
             _dbContext.Accounts.Add(account);
             await _dbContext.SaveChangesAsync();
@@ -106,7 +93,7 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
                 InitialBalance = account.InitialBalance,
                 CurrentBalance = account.CurrentBalance,
                 Currency = account.Currency,
-                Type = account.Type.ToString(),
+                Type = account.Type,
                 IsActive = account.IsActive,
                 CreatedAt = account.CreatedAt
             };
@@ -117,6 +104,10 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
         [HttpPut("{id:guid}")]
         public async Task<ActionResult> Update(Guid id, UpdateAccountRequest request)
         {
+            var exists = await _dbContext.Accounts.AnyAsync(a => a.Id != id && a.Name == request.Name && !a.IsDeleted);
+
+            if (exists) return BadRequest(new { errors = new { Name = new[] { "Account name already exists."  } } });
+
             var account = await _dbContext.Accounts.FirstOrDefaultAsync(a=> a.Id == id && !a.IsDeleted);
 
             if (account == null) return NotFound();
@@ -126,22 +117,6 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
             account.IsActive = request.IsActive;
             account.UpdatedAt = DateTime.UtcNow;
             account.UpdatedBy = Guid.Empty;
-
-            var exists = await _dbContext.Accounts.AnyAsync(x => x.Name == request.Name);
-
-            if (exists)
-            {
-                return BadRequest(new
-                {
-                    errors = new
-                    {
-                        Name = new[]
-                        {
-                            "Account name already exists."
-                        }
-                    }
-                });
-            }
 
             await _dbContext.SaveChangesAsync();
 

@@ -37,18 +37,13 @@
                 </MudItem>
                 <MudItem xs="12">
                     @* MudSelect is the dropdown component substituting InputSelect *@
-                    <MudSelect T="AccountType"
-                               Label="Type"
-                               @bind-Value="_model.Type"
-                               Variant="Variant.Outlined" Margin="Margin.Dense">
-
+                    <MudSelect @bind-Value="_model.Type" T="AccountType" Label="Type" Required="true" Variant="Variant.Outlined" Margin="Margin.Dense">
                         @foreach (var type in Enum.GetValues<AccountType>())
                         {
                             <MudSelectItem Value="@type">
                                 @type
                             </MudSelectItem>
                         }
-
                     </MudSelect>
                 </MudItem>
                 <MudItem xs="12">
@@ -92,7 +87,7 @@
         [StringLength(100, MinimumLength = 2, ErrorMessage = "Name must be between 2 and 100 characters.")]
         public string Name { get; set; } = string.Empty;
 
-        [Range(0, 3, ErrorMessage = "Please select a valid type.")]
+        [Required(ErrorMessage = "Account Type is required.")]
         public AccountType Type { get; set; }
 
         [Range(0, double.MaxValue, ErrorMessage = "Initial balance must be zero or greater.")]

@@ -1,4 +1,6 @@
-﻿namespace Obscura.FinanceTracker.Application.DTOs.Accounts.Responses
+﻿using Obscura.FinanceTracker.Domain.Enums;
+
+namespace Obscura.FinanceTracker.Application.DTOs.Accounts.Responses
 {
     public class AccountDetailResponse
     {
@@ -10,7 +12,7 @@
         public decimal InitialBalance { get; set; }
 
         public string Currency { get; set; } = string.Empty;
-        public string Type { get; set; } = string.Empty;
+        public AccountType Type { get; set; }
 
         public bool IsActive { get; set; }
 

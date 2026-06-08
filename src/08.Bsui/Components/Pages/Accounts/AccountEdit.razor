@@ -53,13 +53,13 @@
                                       Required="true" Variant="Variant.Outlined" Margin="Margin.Dense" />
                     </MudItem>
                     <MudItem xs="12">
-                        @* MudSelect replaces InputSelect for dropdowns *@
-                        <MudSelect @bind-Value="_model.Type" Label="Type" For="@(() => _model.Type)"
-                                   Required="true" Variant="Variant.Outlined" Margin="Margin.Dense">
-                            <MudSelectItem Value="0">Cash</MudSelectItem>
-                            <MudSelectItem Value="1">Bank Account</MudSelectItem>
-                            <MudSelectItem Value="2">Credit Card</MudSelectItem>
-                            <MudSelectItem Value="3">E-Wallet</MudSelectItem>
+                        <MudSelect @bind-Value="_model.Type" T="AccountType" Label="Type" For="@(() => _model.Type)" Required="true" Variant="Variant.Outlined" Margin="Margin.Dense">
+                            @foreach (var type in Enum.GetValues<AccountType>())
+                            {
+                                <MudSelectItem Value="@type">
+                                    @type
+                                </MudSelectItem>
+                            }
                         </MudSelect>
                     </MudItem>
                     <MudItem xs="12">
@@ -99,7 +99,7 @@
         [StringLength(100, MinimumLength = 2, ErrorMessage = "Name must be between 2 and 100 characters.")]
         public string Name { get; set; } = string.Empty;
 
-        [Range(0, 3, ErrorMessage = "Please select a valid type.")]
+        [Required(ErrorMessage = "Account Type is required.")]
         public AccountType Type { get; set; }
 
         [StringLength(500, ErrorMessage = "Description cannot exceed 500 characters.")]
@@ -128,10 +128,7 @@
 
             // Pre-populate the form with the existing account data
             _model.Name        = account.Name;
-            if (Enum.TryParse<AccountType>(account.Type, out var accountType))
-            {
-                _model.Type = accountType;
-            }
+            _model.Type        = account.Type;
             _model.Description = account.Description;
         }
         catch (Exception)
@@ -166,9 +163,9 @@
             await AccountClient.UpdateAsync(Id, request);
             NavigationManager.NavigateTo("/accounts");
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            _errorMessage = "Failed to save changes. Please check your connection and try again.";
+            _errorMessage = $"Failed to save changes. Please check your connection and try again. \nError Message: {ex}";
         }
         finally
         {
