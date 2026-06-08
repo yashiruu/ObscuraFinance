@@ -17,7 +17,8 @@ namespace Obscura.FinanceTracker.Infrastructure.Persistence.Configurations
                 .HasMaxLength(100);
 
             builder.HasIndex(account => account.Name)
-                .IsUnique();    // Ensure account names are unique
+                .IsUnique()
+                .HasFilter("[IsDeleted] = 0");    // Ensure account names are unique
 
             builder.Property(account => account.Description)
                 .HasMaxLength(500);
