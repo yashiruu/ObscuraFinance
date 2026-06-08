@@ -72,10 +72,10 @@ namespace Obscura.FinanceTracker.Bsui.Themes
                 Default = {
                     FontFamily = ["JetBrains Mono", "monospace"]
                 },
-                H5 = { 
+                H5 = {
                     FontFamily = ["JetBrains Mono", "monospace"],
                     //TextTransform = "lowercase",
-                    FontWeight = "700" 
+                    FontWeight = "700"
                 },
                 H6 = {
                     FontFamily = ["JetBrains Mono", "monospace"],
@@ -92,34 +92,98 @@ namespace Obscura.FinanceTracker.Bsui.Themes
         };
 
         // ========================================================
-        // THEME 3: DRACULA (Dark Blue/Gray & Pink Accent)
+        // THEME 3: OBSCURA TERMINAL (True Black & Green Accent)
+        // Target visual: terminal/hacker aesthetic
+        // Palette sumber: obscura_categories_terminal_mockup.html
         // ========================================================
-        public static MudTheme DraculaTheme { get; } = new MudTheme()
+        public static MudTheme ObscuraTerminalTheme { get; } = new MudTheme()
         {
             PaletteDark = new PaletteDark()
             {
-                Background = "#282A36",
-                Surface = "#44475A",
-                DrawerBackground = "#282A36",
-                AppbarBackground = "#1E1F29",
-                TextPrimary = "#F8F8F2",
-                TextSecondary = "#6272A4",
-                Primary = "#FF79C6",
-                PrimaryContrastText = "#282A36",
-                Success = "#50FA7B",
-                Error = "#FF5555",
-                Warning = "#F1FA8C",
-                LinesDefault = "#6272A4",
-                LinesInputs = "#6272A4",
-                HoverOpacity = 0.15
+                // --- Backgrounds ---
+                Background = "#000000", // .wrap background
+                Surface = "#080808", // thead, statusbar, dialog box
+                DrawerBackground = "#080808", // sidebar drawer
+                AppbarBackground = "#0D0D0D", // appbar / btn-new background
+
+                // --- Text ---
+                TextPrimary = "#F4F4F5", // .td-name, .page-title
+                TextSecondary = "#71717A", // .p-path, .sb-total
+                TextDisabled = "#3F3F46", // .prompt-line, .td-desc, .rec-count
+
+                // --- Accent ---
+                // Primary = green terminal (#10B981): dipakai cursor, badge income,
+                //           .p-user, MudButton primary, MudCheckbox, dll.
+                Primary = "#10B981",
+                PrimaryContrastText = "#000000",
+
+                // Secondary = indigo (#6366F1): dipakai .p-host, chip secondary, dll.
+                Secondary = "#6366F1",
+                SecondaryContrastText = "#FFFFFF",
+
+                // --- Semantic ---
+                Success = "#10B981", // sama dengan Primary (income = hijau)
+                Error = "#EF4444", // badge expense, delete dialog border
+                Warning = "#F59E0B", // warning state umum
+                Info = "#6366F1", // info state (pakai warna host/indigo)
+
+                // --- Lines & Borders ---
+                // LinesDefault: border tabel, thead
+                LinesDefault = "#1C1C1C",
+                // LinesInputs: border input field, btn-new
+                LinesInputs = "#27272A",
+                // TableLines: border antar cell di MudTable
+                TableLines = "#1C1C1C",
+
+                // --- Interaction ---
+                HoverOpacity = 0.06,  // tbody tr:hover sangat subtle
+                ActionDefault = "#52525B", // [edit] button color
+                ActionDisabled = "#3F3F46",
+                ActionDisabledBackground = "#0D0D0D",
+
+                // --- Overlay (delete dialog) ---
+                OverlayDark = "rgba(0,0,0,0.65)",
+                OverlayLight = "rgba(0,0,0,0.35)",
+
+                // --- Divider ---
+                Divider = "#1C1C1C",
+                DividerLight = "#141414",
             },
             PaletteLight = new PaletteLight()
             {
-                Primary = "#FF79C6",
-                AppbarBackground = "#282A36"
+                // Light mode tidak dipakai untuk tema ini,
+                // tapi tetap diisi agar tidak fallback ke default MudBlazor
+                Primary = "#059669", // emerald-600 untuk light mode
+                AppbarBackground = "#111111",
             },
-            Typography = new Typography(),
-            LayoutProperties = new LayoutProperties() { DefaultBorderRadius = "8px" }
+            Typography = new Typography()
+            {
+                Default = { FontFamily = ["JetBrains Mono", "Fira Code", "monospace"] },
+                H5 = {
+                    FontFamily = ["JetBrains Mono", "monospace"],
+                    FontWeight = "700"
+                },
+                H6 = {
+                    FontFamily = ["JetBrains Mono", "monospace"],
+                    FontWeight = "700"
+                },
+                Button = {
+                    FontFamily = ["JetBrains Mono", "monospace"],
+                    FontWeight = "500",
+                    // TextTransform diset ke "lowercase" di scoped CSS per komponen
+                    // agar tidak override global MudBlazor
+                },
+                Caption = {
+                    FontFamily = ["JetBrains Mono", "monospace"],
+                    FontSize   = "0.7rem",
+                    LetterSpacing = "0.1em"
+                }
+            },
+            LayoutProperties = new LayoutProperties()
+            {
+                // 2px = sharp corners ala terminal, bukan rounded Material
+                DefaultBorderRadius = "2px"
+            }
         };
     }
 }

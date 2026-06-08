@@ -29,8 +29,8 @@
         @* Theme Selector Dropdown Menu (Using ColorLens icon) *@
         <MudMenu Icon="@Icons.Material.Filled.ColorLens" Color="Color.Inherit" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
             <MudMenuItem OnClick="@(() => SetThemeAsync("obsidian"))">Obsidian Theme</MudMenuItem>
-            <MudMenuItem OnClick="@(() => SetThemeAsync("cobalt"))">Cobalt Theme</MudMenuItem>
-            <MudMenuItem OnClick="@(() => SetThemeAsync("dracula"))">Dracula Theme</MudMenuItem>
+            <MudMenuItem OnClick="@(() => SetThemeAsync("Cobalt"))">Cobalt Theme</MudMenuItem>
+            <MudMenuItem OnClick="@(() => SetThemeAsync("Terminal"))">Terminal Theme</MudMenuItem>
         </MudMenu>
     </MudAppBar>
     
@@ -113,8 +113,8 @@
     {
         return themeName switch
         {
-            "cobalt" => AppThemes.CobaltTheme,
-            "dracula" => AppThemes.DraculaTheme,
+            "Cobalt" => AppThemes.CobaltTheme,
+            "Terminal" => AppThemes.ObscuraTerminalTheme,
             _ => AppThemes.ObsidianTheme
         };
     }
