@@ -10,17 +10,32 @@ namespace Obscura.FinanceTracker.Infrastructure.Persistence.Configurations
         {
             builder.ToTable("Transactions");
 
-            builder.HasKey(x => x.Id);
+            builder.HasKey(t => t.Id);
 
-            builder.Property(x => x.Title)
+            builder.Property(t => t.Date)
+                .IsRequired()
+                .HasDefaultValueSql("GETUTCDATE()");
+
+            builder.Property(t => t.Name)
                 .IsRequired()
                 .HasMaxLength(200);
 
-            builder.Property(x => x.Amount)
+            builder.Property(t => t.Amount)
+                .IsRequired()
                 .HasPrecision(18, 2);
 
-            builder.Property(x => x.Type)
+            builder.Property(t => t.Type)
+                .IsRequired()
                 .HasConversion<string>();
+
+            // Relation
+            builder.HasOne(t => t.Account)
+                .WithMany()
+                .HasForeignKey(t => t.AccountId);
+
+            builder.HasOne(t => t.Category)
+                .WithMany()
+                .HasForeignKey(t => t.CategoryId);
         }
     }
 }
