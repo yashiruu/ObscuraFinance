@@ -1,0 +1,262 @@
+@page "/transactions/edit/{Id:guid}"
+
+@using System.ComponentModel.DataAnnotations
+@using Obscura.FinanceTracker.Application.DTOs.Transactions.Requests
+@using Obscura.FinanceTracker.Application.DTOs.Transactions.Responses
+@using Obscura.FinanceTracker.Application.DTOs.Accounts.Responses
+@using Obscura.FinanceTracker.Application.DTOs.Categories.Responses
+@using Obscura.FinanceTracker.Client.Transactions
+@using Obscura.FinanceTracker.Client.Accounts
+@using Obscura.FinanceTracker.Client.Categories
+@using Obscura.FinanceTracker.Domain.Enums
+
+@inject TransactionClient TransactionClient
+@inject AccountClient     AccountClient
+@inject CategoryClient    CategoryClient
+@inject NavigationManager NavigationManager
+
+<PageTitle>Edit Transaction — Obscura</PageTitle>
+
+@* MudContainer centers the layout and controls maximum width *@
+<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-6">
+
+    @* MudToolBar acts as the page header *@
+    <MudToolBar Class="mb-4">
+        <MudButton StartIcon="@Icons.Material.Filled.ArrowBack" Href="/transactions" Color="Color.Default">
+            Transactions
+        </MudButton>
+        <MudSpacer />
+        <MudText Typo="Typo.h5">Edit Transaction</MudText>
+    </MudToolBar>
+
+    @if (_isLoading)
+    {
+        @* MudProgressCircular shows a material design loading spinner *@
+        <div class="d-flex justify-center my-8">
+            <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+        </div>
+    }
+    else if (_notFound)
+    {
+        @* MudAlert for a prominent not-found message *@
+        <MudAlert Severity="Severity.Warning" Class="my-8">
+            Transaction not found.
+            <MudButton Variant="Variant.Text" Href="/transactions" Class="ml-2">Back to Transactions</MudButton>
+        </MudAlert>
+    }
+    else
+    {
+        @* MudPaper wraps the form into a clean material card *@
+        <MudPaper Class="pa-6" Elevation="3">
+            <EditForm Model="@_model" OnValidSubmit="HandleSubmitAsync">
+                <DataAnnotationsValidator />
+
+                @* MudGrid handles the responsive 12-column layout *@
+                <MudGrid>
+                    <MudItem xs="12">
+                        @* MudTextField — 'For' attribute hooks into DataAnnotationsValidator *@
+                        <MudTextField @bind-Value="_model.Name" Label="Name" For="@(() => _model.Name)"
+                                      Required="true" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                    </MudItem>
+                    <MudItem xs="12">
+                        @* MudDatePicker bridges to DateTime via a nullable wrapper property *@
+                        <MudDatePicker @bind-Date="_pickedDate" Label="Date"
+                                       DateFormat="dd/MM/yyyy" Required="true"
+                                       Variant="Variant.Outlined" Margin="Margin.Dense" />
+                    </MudItem>
+                    <MudItem xs="12">
+                        <MudNumericField @bind-Value="_model.Amount" Label="Amount"
+                                         For="@(() => _model.Amount)" Min="0.01m"
+                                         Variant="Variant.Outlined" Margin="Margin.Dense"
+                                         Adornment="Adornment.Start" AdornmentText="Rp" />
+                    </MudItem>
+                    <MudItem xs="12">
+                        @* MudSelect replaces InputSelect for dropdowns *@
+                        @* Value (one-way) + ValueChanged is used instead of @bind-Value to avoid duplicate ValueChanged *@
+                        <MudSelect Value="_model.Type" T="TransactionType" Label="Type"
+                                   For="@(() => _model.Type)" Required="true"
+                                   Variant="Variant.Outlined" Margin="Margin.Dense"
+                                   ValueChanged="OnTypeChanged">
+                            @foreach (var type in Enum.GetValues<TransactionType>())
+                            {
+                                <MudSelectItem Value="@type">@type</MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudItem>
+                    <MudItem xs="12">
+                        @* Category list is filtered by the selected TransactionType *@
+                        <MudSelect @bind-Value="_model.CategoryId" T="Guid" Label="Category"
+                                   For="@(() => _model.CategoryId)" Required="true"
+                                   Variant="Variant.Outlined" Margin="Margin.Dense">
+                            @foreach (var category in _filteredCategories)
+                            {
+                                <MudSelectItem Value="@category.Id">@category.Name</MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudItem>
+                    <MudItem xs="12">
+                        <MudSelect @bind-Value="_model.AccountId" T="Guid" Label="Account"
+                                   For="@(() => _model.AccountId)" Required="true"
+                                   Variant="Variant.Outlined" Margin="Margin.Dense">
+                            @foreach (var account in _accounts)
+                            {
+                                <MudSelectItem Value="@account.Id">@account.Name</MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudItem>
+                </MudGrid>
+
+                @if (_errorMessage is not null)
+                {
+                    <MudAlert Severity="Severity.Error" Class="mt-4">@_errorMessage</MudAlert>
+                }
+
+                @* Container for form action buttons *@
+                <MudCardActions Class="mt-6 px-0">
+                    <MudButton Variant="Variant.Text" OnClick="Cancel" Disabled="@_isSubmitting">Cancel</MudButton>
+                    <MudSpacer />
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Disabled="@_isSubmitting">
+                        @(_isSubmitting ? "Saving…" : "Save Changes")
+                    </MudButton>
+                </MudCardActions>
+            </EditForm>
+        </MudPaper>
+    }
+</MudContainer>
+
+@code {
+    // ── Route parameter ──────────────────────────────────────────────
+    [Parameter]
+    public Guid Id { get; set; }
+
+    // ── Local validation model wrapping TransactionUpdateRequest ─────
+    private sealed class EditTransactionFormModel
+    {
+        [Required(ErrorMessage = "Name is required.")]
+        [StringLength(200, MinimumLength = 2, ErrorMessage = "Name must be between 2 and 200 characters.")]
+        public string Name { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Date is required.")]
+        public DateTime Date { get; set; } = DateTime.Today;
+
+        [Range(0.01, double.MaxValue, ErrorMessage = "Amount must be greater than zero.")]
+        public decimal Amount { get; set; }
+
+        [Required(ErrorMessage = "Transaction type is required.")]
+        public TransactionType Type { get; set; }
+
+        [Required(ErrorMessage = "Category is required.")]
+        public Guid CategoryId { get; set; }
+
+        [Required(ErrorMessage = "Account is required.")]
+        public Guid AccountId { get; set; }
+    }
+
+    // ── State ────────────────────────────────────────────────────────
+    private readonly EditTransactionFormModel _model = new();
+
+    // MudDatePicker requires DateTime? so we bridge through this property
+    private DateTime? _pickedDate
+    {
+        get => _model.Date;
+        set => _model.Date = value ?? DateTime.Today;
+    }
+
+    private List<AccountListResponse>  _accounts           = new();
+    private List<CategoryDto> _allCategories      = new();
+    private List<CategoryDto> _filteredCategories = new();
+    private bool                   _isLoading          = true;
+    private bool                   _notFound           = false;
+    private bool                   _isSubmitting       = false;
+    private string?                _errorMessage;
+
+    // ── Lifecycle ────────────────────────────────────────────────────
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Load transaction, accounts, and categories in parallel
+            var transactionTask = TransactionClient.GetByIdAsync(Id);
+            var accountsTask    = AccountClient.GetAllAsync();
+            var categoriesTask  = CategoryClient.GetAllAsync();
+
+            await Task.WhenAll(transactionTask, accountsTask, categoriesTask);
+
+            var transaction = await transactionTask;
+
+            if (transaction is null)
+            {
+                _notFound = true;
+                return;
+            }
+
+            _accounts      = await accountsTask   ?? new();
+            _allCategories = await categoriesTask ?? new();
+
+            // Pre-populate the form with the existing transaction data
+            _model.Name       = transaction.Name;
+            _model.Date       = transaction.Date;
+            _model.Amount     = transaction.Amount;
+            _model.Type       = transaction.Type;
+            _model.CategoryId = transaction.CategoryId;
+            _model.AccountId  = transaction.AccountId;
+
+            FilterCategories(_model.Type);
+        }
+        catch (Exception)
+        {
+            _notFound = true;
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    // ── Helpers ──────────────────────────────────────────────────────
+    private void OnTypeChanged(TransactionType type)
+    {
+        _model.Type       = type;
+        _model.CategoryId = Guid.Empty;
+        FilterCategories(type);
+    }
+
+    private void FilterCategories(TransactionType type)
+        => _filteredCategories = _allCategories.Where(c => c.Type == type).ToList();
+
+    // ── Handlers ─────────────────────────────────────────────────────
+    private async Task HandleSubmitAsync()
+    {
+        _isSubmitting = true;
+        _errorMessage = null;
+
+        try
+        {
+            var request = new TransactionUpdateRequest
+            {
+                Date       = _model.Date,
+                Name       = _model.Name.Trim(),
+                Amount     = _model.Amount,
+                Type       = _model.Type,
+                CategoryId = _model.CategoryId,
+                AccountId  = _model.AccountId,
+                UpdatedAt  = DateTime.UtcNow,
+                UpdatedBy  = Guid.Empty
+            };
+
+            await TransactionClient.UpdateAsync(Id, request);
+            NavigationManager.NavigateTo("/transactions");
+        }
+        catch (Exception)
+        {
+            _errorMessage = "Failed to save changes. Please check your connection and try again.";
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
+    }
+
+    private void Cancel()
+        => NavigationManager.NavigateTo("/transactions");
+}

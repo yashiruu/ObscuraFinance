@@ -1,0 +1,305 @@
+﻿@page "/transactions"
+
+@using Obscura.FinanceTracker.Application.DTOs.Transactions
+@using Obscura.FinanceTracker.Application.DTOs.Transactions.Responses
+@using Obscura.FinanceTracker.Client.Transactions
+
+@inject TransactionClient TransactionClient
+@inject NavigationManager NavigationManager
+
+<PageTitle>Transactions — Obscura</PageTitle>
+
+@* MudContainer centers the page content and restricts max width (Lg = Large) *@
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-6">
+
+    @* MudToolBar acts as the page header. *@
+    <MudToolBar Class="mb-4">
+        <MudText Typo="Typo.h5" Class="mr-4">Transaction</MudText>
+        @if (!_isLoading)
+        {
+            @* MudText for the item count. Color.Secondary makes it look muted/grayed out. *@
+            <MudText Typo="Typo.body2" Color="Color.Secondary">
+                @_transactions.Count @(_transactions.Count == 1 ? "item" : "items")
+            </MudText>
+        }
+        @* MudSpacer pushes the following elements (like the New button) to the far right *@
+        <MudSpacer />
+        @* MudButton triggers navigation to the create page. StartIcon adds a Material icon. *@
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="NavigateToCreate">
+            New Transaction
+        </MudButton>
+    </MudToolBar>
+
+    @if (_errorMessage is not null)
+    {
+        @* MudAlert shows a stylized error banner instead of a custom div *@
+        <MudAlert Severity="Severity.Error" Class="mb-4">@_errorMessage</MudAlert>
+    }
+
+    <MudTable Items="@_transactions" Loading="@_isLoading" Hover="true" Breakpoint="Breakpoint.Sm" Elevation="3">
+        <NoRecordsContent>
+            @if (!_isLoading)
+            {
+                <MudText Typo="Typo.body1" Align="Align.Center" Class="py-8">No accounts defined yet.</MudText>
+            }
+        </NoRecordsContent>
+        <HeaderContent>
+            @* MudTh represents table header cells *@
+            <MudTh>Date</MudTh>
+            <MudTh>Name</MudTh>
+            <MudTh>Amount</MudTh>
+            <MudTh>Type</MudTh>
+            <MudTh>Category</MudTh>
+            <MudTh>Account</MudTh>
+            <MudTh Style="text-align: right;">Actions</MudTh>
+        </HeaderContent>
+        <RowTemplate Context="transaction">
+            @* MudTd represents table data cells. DataLabel is used for mobile view when Breakpoint hits *@
+            <MudTd DataLabel="Date">
+                <MudText Typo="Typo.subtitle2">@transaction.Date.ToString("dd MMM yyyy")</MudText>
+            </MudTd>
+            <MudTd DataLabel="Name">
+                <MudText Typo="Typo.subtitle2">@transaction.Name</MudText>
+            </MudTd>
+            <MudTd DataLabel="Amount">
+                <MudText Typo="Typo.subtitle2">@transaction.Amount</MudText>
+            </MudTd>
+            <MudTd DataLabel="Type">
+                <MudText Typo="Typo.body2">@transaction.Type</MudText>
+            </MudTd>
+            <MudTd DataLabel="Category">
+                <MudText Typo="Typo.body2">@transaction.CategoryName</MudText>
+            </MudTd>
+            <MudTd DataLabel="Account">
+                <MudText Typo="Typo.body2">@transaction.AccountName</MudText>
+            </MudTd>
+            <MudTd DataLabel="Actions" Style="text-align: right;">
+                <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye" Size="Size.Small" Style="@($"color:{Colors.Green.Accent4};")" OnClick="() => OpenDetail(transaction.Id)" />
+                <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Info" OnClick="() => NavigateToEdit(transaction.Id)" />
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => OpenDeleteConfirm(transaction)" />
+            </MudTd>
+        </RowTemplate>
+        <LoadingContent>
+            <MudText>Loading transactions...</MudText>
+        </LoadingContent>
+    </MudTable>
+
+    @* ── Detail Dialog ────────────────────────────────────────────────────────────
+         Opens when the Info button in the Actions column is clicked.               *@
+    <MudDialog @bind-Visible="_showDetail" Options="new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true }">
+        <TitleContent>
+            <MudText Typo="Typo.h6">
+                <MudIcon Icon="@Icons.Material.Filled.ReceiptLong" Class="mr-2" Style="vertical-align: text-bottom;" />
+                Transaction Detail
+            </MudText>
+        </TitleContent>
+        <DialogContent>
+            @if (_isDetailLoading)
+            {
+                @* Show a centered spinner while the detail request is in flight *@
+                <div class="d-flex justify-center py-6">
+                    <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+                </div>
+            }
+            else if (_detailErrorMessage is not null)
+            {
+                <MudAlert Severity="Severity.Error">@_detailErrorMessage</MudAlert>
+            }
+            else if (_selectedTransaction is not null)
+            {
+                @* MudSimpleTable gives a clean key–value layout without needing a full MudTable *@
+                <MudSimpleTable Hover="false" Elevation="0">
+                    <tbody>
+                        <tr>
+                            <td><MudText Typo="Typo.body2" Color="Color.Secondary">Date</MudText></td>
+                            <td><MudText Typo="Typo.body2">@_selectedTransaction.Date.ToString("dd MMM yyyy")</MudText></td>
+                        </tr>
+                        <tr>
+                            <td><MudText Typo="Typo.body2" Color="Color.Secondary">Name</MudText></td>
+                            <td><MudText Typo="Typo.body2">@_selectedTransaction.Name</MudText></td>
+                        </tr>
+                        <tr>
+                            <td><MudText Typo="Typo.body2" Color="Color.Secondary">Amount</MudText></td>
+                            <td><MudText Typo="Typo.body2">@_selectedTransaction.Amount</MudText></td>
+                        </tr>
+                        <tr>
+                            <td><MudText Typo="Typo.body2" Color="Color.Secondary">Type</MudText></td>
+                            <td><MudText Typo="Typo.body2">@_selectedTransaction.Type</MudText></td>
+                        </tr>
+                        <tr>
+                            <td><MudText Typo="Typo.body2" Color="Color.Secondary">CategoryName</MudText></td>
+                            <td><MudText Typo="Typo.body2">@_selectedTransaction.CategoryName</MudText></td>
+                        </tr>
+                        <tr>
+                            <td><MudText Typo="Typo.body2" Color="Color.Secondary">AccountName</MudText></td>
+                            <td><MudText Typo="Typo.body2">@_selectedTransaction.AccountName</MudText></td>
+                        </tr>
+                        <tr>
+                            <td><MudText Typo="Typo.body2" Color="Color.Secondary">Created At</MudText></td>
+                            <td><MudText Typo="Typo.body2">@_selectedTransaction.CreatedAt.ToString("dd MMM yyyy")</MudText></td>
+                        </tr>
+                        <tr>
+                            <td><MudText Typo="Typo.body2" Color="Color.Secondary">Updated At</MudText></td>
+                            <td><MudText Typo="Typo.body2">@(_selectedTransaction.UpdatedAt.HasValue ? _selectedTransaction.UpdatedAt.Value.ToString("dd MMM yyyy") : string.Empty)</MudText></td>
+                        </tr>
+                    </tbody>
+                </MudSimpleTable>
+            }
+        </DialogContent>
+        <DialogActions>
+            @if (_selectedTransaction is not null && !_isDetailLoading)
+            {
+                <MudButton StartIcon="@Icons.Material.Filled.Edit" Color="Color.Info"
+                           OnClick="() => NavigateToEdit(_selectedTransaction.Id)">
+                    Edit
+                </MudButton>
+            }
+            <MudButton OnClick="CloseDetail">Close</MudButton>
+        </DialogActions>
+    </MudDialog>
+
+    @* ── Delete Confirm Dialog ────────────────────────────────────────────────────
+         MudDialog acts as our inline modal replacing custom overlay CSS.           *@
+    <MudDialog @bind-Visible="_showDeleteConfirm" Options="new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Small }">
+        <TitleContent>
+            <MudText Typo="Typo.h6">
+                <MudIcon Icon="@Icons.Material.Filled.Warning" Color="Color.Warning" Class="mr-2" Style="vertical-align: text-bottom;" />
+                Delete Transaction
+            </MudText>
+        </TitleContent>
+        <DialogContent>
+            <MudText>
+                Are you sure you want to delete <strong>@_pendingDelete?.Name</strong>? This action cannot be undone.
+            </MudText>
+        </DialogContent>
+        <DialogActions>
+            <MudButton OnClick="CloseDeleteConfirm" Disabled="@_isDeleting">Cancel</MudButton>
+            <MudButton Color="Color.Error" Variant="Variant.Filled" OnClick="ExecuteDelete" Disabled="@_isDeleting">
+                @(_isDeleting ? "Deleting..." : "Delete")
+            </MudButton>
+        </DialogActions>
+    </MudDialog>
+
+</MudContainer>
+
+@code {
+    // ── State ────────────────────────────────────────────────────────
+    private List<TransactionListResponse> _transactions = [];
+    private bool _isLoading = true;
+    private string? _errorMessage;
+
+    // Detail dialog state
+    private bool _showDetail = false;
+    private TransactionDetailResponse? _selectedTransaction;
+    private bool _isDetailLoading = false;
+    private string? _detailErrorMessage;
+
+    // Delete confirm state
+    private bool _showDeleteConfirm = false;
+    private TransactionListResponse? _pendingDelete;
+    private bool _isDeleting = false;
+
+    // ── Lifecycle ────────────────────────────────────────────────────
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _isLoading = true;
+        _errorMessage = null;
+        try
+        {
+            _transactions = (await TransactionClient.GetAllAsync()).ToList();
+        }
+        catch (Exception)
+        {
+            _errorMessage = "Failed to load transactions.";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    // ── Navigation ───────────────────────────────────────────────────
+    private void NavigateToCreate()
+        => NavigationManager.NavigateTo("/transactions/create");
+
+    private void NavigateToEdit(Guid id)
+        => NavigationManager.NavigateTo($"/transactions/edit/{id}");
+
+    // ── Detail Flow ──────────────────────────────────────────────────
+    private async Task OpenDetail(Guid id)
+    {
+        _selectedTransaction = null;
+        _detailErrorMessage = null;
+        _isDetailLoading = true;
+        _showDetail = true;
+
+        try
+        {
+            _selectedTransaction = await TransactionClient.GetByIdAsync(id);
+
+            if (_selectedTransaction is null)
+                _detailErrorMessage = "Account not found.";
+        }
+        catch (Exception)
+        {
+            _detailErrorMessage = "Failed to load account details.";
+        }
+        finally
+        {
+            _isDetailLoading = false;
+        }
+    }
+
+    private void CloseDetail()
+    {
+        _showDetail = false;
+        _selectedTransaction = null;
+        _detailErrorMessage = null;
+    }
+
+    // ── Delete Flow ──────────────────────────────────────────────────
+    private void OpenDeleteConfirm(TransactionListResponse account)
+    {
+        _pendingDelete = account;
+        _showDeleteConfirm = true;
+        _errorMessage = null;
+    }
+
+    private void CloseDeleteConfirm()
+    {
+        if (_isDeleting) return;
+        _pendingDelete = null;
+        _showDeleteConfirm = false;
+    }
+
+    private async Task ExecuteDelete()
+    {
+        if (_pendingDelete is null) return;
+
+        _isDeleting = true;
+        _errorMessage = null;
+
+        try
+        {
+            await TransactionClient.DeleteAsync(_pendingDelete.Id);
+            _showDeleteConfirm = false;
+            _pendingDelete = null;
+            await LoadAsync();
+        }
+        catch (Exception)
+        {
+            _errorMessage = "Failed to delete account. Please try again.";
+            _showDeleteConfirm = false;
+            _pendingDelete = null;
+        }
+        finally
+        {
+            _isDeleting = false;
+        }
+    }
+}
