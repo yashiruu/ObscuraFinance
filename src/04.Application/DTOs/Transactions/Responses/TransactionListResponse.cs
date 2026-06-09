@@ -10,6 +10,8 @@ namespace Obscura.FinanceTracker.Application.DTOs.Transactions.Responses
         public decimal Amount { get; set; }
         public TransactionType Type { get; set; }
         public Guid CategoryId { get; set; }
+        public string CategoryName { get; set; } = string.Empty;
         public Guid AccountId { get; set; }
+        public string AccountName { get; set; } = string.Empty;
     }
 }

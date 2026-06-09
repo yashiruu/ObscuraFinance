@@ -31,7 +31,9 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
                     Amount = t.Amount,
                     Type = t.Type,
                     CategoryId = t.CategoryId,
-                    AccountId = t.AccountId
+                    CategoryName = t.Category!.Name,
+                    AccountId = t.AccountId,
+                    AccountName = t.Account!.Name
                 })
                 .ToListAsync();
 
