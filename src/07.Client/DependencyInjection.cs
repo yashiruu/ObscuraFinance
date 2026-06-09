@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Obscura.FinanceTracker.Client.Accounts;
 using Obscura.FinanceTracker.Client.Categories;
+using Obscura.FinanceTracker.Client.Transactions;
 
 namespace Obscura.FinanceTracker.Client;
 
@@ -14,6 +15,10 @@ public static class DependencyInjection
         });
 
         services.AddHttpClient<AccountClient>(client =>
+        {
+            client.BaseAddress = new Uri(apiBaseUrl);
+        });
+        services.AddHttpClient<TransactionClient>(client =>
         {
             client.BaseAddress = new Uri(apiBaseUrl);
         });

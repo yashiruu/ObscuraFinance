@@ -14,7 +14,7 @@ namespace Obscura.FinanceTracker.Client.Transactions
             _httpClient = httpClient;
         }
 
-        public async Task<List<TransactionListResponse>> GetAll()
+        public async Task<List<TransactionListResponse>> GetAllAsync()
         {
             var response = await _httpClient.GetAsync(BaseUrl);
 
