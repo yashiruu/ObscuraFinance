@@ -13,10 +13,10 @@ namespace Obscura.FinanceTracker.Application.DTOs.Transactions.Responses
         public string CategoryName { get; set; } = String.Empty;
         public Guid AccountId { get; set; }
         public string AccountName { get; set; } = String.Empty;
-        public DateTime CreateAt { get; set; }
-        public Guid CreatedBy { get; set; }
-        public DateTime UpdatedAt { get; set; }
-        public Guid UpdatedBy { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public Guid? CreatedBy { get; set; }
+        public DateTime? UpdatedAt { get; set; }
+        public Guid? UpdatedBy { get; set; }
         public bool IsDeleted { get; set; } = false;
     }
 }

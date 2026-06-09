@@ -6,9 +6,9 @@ namespace Obscura.FinanceTracker.Application.DTOs.Transactions.Responses
     {
         public Guid Id { get; set; }
         public DateTime Date { get; set; }
-        public TransactionType Name { get; set; } 
+        public string Name { get; set; } = string.Empty;
         public decimal Amount { get; set; }
-        public string Type { get; set; } = String.Empty;
+        public TransactionType Type { get; set; }
         public Guid CategoryId { get; set; }
         public Guid AccountId { get; set; }
     }
