@@ -87,7 +87,8 @@
                         @* Category list is filtered by the selected TransactionType *@
                         <MudSelect @bind-Value="_model.CategoryId" T="Guid" Label="Category"
                                    For="@(() => _model.CategoryId)" Required="true"
-                                   Variant="Variant.Outlined" Margin="Margin.Dense">
+                                   Variant="Variant.Outlined" Margin="Margin.Dense"
+                                   ToStringFunc="@(id => _filteredCategories.FirstOrDefault(c => c.Id == id)?.Name ?? "Something wrong")">
                             @foreach (var category in _filteredCategories)
                             {
                                 <MudSelectItem Value="@category.Id">@category.Name</MudSelectItem>
@@ -124,7 +125,7 @@
     }
 </MudContainer>
 
-@code {
+    @code {
     // ── Route parameter ──────────────────────────────────────────────
     [Parameter]
     public Guid Id { get; set; }
@@ -182,16 +183,14 @@
 
             await Task.WhenAll(transactionTask, accountsTask, categoriesTask);
 
-            var transaction = await transactionTask;
+            var transaction = transactionTask.Result;
+            var accounts = accountsTask.Result ?? new();
+            var allCategories = categoriesTask.Result ?? new();
 
-            if (transaction is null)
-            {
-                _notFound = true;
-                return;
-            }
+            if (transaction is null) { _notFound = true; return; }
 
-            _accounts      = await accountsTask   ?? new();
-            _allCategories = await categoriesTask ?? new();
+            _accounts = accounts;
+            _allCategories = allCategories;
 
             // Pre-populate the form with the existing transaction data
             _model.Name       = transaction.Name;
@@ -210,6 +209,7 @@
         finally
         {
             _isLoading = false;
+            StateHasChanged();
         }
     }
 

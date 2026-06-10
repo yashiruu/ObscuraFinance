@@ -60,40 +60,40 @@
                         @* MudNumericField is the typed numeric variant of MudTextField *@
                         <MudNumericField @bind-Value="_model.Amount" Label="Amount"
                                          For="@(() => _model.Amount)" Min="0.01m"
-                                         Variant="Variant.Outlined" Margin="Margin.Dense"
-                                         Adornment="Adornment.Start" AdornmentText="Rp" />
+                                         Variant="Variant.Outlined" Margin="Margin.Dense" HideSpinButtons="true"
+                                         Adornment="Adornment.Start" AdornmentText="Rp" Placeholder="0"/>
                     </MudItem>
                     <MudItem xs="12">
                         @* MudSelect is the dropdown component substituting InputSelect *@
                         @* Value (one-way) + ValueChanged is used instead of @bind-Value to avoid duplicate ValueChanged *@
-                        <MudSelect Value="_model.Type" T="TransactionType" Label="Type"
+                        <MudSelect Value="_model.Type" T="TransactionType?" Label="Type"
                                    For="@(() => _model.Type)" Required="true"
                                    Variant="Variant.Outlined" Margin="Margin.Dense"
-                                   ValueChanged="OnTypeChanged">
+                                   ValueChanged="OnTypeChanged" Placeholder="Select type">
                             @foreach (var type in Enum.GetValues<TransactionType>())
                             {
-                                <MudSelectItem Value="@type">@type</MudSelectItem>
+                                <MudSelectItem T="TransactionType?" Value="@type">@type</MudSelectItem>
                             }
                         </MudSelect>
                     </MudItem>
                     <MudItem xs="12">
                         @* Category list is filtered by the selected TransactionType *@
-                        <MudSelect @bind-Value="_model.CategoryId" T="Guid" Label="Category"
+                        <MudSelect @bind-Value="_model.CategoryId" T="Guid?" Label="Category"
                                    For="@(() => _model.CategoryId)" Required="true"
-                                   Variant="Variant.Outlined" Margin="Margin.Dense">
+                                   Variant="Variant.Outlined" Margin="Margin.Dense" Placeholder="Select Category">
                             @foreach (var category in _filteredCategories)
                             {
-                                <MudSelectItem Value="@category.Id">@category.Name</MudSelectItem>
+                                <MudSelectItem T="Guid?" Value="@category.Id">@category.Name</MudSelectItem>
                             }
                         </MudSelect>
                     </MudItem>
                     <MudItem xs="12">
-                        <MudSelect @bind-Value="_model.AccountId" T="Guid" Label="Account"
+                        <MudSelect @bind-Value="_model.AccountId" T="Guid?" Label="Account"
                                    For="@(() => _model.AccountId)" Required="true"
-                                   Variant="Variant.Outlined" Margin="Margin.Dense">
+                                   Variant="Variant.Outlined" Margin="Margin.Dense" Placeholder="Select Account">
                             @foreach (var account in _accounts)
                             {
-                                <MudSelectItem Value="@account.Id">@account.Name</MudSelectItem>
+                                <MudSelectItem T="Guid?" Value="@account.Id">@account.Name</MudSelectItem>
                             }
                         </MudSelect>
                     </MudItem>
@@ -118,7 +118,7 @@
     }
 </MudContainer>
 
-@code {
+    @code {
     // ── Local validation model wrapping TransactionCreateRequest ─────
     private sealed class CreateTransactionFormModel
     {
@@ -127,19 +127,20 @@
         public string Name { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Date is required.")]
-        public DateTime Date { get; set; } = DateTime.Today;
+        public DateTime? Date { get; set; } = DateTime.Today;
 
+        [Required(ErrorMessage ="Amoint is required")]
         [Range(0.01, double.MaxValue, ErrorMessage = "Amount must be greater than zero.")]
-        public decimal Amount { get; set; }
+        public decimal? Amount { get; set; }
 
         [Required(ErrorMessage = "Transaction type is required.")]
-        public TransactionType Type { get; set; }
+        public TransactionType? Type { get; set; }
 
         [Required(ErrorMessage = "Category is required.")]
-        public Guid CategoryId { get; set; }
+        public Guid? CategoryId { get; set; }
 
         [Required(ErrorMessage = "Account is required.")]
-        public Guid AccountId { get; set; }
+        public Guid? AccountId { get; set; }
     }
 
     // ── State ────────────────────────────────────────────────────────
@@ -149,15 +150,15 @@
     private DateTime? _pickedDate
     {
         get => _model.Date;
-        set => _model.Date = value ?? DateTime.Today;
+        set => _model.Date = value;
     }
 
-    private List<AccountListResponse>  _accounts           = new();
-    private List<CategoryDto> _allCategories      = new();
-    private List<CategoryDto    > _filteredCategories = new();
-    private bool                   _isLoading          = true;
-    private bool                   _isSubmitting       = false;
-    private string?                _errorMessage;
+    private List<AccountListResponse> _accounts = new();
+    private List<CategoryDto> _allCategories = new();
+    private List<CategoryDto> _filteredCategories = new();
+    private bool _isLoading = true;
+    private bool _isSubmitting = false;
+    private string? _errorMessage;
 
     // ── Lifecycle ────────────────────────────────────────────────────
     protected override async Task OnInitializedAsync()
@@ -165,15 +166,14 @@
         try
         {
             // Load accounts and categories in parallel before rendering the form
-            var accountsTask    = AccountClient.GetAllAsync();
-            var categoriesTask  = CategoryClient.GetAllAsync();
+            var accountsTask   = AccountClient.GetAllAsync();
+            var categoriesTask = CategoryClient.GetAllAsync();
 
             await Task.WhenAll(accountsTask, categoriesTask);
 
             _accounts      = await accountsTask    ?? new();
             _allCategories = await categoriesTask  ?? new();
-
-            FilterCategories(_model.Type);
+            _filteredCategories = _allCategories;
         }
         catch (Exception)
         {
@@ -186,11 +186,16 @@
     }
 
     // ── Helpers ──────────────────────────────────────────────────────
-    private void OnTypeChanged(TransactionType type)
+    private void OnTypeChanged(TransactionType? type)
     {
-        _model.Type       = type;
-        _model.CategoryId = Guid.Empty;
-        FilterCategories(type);
+        _errorMessage = null;
+        _model.Type = type;
+        _model.CategoryId = null;
+        
+        if (type is not null)
+            FilterCategories(type.Value);
+        else
+            _filteredCategories = new();
     }
 
     private void FilterCategories(TransactionType type)
@@ -204,15 +209,15 @@
 
         try
         {
-            var request = new TransactionCreateRequest
-            {
-                Date       = _model.Date,
-                Name       = _model.Name.Trim(),
-                Amount     = _model.Amount,
-                Type       = _model.Type,
-                CategoryId = _model.CategoryId,
-                AccountId  = _model.AccountId
-            };
+                var request = new TransactionCreateRequest
+                {
+                    Date       = _model.Date!.Value,
+                    Name       = _model.Name.Trim(),
+                    Amount     = _model.Amount!.Value,
+                    Type       = _model.Type!.Value,
+                    CategoryId = _model.CategoryId!.Value,
+                    AccountId  = _model.AccountId!.Value
+                };
 
             await TransactionClient.CreateAsync(request);
             NavigationManager.NavigateTo("/transactions");
