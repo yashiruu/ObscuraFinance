@@ -57,7 +57,7 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
             return Ok(category);
         }
 
-        [HttpGet("type/{type:int}")]
+        [HttpGet("{type:int}")]
         public async Task<ActionResult<List<CategoryDto>>> GetByType(int type)
         {
             var categories = await _dbContext.Categories
