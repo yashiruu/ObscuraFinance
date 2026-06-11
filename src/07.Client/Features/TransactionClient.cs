@@ -2,7 +2,7 @@
 using Obscura.FinanceTracker.Application.DTOs.Transactions.Responses;
 using System.Net.Http.Json;
 
-namespace Obscura.FinanceTracker.Client.Transactions
+namespace Obscura.FinanceTracker.Client.Features
 {
     public class TransactionClient
     {

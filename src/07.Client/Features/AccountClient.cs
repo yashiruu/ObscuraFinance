@@ -3,7 +3,7 @@ using Obscura.FinanceTracker.Application.DTOs.Accounts.Requests;
 using Obscura.FinanceTracker.Application.DTOs.Accounts.Responses;
 using System.Net.Http.Json;
 
-namespace Obscura.FinanceTracker.Client.Accounts
+namespace Obscura.FinanceTracker.Client.Features
 {
     public class AccountClient
     {

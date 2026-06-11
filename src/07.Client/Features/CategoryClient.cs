@@ -3,7 +3,7 @@ using Obscura.FinanceTracker.Application.DTOs.Categories.Responses;
 using System.Net;
 using System.Net.Http.Json;
 
-namespace Obscura.FinanceTracker.Client.Categories
+namespace Obscura.FinanceTracker.Client.Features
 {
     public class CategoryClient
     {

@@ -1,7 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Obscura.FinanceTracker.Client.Accounts;
-using Obscura.FinanceTracker.Client.Categories;
-using Obscura.FinanceTracker.Client.Transactions;
+using Obscura.FinanceTracker.Client.Features;
 
 namespace Obscura.FinanceTracker.Client;
 
