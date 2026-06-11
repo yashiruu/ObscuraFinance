@@ -1,14 +1,6 @@
 @page "/transactions/edit/{Id:guid}"
 
 @using System.ComponentModel.DataAnnotations
-@using Obscura.FinanceTracker.Application.DTOs.Transactions.Requests
-@using Obscura.FinanceTracker.Application.DTOs.Transactions.Responses
-@using Obscura.FinanceTracker.Application.DTOs.Accounts.Responses
-@using Obscura.FinanceTracker.Application.DTOs.Categories.Responses
-@using Obscura.FinanceTracker.Client.Transactions
-@using Obscura.FinanceTracker.Client.Accounts
-@using Obscura.FinanceTracker.Client.Categories
-@using Obscura.FinanceTracker.Domain.Enums
 
 @inject TransactionClient TransactionClient
 @inject AccountClient     AccountClient
