@@ -20,7 +20,7 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<AccountListResponse>>> GetAll()
+        public async Task<ActionResult<List<AccountListResponse>>> GetAll(CancellationToken cancellationToken)
         {
             var accounts = await _dbContext.Accounts
                 .Where(a => !a.IsDeleted)
@@ -32,13 +32,13 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
                     Type = a.Type,
                     IsActive = a.IsActive
                 })
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
 
             return Ok(accounts);
         }
 
         [HttpGet("{id:guid}")]
-        public async Task<ActionResult<AccountDetailResponse>> GetById(Guid id)
+        public async Task<ActionResult<AccountDetailResponse>> GetById(Guid id, CancellationToken cancellationToken)
         {
             var account = await _dbContext.Accounts
                 .Where(a => a.Id == id && !a.IsDeleted)
@@ -54,7 +54,7 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
                     IsActive = a.IsActive,
                     CreatedAt = a.CreatedAt
                 })
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(cancellationToken);
 
             if (account == null) return NotFound();
 
@@ -62,7 +62,7 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> Create(CreateAccountRequest request)
+        public async Task<ActionResult> Create(CreateAccountRequest request, CancellationToken cancellationToken)
         {
             var account = new Account
             {
@@ -83,7 +83,7 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
             if (exists) return BadRequest(new { errors = new { Name = new[] { "Account name already exists." } } });
 
             _dbContext.Accounts.Add(account);
-            await _dbContext.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync(cancellationToken);
 
             var response = new AccountDetailResponse
             {
@@ -102,13 +102,13 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
         }
 
         [HttpPut("{id:guid}")]
-        public async Task<ActionResult> Update(Guid id, UpdateAccountRequest request)
+        public async Task<ActionResult> Update(Guid id, UpdateAccountRequest request, CancellationToken cancellationToken)
         {
-            var exists = await _dbContext.Accounts.AnyAsync(a => a.Id != id && a.Name == request.Name && !a.IsDeleted);
+            var exists = await _dbContext.Accounts.AnyAsync(a => a.Id != id && a.Name == request.Name && !a.IsDeleted, cancellationToken);
 
             if (exists) return BadRequest(new { errors = new { Name = new[] { "Account name already exists."  } } });
 
-            var account = await _dbContext.Accounts.FirstOrDefaultAsync(a=> a.Id == id && !a.IsDeleted);
+            var account = await _dbContext.Accounts.FirstOrDefaultAsync(a=> a.Id == id && !a.IsDeleted, cancellationToken);
 
             if (account == null) return NotFound();
 
@@ -118,15 +118,15 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
             account.UpdatedAt = DateTime.UtcNow;
             account.UpdatedBy = Guid.Empty;
 
-            await _dbContext.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync(cancellationToken);
 
             return NoContent();
         }
 
         [HttpDelete("{id:guid}")]
-        public async Task<ActionResult> Delete(Guid id)
+        public async Task<ActionResult> Delete(Guid id, CancellationToken cancellationToken)
         {
-            var account = await _dbContext.Accounts.FirstOrDefaultAsync(a => a.Id == id && !a.IsDeleted);
+            var account = await _dbContext.Accounts.FirstOrDefaultAsync(a => a.Id == id && !a.IsDeleted, cancellationToken);
 
             if (account == null) return NotFound();
 
@@ -134,15 +134,15 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
             account.DeletedAt = DateTime.UtcNow;
             account.DeletedBy = Guid.Empty;
 
-            await _dbContext.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync(cancellationToken);
 
             return NoContent();
         }
 
         [HttpPatch("{id:guid}/restore")]
-        public async Task<ActionResult> Restore(Guid id)
+        public async Task<ActionResult> Restore(Guid id, CancellationToken cancellationToken)
         {
-            var account = await _dbContext.Accounts.FirstOrDefaultAsync(a => a.Id == id && a.IsDeleted);
+            var account = await _dbContext.Accounts.FirstOrDefaultAsync(a => a.Id == id && a.IsDeleted, cancellationToken);
 
             if (account == null) return NotFound();
 
@@ -153,7 +153,7 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
             account.UpdatedAt = DateTime.UtcNow;
             account.UpdatedBy = Guid.Empty;
 
-            await _dbContext.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync(cancellationToken);
 
             return NoContent();
         }

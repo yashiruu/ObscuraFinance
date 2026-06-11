@@ -19,7 +19,7 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<TransactionListResponse>>> GetAll()
+        public async Task<ActionResult<List<TransactionListResponse>>> GetAll(CancellationToken cancellationToken)
         {
             var transaction = await _dbContext.Transactions
                 .Where(t => !t.IsDeleted)
@@ -35,13 +35,13 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
                     AccountId = t.AccountId,
                     AccountName = t.Account!.Name
                 })
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
 
             return Ok(transaction);
         }
 
         [HttpGet("{id:guid}")]
-        public async Task<ActionResult<TransactionDetailResponse>> GetById(Guid id)
+        public async Task<ActionResult<TransactionDetailResponse>> GetById(Guid id, CancellationToken cancellationToken)
         {
             var transaction = await _dbContext.Transactions
                 .Where(t => t.Id == id && !t.IsDeleted)
@@ -62,7 +62,7 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
                     UpdatedBy = t.UpdatedBy,
                     IsDeleted = t.IsDeleted
                 })
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(cancellationToken);
 
             if (transaction == null) return NotFound();
 
@@ -70,7 +70,7 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> Create(TransactionCreateRequest request)
+        public async Task<ActionResult> Create(TransactionCreateRequest request, CancellationToken cancellationToken)
         {
             var transaction = new Transaction
             {
@@ -86,7 +86,7 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
             };
 
             _dbContext.Transactions.Add(transaction);
-            await _dbContext.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync(cancellationToken);
 
             var response = new TransactionDetailResponse
             {
@@ -105,9 +105,9 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
         }
 
         [HttpPut("{id:guid}")]
-        public async Task<ActionResult> Update(Guid id, TransactionUpdateRequest request)
+        public async Task<ActionResult> Update(Guid id, TransactionUpdateRequest request, CancellationToken cancellationToken)
         {
-            var transaction = await _dbContext.Transactions.FirstOrDefaultAsync(t => t.Id == id && !t.IsDeleted);
+            var transaction = await _dbContext.Transactions.FirstOrDefaultAsync(t => t.Id == id && !t.IsDeleted, cancellationToken);
 
             if (transaction == null) return NotFound();
 
@@ -120,15 +120,15 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
             transaction.UpdatedAt = DateTime.UtcNow;
             transaction.UpdatedBy = Guid.Empty;
 
-            await _dbContext.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync(cancellationToken);
 
             return NoContent();
         }
 
         [HttpDelete("{id:guid}")]
-        public async Task<ActionResult> Delete (Guid id)
+        public async Task<ActionResult> Delete (Guid id, CancellationToken cancellationToken)
         {
-            var transaction = await _dbContext.Transactions.FirstOrDefaultAsync(t => t.Id == id && !t.IsDeleted);
+            var transaction = await _dbContext.Transactions.FirstOrDefaultAsync(t => t.Id == id && !t.IsDeleted, cancellationToken);
 
             if (transaction == null) return NotFound();
 
@@ -136,15 +136,15 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
             transaction.DeletedAt = DateTime.UtcNow;
             transaction.DeletedBy = Guid.Empty;
 
-            await _dbContext.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync(cancellationToken);
 
             return NoContent();
         }
 
         [HttpPatch("{id:guid}/restore")]
-        public async Task<ActionResult> Restore(Guid id)
+        public async Task<ActionResult> Restore(Guid id, CancellationToken cancellationToken)
         {
-            var transaction = await _dbContext.Transactions.FirstOrDefaultAsync(t => t.Id == id && t.IsDeleted);
+            var transaction = await _dbContext.Transactions.FirstOrDefaultAsync(t => t.Id == id && t.IsDeleted, cancellationToken);
 
             if (transaction == null) return NotFound();
 
@@ -155,7 +155,7 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
             transaction.UpdatedAt = DateTime.UtcNow;
             transaction.UpdatedBy = Guid.Empty;
 
-            await _dbContext.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync(cancellationToken);
 
             return NoContent();
         }
