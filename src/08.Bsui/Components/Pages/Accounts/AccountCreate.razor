@@ -114,9 +114,7 @@
                 InitialBalance = _model.InitialBalance,
                 Description    = string.IsNullOrWhiteSpace(_model.Description)
                                      ? null
-                                     : _model.Description.Trim(),
-                CreatedAt = DateTime.UtcNow,
-                CreatedBy = Guid.Empty
+                                     : _model.Description.Trim()
             };
 
             await AccountClient.CreateAsync(request);

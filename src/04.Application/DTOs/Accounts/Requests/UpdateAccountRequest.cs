@@ -9,7 +9,5 @@ namespace Obscura.FinanceTracker.Application.Accounts.DTOs
         public AccountType Type { get; set; }
 
         public bool IsActive { get; set; }
-        public DateTime UpdateAt { get; set; } = DateTime.UtcNow;
-        public Guid? UpdatedBy { get; set; }
     }
 }

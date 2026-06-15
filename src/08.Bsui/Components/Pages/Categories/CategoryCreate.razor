@@ -102,9 +102,7 @@
                 Description = string.IsNullOrWhiteSpace(_model.Description)
                                   ? null
                                   : _model.Description.Trim(),
-                Type = _model.Type,
-                CreatedAt = DateTime.UtcNow,
-                CreatedBy = Guid.Empty
+                Type = _model.Type
             };
 
             await CategoryClient.CreateAsync(request);

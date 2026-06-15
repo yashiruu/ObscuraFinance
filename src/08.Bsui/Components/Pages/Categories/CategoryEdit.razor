@@ -146,9 +146,7 @@
                 Description = string.IsNullOrWhiteSpace(_model.Description)
                                   ? null
                                   : _model.Description.Trim(),
-                Type = _model.Type,
-                UpdateAt = DateTime.UtcNow,
-                UpdateBy = null
+                Type = _model.Type
             };
 
             await CategoryClient.UpdateAsync(Id, request);

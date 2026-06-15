@@ -21,7 +21,5 @@ namespace Obscura.FinanceTracker.Application.DTOs.Accounts.Requests
 
         [Required]
         public AccountType Type { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public Guid CreatedBy { get; set; }
     }
 }

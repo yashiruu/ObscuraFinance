@@ -153,9 +153,7 @@
                 Type        = _model.Type,
                 Description = string.IsNullOrWhiteSpace(_model.Description)
                                   ? null
-                                  : _model.Description.Trim(),
-                UpdateAt = DateTime.UtcNow,
-                UpdatedBy = Guid.Empty
+                                  : _model.Description.Trim()
             };
 
             await AccountClient.UpdateAsync(Id, request);

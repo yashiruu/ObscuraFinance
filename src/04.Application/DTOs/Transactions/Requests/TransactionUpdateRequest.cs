@@ -12,7 +12,5 @@ namespace Obscura.FinanceTracker.Application.DTOs.Transactions.Requests
         public Guid AccountId { get; set; }
 
         public bool IsActive { get; set; }
-        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
-        public Guid? UpdatedBy { get; set; }
     }
 }

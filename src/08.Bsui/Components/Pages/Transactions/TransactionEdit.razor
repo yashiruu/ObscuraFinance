@@ -231,9 +231,7 @@
                 Amount     = _model.Amount,
                 Type       = _model.Type,
                 CategoryId = _model.CategoryId,
-                AccountId  = _model.AccountId,
-                UpdatedAt  = DateTime.UtcNow,
-                UpdatedBy  = Guid.Empty
+                AccountId  = _model.AccountId
             };
 
             await TransactionClient.UpdateAsync(Id, request);

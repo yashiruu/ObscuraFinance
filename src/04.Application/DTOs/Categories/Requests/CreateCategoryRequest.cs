@@ -7,7 +7,5 @@ namespace Obscura.FinanceTracker.Application.DTOs.Categories.Requests
         public string Name { get; set; } = default!;
         public string? Description { get; set; }
         public TransactionType Type { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public Guid CreatedBy { get; set; }
     }
 }

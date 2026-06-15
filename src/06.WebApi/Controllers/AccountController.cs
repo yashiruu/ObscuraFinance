@@ -73,9 +73,7 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
                 CurrentBalance = request.InitialBalance,
                 Currency = request.Currency,
                 Type = request.Type,
-                IsActive = true,
-                CreatedAt = DateTime.UtcNow,
-                CreatedBy = Guid.Empty
+                IsActive = true
             };
 
             var exists = await _dbContext.Accounts.AnyAsync(a => a.Name == request.Name);
@@ -115,8 +113,6 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
             account.Name = request.Name;
             account.Description = request.Description;
             account.IsActive = request.IsActive;
-            account.UpdatedAt = DateTime.UtcNow;
-            account.UpdatedBy = Guid.Empty;
 
             await _dbContext.SaveChangesAsync(cancellationToken);
 
@@ -131,8 +127,6 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
             if (account == null) return NotFound();
 
             account.IsDeleted = true;
-            account.DeletedAt = DateTime.UtcNow;
-            account.DeletedBy = Guid.Empty;
 
             await _dbContext.SaveChangesAsync(cancellationToken);
 
@@ -147,11 +141,6 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
             if (account == null) return NotFound();
 
             account.IsDeleted = false;
-            account.DeletedAt = null;
-            account.DeletedBy = null;
-
-            account.UpdatedAt = DateTime.UtcNow;
-            account.UpdatedBy = Guid.Empty;
 
             await _dbContext.SaveChangesAsync(cancellationToken);
 

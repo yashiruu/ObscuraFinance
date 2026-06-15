@@ -80,9 +80,7 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
                 Amount = request.Amount,
                 Type = request.Type,
                 CategoryId = request.CategoryId,
-                AccountId = request.AccountId,
-                CreatedAt = DateTime.UtcNow,
-                CreatedBy = Guid.Empty
+                AccountId = request.AccountId
             };
 
             _dbContext.Transactions.Add(transaction);
@@ -117,8 +115,6 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
             transaction.Type = request.Type;
             transaction.CategoryId = request.CategoryId;
             transaction.AccountId = request.AccountId;
-            transaction.UpdatedAt = DateTime.UtcNow;
-            transaction.UpdatedBy = Guid.Empty;
 
             await _dbContext.SaveChangesAsync(cancellationToken);
 
@@ -133,8 +129,6 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
             if (transaction == null) return NotFound();
 
             transaction.IsDeleted = true;
-            transaction.DeletedAt = DateTime.UtcNow;
-            transaction.DeletedBy = Guid.Empty;
 
             await _dbContext.SaveChangesAsync(cancellationToken);
 
@@ -149,11 +143,6 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
             if (transaction == null) return NotFound();
 
             transaction.IsDeleted = false;
-            transaction.DeletedAt = null;
-            transaction.DeletedBy = null;
-
-            transaction.UpdatedAt = DateTime.UtcNow;
-            transaction.UpdatedBy = Guid.Empty;
 
             await _dbContext.SaveChangesAsync(cancellationToken);
 
