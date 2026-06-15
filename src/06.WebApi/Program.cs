@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Obscura.FinanceTracker.Infrastructure.Persistence;
+using Obscura.FinanceTracker.Infrastructure.Persistence.Seeders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +25,16 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+}
+
+// Apply pending migrations and seed the database with initial data
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    await dbContext.Database.MigrateAsync();
+
+    await DataSeeder.SeedAsync(dbContext);
 }
 
 app.UseHttpsRedirection();
