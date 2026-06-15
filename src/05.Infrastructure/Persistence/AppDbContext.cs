@@ -7,10 +7,7 @@ namespace Obscura.FinanceTracker.Infrastructure.Persistence
 
     public class AppDbContext : DbContext
     {
-        public AppDbContext(DbContextOptions<AppDbContext> options)
-            : base(options)
-        {
-        }
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -23,6 +20,15 @@ namespace Obscura.FinanceTracker.Infrastructure.Persistence
             base.OnModelCreating(modelBuilder);
         }
 
+        /// <summary>
+        /// Applies audit information automatically before entities are persisted.
+        ///
+        /// Rules:
+        /// - Added entities populate CreatedAt and CreatedBy.
+        /// - Modified entities populate UpdatedAt and UpdatedBy.
+        /// - Soft deleted entities populate DeletedAt and DeletedBy.
+        /// - Restored entities clear DeletedAt and DeletedBy.
+        /// </summary>
         // Override SaveChanges to automatically set audit information
         private void ApplyAuditInformation()
         {
@@ -32,23 +38,32 @@ namespace Obscura.FinanceTracker.Infrastructure.Persistence
             {
                 switch (entry.State)
                 {
+                    // For added entities
                     case EntityState.Added:
                         entry.Entity.CreatedAt = DateTime.UtcNow;
                         entry.Entity.CreatedBy ??= Guid.Empty;
                         break;
 
+                    // For modified entities
                     case EntityState.Modified:
-                        entry.Entity.UpdatedAt = DateTime.UtcNow;
-                        entry.Entity.UpdatedBy ??= Guid.Empty;
+                        // Skip update audit if soft deleting the entity
+                        if (!entry.Entity.IsDeleted)
+                        {
+                            entry.Entity.UpdatedAt = DateTime.UtcNow;
+                            entry.Entity.UpdatedBy ??= Guid.Empty;
+                        }
+
                         break;
                 }
 
+                // If the entity is soft deleted
                 if (entry.Entity.IsDeleted && entry.Entity.DeletedAt == null)
                 {
                     entry.Entity.DeletedAt = DateTime.UtcNow;
-                    entry.Entity.DeletedBy = Guid.Empty;
+                    entry.Entity.DeletedBy ??= Guid.Empty;
                 }
 
+                // If the entity is restored
                 if (!entry.Entity.IsDeleted && entry.Entity.DeletedAt != null)
                 {
                     entry.Entity.DeletedAt = null;
@@ -70,6 +85,7 @@ namespace Obscura.FinanceTracker.Infrastructure.Persistence
         }
 
         // DbSets for the entities
+        // Expose DbSet properties for each entity to allow querying and saving instances of these entities
         public DbSet<Transaction> Transactions => Set<Transaction>();
         public DbSet<Category> Categories => Set<Category>();
         public DbSet<Account> Accounts => Set<Account>();
