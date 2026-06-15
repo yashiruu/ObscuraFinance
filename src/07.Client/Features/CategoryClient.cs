@@ -53,14 +53,14 @@ namespace Obscura.FinanceTracker.Client.Features
             return await response.Content.ReadFromJsonAsync<List<CategoryDto>>() ?? [];
         }
 
-        public async Task CreateAsync(CreateCategoryRequest createCategoryRequest)
+        public async Task CreateAsync(CategoryCreateRequest createCategoryRequest)
         {
             var response = await _httpClient.PostAsJsonAsync($"{BaseUrl}", createCategoryRequest);
             
             response.EnsureSuccessStatusCode();
         }
 
-        public async Task UpdateAsync(Guid id, UpdateCategoryRequest request)
+        public async Task UpdateAsync(Guid id, CategoryUpdateRequest request)
         {
             var response = await _httpClient.PutAsJsonAsync($"{BaseUrl}/{id}", request);
 

@@ -62,7 +62,7 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> Create(CreateAccountRequest request, CancellationToken cancellationToken)
+        public async Task<ActionResult> Create(AccountCreateRequest request, CancellationToken cancellationToken)
         {
             var account = new Account
             {
@@ -100,7 +100,7 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
         }
 
         [HttpPut("{id:guid}")]
-        public async Task<ActionResult> Update(Guid id, UpdateAccountRequest request, CancellationToken cancellationToken)
+        public async Task<ActionResult> Update(Guid id, AccountUpdateRequest request, CancellationToken cancellationToken)
         {
             var exists = await _dbContext.Accounts.AnyAsync(a => a.Id != id && a.Name == request.Name && !a.IsDeleted, cancellationToken);
 

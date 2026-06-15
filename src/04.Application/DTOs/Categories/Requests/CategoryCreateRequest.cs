@@ -2,7 +2,7 @@
 
 namespace Obscura.FinanceTracker.Application.DTOs.Categories.Requests
 {
-    public class CreateCategoryRequest
+    public class CategoryCreateRequest
     {
         public string Name { get; set; } = default!;
         public string? Description { get; set; }

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Obscura.FinanceTracker.Application.DTOs.Accounts.Requests
 {
-    public class CreateAccountRequest
+    public class AccountCreateRequest
     {
         [Required]
         [MaxLength(100)]

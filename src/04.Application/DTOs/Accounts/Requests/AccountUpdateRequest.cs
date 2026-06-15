@@ -2,7 +2,7 @@
 
 namespace Obscura.FinanceTracker.Application.Accounts.DTOs
 {
-    public class UpdateAccountRequest
+    public class AccountUpdateRequest
     {
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }

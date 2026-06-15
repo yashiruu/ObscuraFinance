@@ -91,7 +91,7 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> Create(CreateCategoryRequest request, CancellationToken cancellationToken)
+        public async Task<ActionResult> Create(CategoryCreateRequest request, CancellationToken cancellationToken)
         {
             var category = new Category
             {
@@ -116,7 +116,7 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
         }
 
         [HttpPut("{id:guid}")]
-        public async Task<ActionResult> Update(Guid id, UpdateCategoryRequest request, CancellationToken cancellationToken)
+        public async Task<ActionResult> Update(Guid id, CategoryUpdateRequest request, CancellationToken cancellationToken)
         {
             var category = await _dbContext.Categories.FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted, cancellationToken);
 

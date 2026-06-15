@@ -35,14 +35,14 @@ namespace Obscura.FinanceTracker.Client.Features
             return await response.Content.ReadFromJsonAsync<AccountDetailResponse>();
         }
 
-        public async Task CreateAsync(CreateAccountRequest request)
+        public async Task CreateAsync(AccountCreateRequest request)
         {
             var response = await _httpClient.PostAsJsonAsync($"{BaseUrl}", request);
             
             response.EnsureSuccessStatusCode();
         }
 
-        public async Task UpdateAsync(Guid id, UpdateAccountRequest request)
+        public async Task UpdateAsync(Guid id, AccountUpdateRequest request)
         {
             var response = await _httpClient.PutAsJsonAsync($"{BaseUrl}/{id}", request);
 
