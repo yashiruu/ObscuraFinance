@@ -1,6 +1,8 @@
 ﻿@page "/"
 @page "/dashboard"
 
+@inject DashboardClient DashboardClient
+
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-6">
 
     <MudStack Row="false" Spacing="1" Class="mb-6">
@@ -81,7 +83,7 @@
                                 <MudIcon Class="my-4" Icon="@Icons.Material.Filled.Receipt" Color="Color.Secondary" Size="Size.Small" />
                                 <MudText Class="my-4" Typo="Typo.subtitle2" Color="Color.Secondary">Transactions</MudText>
                             </MudStack>
-                            <MudText Typo="Typo.h6">@_summary.TotalTransactions Records</MudText>
+                            <MudText Typo="Typo.h6">@_summary.TotalTransaction Records</MudText>
                         </MudStack>
                     </MudCardContent>
                 </MudCard>
@@ -102,7 +104,7 @@
                     }
                     else
                     {
-                        <MudTable Items="_summary.RecentTransactions" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm" Elevation="0" Striped="true">
+                        <MudTable Items="_summary.RecentTransactions" Hover="true" Dense="false" Breakpoint="Breakpoint.Sm" Elevation="0" Striped="true">
                             <HeaderContent>
                                 <MudTh>Date</MudTh>
                                 <MudTh>Description</MudTh>
@@ -112,7 +114,7 @@
                             </HeaderContent>
                             <RowTemplate>
                                 <MudTd DataLabel="Date">
-                                    <MudText Typo="Typo.body2">@context.Date.ToString("dd MMM yyyy")</MudText>
+                                    <MudText Typo="Typo.body2">@context.TransactionDate.ToString("dd MMM yyyy")</MudText>
                                 </MudTd>
                                 <MudTd DataLabel="Description">
                                     <MudText Typo="Typo.body2">@context.Description</MudText>
@@ -125,9 +127,8 @@
                                     <MudText Typo="Typo.body2" Color="Color.Secondary">@context.Account</MudText>
                                 </MudTd>
                                 <MudTd DataLabel="Amount" Style="text-align:right">
-                                    <MudText Typo="Typo.body2"
-                                             Color="@(context.TransactionType == "Income" ? Color.Success : Color.Error)">
-                                        @(context.TransactionType == "Income" ? "+" : "-")@FormatCurrency(context.Amount)
+                                    <MudText Typo="Typo.body2" Color="@(context.Type == TransactionType.Income ? Color.Success : Color.Error)">
+                                        @(context.Type == TransactionType.Income ? "+" : "-")@FormatCurrency(context.Amount)
                                     </MudText>
                                 </MudTd>
                             </RowTemplate>
@@ -173,13 +174,13 @@
                     <MudPaper Elevation="1" Class="pa-4" Style="border: 1px solid var(--mud-palette-divider);">
                         <MudText Typo="Typo.h6" Class="mb-3">Account Summary</MudText>
                         <MudDivider Class="mb-3" />
-                        @if (_summary.Accounts.Count == 0)
+                        @if (_summary.AccountSummary.Count == 0)
                         {
                             <MudText Typo="Typo.body2" Color="Color.Secondary">No accounts found.</MudText>
                         }
                         else
                         {
-                            <MudTable Items="_summary.Accounts"
+                            <MudTable Items="_summary.AccountSummary"
                                         Hover="true"
                                         Dense="true"
                                         Breakpoint="Breakpoint.None"
@@ -228,11 +229,7 @@
 
         try
         {
-            // TODO: Replace with DashboardClient call once the API endpoint is ready.
-            // _summary = await DashboardClient.GetSummaryAsync();
-
-            await Task.Delay(300);
-            _summary = GetPlaceholderData();
+            _summary = await DashboardClient.GetSummaryAsync();
         }
         catch (Exception ex)
         {
@@ -253,14 +250,14 @@
         TotalIncome = 12_500_000,
         TotalExpense = 7_350_000,
         CurrentBalance = 5_150_000,
-        TotalTransactions = 34,
+        TotalTransaction = 34,
         RecentTransactions =
         [
-            new() { Date = DateTime.Today,              Description = "Grocery shopping",    Category = "Food",          Account = "BCA",     Amount = 250_000,    TransactionType = "Expense" },
-            new() { Date = DateTime.Today.AddDays(-1),  Description = "Monthly salary",      Category = "Income",        Account = "BCA",     Amount = 12_500_000, TransactionType = "Income"  },
-            new() { Date = DateTime.Today.AddDays(-2),  Description = "Electricity bill",    Category = "Utilities",     Account = "Mandiri", Amount = 450_000,    TransactionType = "Expense" },
-            new() { Date = DateTime.Today.AddDays(-3),  Description = "Netflix subscription",Category = "Entertainment", Account = "BCA",     Amount = 186_000,    TransactionType = "Expense" },
-            new() { Date = DateTime.Today.AddDays(-4),  Description = "Fuel",                Category = "Transport",     Account = "Mandiri", Amount = 150_000,    TransactionType = "Expense" },
+            new() { TransactionDate = DateTime.Today,              Description = "Grocery shopping",    Category = "Food",          Account = "BCA",     Amount = 250_000,    Type = TransactionType.Expense },
+            new() { TransactionDate = DateTime.Today.AddDays(-1),  Description = "Monthly salary",      Category = "Income",        Account = "BCA",     Amount = 12_500_000, Type = TransactionType.Income },
+            new() { TransactionDate = DateTime.Today.AddDays(-2),  Description = "Electricity bill",    Category = "Utilities",     Account = "Mandiri", Amount = 450_000,    Type = TransactionType.Expense },
+            new() { TransactionDate = DateTime.Today.AddDays(-3),  Description = "Netflix subscription",Category = "Entertainment", Account = "BCA",     Amount = 186_000,    Type = TransactionType.Expense },
+            new() { TransactionDate = DateTime.Today.AddDays(-4),  Description = "Fuel",                Category = "Transport",     Account = "Mandiri", Amount = 150_000,    Type = TransactionType.Expense },
         ],
         CategoryExpenses =
         [
@@ -270,7 +267,7 @@
             new() { CategoryName = "Entertainment", TotalExpense = 550_000   },
             new() { CategoryName = "Shopping",      TotalExpense = 1_900_000 },
         ],
-        Accounts =
+        AccountSummary =
         [
             new() { AccountName = "BCA",     Balance = 3_750_000 },
             new() { AccountName = "Mandiri", Balance = 1_400_000 },

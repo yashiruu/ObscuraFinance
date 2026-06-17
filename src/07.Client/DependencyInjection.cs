@@ -16,7 +16,13 @@ public static class DependencyInjection
         {
             client.BaseAddress = new Uri(apiBaseUrl);
         });
+
         services.AddHttpClient<TransactionClient>(client =>
+        {
+            client.BaseAddress = new Uri(apiBaseUrl);
+        });
+
+        services.AddHttpClient<DashboardClient>(client =>
         {
             client.BaseAddress = new Uri(apiBaseUrl);
         });
