@@ -1,0 +1,279 @@
+﻿@page "/"
+@page "/dashboard"
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-6">
+
+    <MudStack Row="false" Spacing="1" Class="mb-6">
+        <MudText Typo="Typo.h5" Color="Color.Primary">Dashboard</MudText>
+        <MudText Typo="Typo.body2" Color="Color.Secondary">Financial overview for the current period.</MudText>
+        <MudText Typo="Typo.subtitle2">Last updated: @DateTime.UtcNow.ToString("dd MMMM yyyy HH':'mm")</MudText>
+    </MudStack>
+
+    @if (_isLoading)
+    {
+        <MudGrid>
+            @for (int i = 0; i < 4; i++)
+            {
+                <MudItem xs="12" sm="6" lg="3">
+                    <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="120px" />
+                </MudItem>
+            }
+        </MudGrid>
+    }
+    else if (_errorMessage is not null)
+    {
+        <MudAlert Severity="Severity.Error" Class="mb-4">@_errorMessage</MudAlert>
+    }
+    else if (_summary is not null)
+    {
+        @* Summary Cards *@
+        <MudGrid Class="mb-6">
+
+            <MudItem xs="12" sm="6" lg="3">
+                <MudCard Elevation="1" Class="pa-2" Style="border: 1px solid var(--mud-palette-divider);">
+                    <MudCardContent>
+                        <MudStack Spacing="1">
+                            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                                <MudIcon Class="my-4" Icon="@Icons.Material.Filled.TrendingUp" Color="Color.Success" Size="Size.Small" />
+                                <MudText Class="my-4" Typo="Typo.subtitle2" Color="Color.Secondary">Total Income</MudText>
+                            </MudStack>
+                            <MudText Typo="Typo.h6" Color="Color.Success">@FormatCurrency(_summary.TotalIncome)</MudText>
+                        </MudStack>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+
+            <MudItem xs="12" sm="6" lg="3">
+                <MudCard Elevation="1" Class="pa-2" Style="border: 1px solid var(--mud-palette-divider);">
+                    <MudCardContent>
+                        <MudStack Spacing="1">
+                            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                                <MudIcon Class="my-4" Icon="@Icons.Material.Filled.TrendingDown" Color="Color.Error" Size="Size.Small" />
+                                <MudText Class="my-4" Typo="Typo.subtitle2" Color="Color.Secondary">Total Expense</MudText>
+                            </MudStack>
+                            <MudText Typo="Typo.h6" Color="Color.Error">@FormatCurrency(_summary.TotalExpense)</MudText>
+                        </MudStack>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+
+            <MudItem xs="12" sm="6" lg="3">
+                <MudCard Elevation="1" Class="pa-2" Style="border: 1px solid var(--mud-palette-divider);">
+                    <MudCardContent>
+                        <MudStack Spacing="1">
+                            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                                <MudIcon Class="my-4" Icon="@Icons.Material.Filled.AccountBalanceWallet" Color="Color.Primary" Size="Size.Small" />
+                                <MudText Class="my-4" Typo="Typo.subtitle2" Color="Color.Secondary">Current Balance</MudText>
+                            </MudStack>
+                            <MudText Typo="Typo.h6" Color="@(_summary.CurrentBalance >= 0 ? Color.Primary : Color.Error)">
+                                @FormatCurrency(_summary.CurrentBalance)
+                            </MudText>
+                        </MudStack>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+
+            <MudItem xs="12" sm="6" lg="3">
+                <MudCard Elevation="1" Class="pa-2" Style="border: 1px solid var(--mud-palette-divider);">
+                    <MudCardContent>
+                        <MudStack Spacing="1">
+                            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                                <MudIcon Class="my-4" Icon="@Icons.Material.Filled.Receipt" Color="Color.Secondary" Size="Size.Small" />
+                                <MudText Class="my-4" Typo="Typo.subtitle2" Color="Color.Secondary">Transactions</MudText>
+                            </MudStack>
+                            <MudText Typo="Typo.h6">@_summary.TotalTransactions Records</MudText>
+                        </MudStack>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+
+        </MudGrid>
+
+        @* Recent Transactions + Right Column *@
+        <MudGrid Class="mb-6">
+
+            <MudItem xs="12" lg="8">
+                <MudPaper Elevation="1" Class="pa-4" Style="border: 1px solid var(--mud-palette-divider);">
+                    <MudText Typo="Typo.h6" Class="mb-3">Recent Transactions</MudText>
+                    <MudDivider Class="mb-3" />
+                    @if (_summary.RecentTransactions.Count == 0)
+                    {
+                        <MudText Typo="Typo.body2" Color="Color.Secondary">No transactions found.</MudText>
+                    }
+                    else
+                    {
+                        <MudTable Items="_summary.RecentTransactions" Hover="true" Dense="true" Breakpoint="Breakpoint.Sm" Elevation="0" Striped="true">
+                            <HeaderContent>
+                                <MudTh>Date</MudTh>
+                                <MudTh>Description</MudTh>
+                                <MudTh>Category</MudTh>
+                                <MudTh>Account</MudTh>
+                                <MudTh Style="text-align:right">Amount</MudTh>
+                            </HeaderContent>
+                            <RowTemplate>
+                                <MudTd DataLabel="Date">
+                                    <MudText Typo="Typo.body2">@context.Date.ToString("dd MMM yyyy")</MudText>
+                                </MudTd>
+                                <MudTd DataLabel="Description">
+                                    <MudText Typo="Typo.body2">@context.Description</MudText>
+                                </MudTd>
+                                <MudTd DataLabel="Category">
+                                    <MudText Typo="Typo.body2" Color="Color.Secondary">@context.Category</MudText>
+                                    @* <MudChip T="string" Size="Size.Small" Variant="Variant.Text">@context.Category</MudChip> *@
+                                </MudTd>
+                                <MudTd DataLabel="Account">
+                                    <MudText Typo="Typo.body2" Color="Color.Secondary">@context.Account</MudText>
+                                </MudTd>
+                                <MudTd DataLabel="Amount" Style="text-align:right">
+                                    <MudText Typo="Typo.body2"
+                                             Color="@(context.TransactionType == "Income" ? Color.Success : Color.Error)">
+                                        @(context.TransactionType == "Income" ? "+" : "-")@FormatCurrency(context.Amount)
+                                    </MudText>
+                                </MudTd>
+                            </RowTemplate>
+                        </MudTable>
+                    }
+                </MudPaper>
+            </MudItem>
+
+            <MudItem xs="12" lg="4">
+                <MudStack Spacing="4">
+                    @* Expense By Category *@
+                    <MudPaper Elevation="1" Class="pa-4" Style="border: 1px solid var(--mud-palette-divider);">
+                        <MudText Typo="Typo.h6" Class="mb-3">Expense by Category</MudText>
+                        <MudDivider Class="mb-3" />
+                        @if (_summary.CategoryExpenses.Count == 0)
+                        {
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">No expense data found.</MudText>
+                        }
+                        else
+                        {
+                            <MudTable Items="_summary.CategoryExpenses"
+                                      Hover="true"
+                                      Dense="true"
+                                      Breakpoint="Breakpoint.None"
+                                      Elevation="0">
+                                <HeaderContent>
+                                    <MudTh>Category</MudTh>
+                                    <MudTh Style="text-align:right">Total</MudTh>
+                                </HeaderContent>
+                                <RowTemplate>
+                                    <MudTd DataLabel="Category">
+                                        <MudText Typo="Typo.body2">@context.CategoryName</MudText>
+                                    </MudTd>
+                                    <MudTd DataLabel="Total" Style="text-align:right">
+                                        <MudText Typo="Typo.body2" Color="Color.Error">@FormatCurrency(context.TotalExpense)</MudText>
+                                    </MudTd>
+                                </RowTemplate>
+                            </MudTable>
+                        }
+                    </MudPaper>
+
+                    @* Account Summary *@
+                    <MudPaper Elevation="1" Class="pa-4" Style="border: 1px solid var(--mud-palette-divider);">
+                        <MudText Typo="Typo.h6" Class="mb-3">Account Summary</MudText>
+                        <MudDivider Class="mb-3" />
+                        @if (_summary.Accounts.Count == 0)
+                        {
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">No accounts found.</MudText>
+                        }
+                        else
+                        {
+                            <MudTable Items="_summary.Accounts"
+                                        Hover="true"
+                                        Dense="true"
+                                        Breakpoint="Breakpoint.None"
+                                        Elevation="0">
+                                <HeaderContent>
+                                    <MudTh>Account</MudTh>
+                                    <MudTh Style="text-align:right">Balance</MudTh>
+                                </HeaderContent>
+                                <RowTemplate>
+                                    <MudTd DataLabel="Account">
+                                        <MudText Typo="Typo.body2">@context.AccountName</MudText>
+                                    </MudTd>
+                                    <MudTd DataLabel="Balance" Style="text-align:right">
+                                        <MudText Typo="Typo.body2"
+                                                    Color="@(context.Balance >= 0 ? Color.Primary : Color.Error)">
+                                            @FormatCurrency(context.Balance)
+                                        </MudText>
+                                    </MudTd>
+                                </RowTemplate>
+                            </MudTable>
+                        }
+                    </MudPaper>
+                </MudStack>
+            </MudItem>
+        </MudGrid>
+
+    }
+
+</MudContainer>
+
+@code {
+
+    private DashboardSummaryResponse? _summary;
+    private bool _isLoading = true;
+    private string? _errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDashboardAsync();
+    }
+
+    private async Task LoadDashboardAsync()
+    {
+        _isLoading = true;
+        _errorMessage = null;
+
+        try
+        {
+            // TODO: Replace with DashboardClient call once the API endpoint is ready.
+            // _summary = await DashboardClient.GetSummaryAsync();
+
+            await Task.Delay(300);
+            _summary = GetPlaceholderData();
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Failed to load dashboard data. {ex.Message}";
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private static string FormatCurrency(decimal amount)
+        => $"Rp {amount:N0}";
+
+    // TODO: Remove once DashboardClient is wired up.
+    private static DashboardSummaryResponse GetPlaceholderData() => new()
+    {
+        TotalIncome = 12_500_000,
+        TotalExpense = 7_350_000,
+        CurrentBalance = 5_150_000,
+        TotalTransactions = 34,
+        RecentTransactions =
+        [
+            new() { Date = DateTime.Today,              Description = "Grocery shopping",    Category = "Food",          Account = "BCA",     Amount = 250_000,    TransactionType = "Expense" },
+            new() { Date = DateTime.Today.AddDays(-1),  Description = "Monthly salary",      Category = "Income",        Account = "BCA",     Amount = 12_500_000, TransactionType = "Income"  },
+            new() { Date = DateTime.Today.AddDays(-2),  Description = "Electricity bill",    Category = "Utilities",     Account = "Mandiri", Amount = 450_000,    TransactionType = "Expense" },
+            new() { Date = DateTime.Today.AddDays(-3),  Description = "Netflix subscription",Category = "Entertainment", Account = "BCA",     Amount = 186_000,    TransactionType = "Expense" },
+            new() { Date = DateTime.Today.AddDays(-4),  Description = "Fuel",                Category = "Transport",     Account = "Mandiri", Amount = 150_000,    TransactionType = "Expense" },
+        ],
+        CategoryExpenses =
+        [
+            new() { CategoryName = "Food",          TotalExpense = 2_800_000 },
+            new() { CategoryName = "Utilities",     TotalExpense = 1_200_000 },
+            new() { CategoryName = "Transport",     TotalExpense = 900_000   },
+            new() { CategoryName = "Entertainment", TotalExpense = 550_000   },
+            new() { CategoryName = "Shopping",      TotalExpense = 1_900_000 },
+        ],
+        Accounts =
+        [
+            new() { AccountName = "BCA",     Balance = 3_750_000 },
+            new() { AccountName = "Mandiri", Balance = 1_400_000 },
+        ]
+    };
+}
