@@ -14,8 +14,7 @@ builder.Services.AddSwaggerGen();
 /// Register the AppDbContext with the dependency injection container
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    options.UseSqlServer(
-        builder.Configuration.GetConnectionString("DefaultConnection"));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
 var app = builder.Build();
@@ -27,14 +26,20 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// Apply pending migrations and seed the database with initial data
+// Migrate the database and seed data
 using (var scope = app.Services.CreateScope())
 {
-    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    var services = scope.ServiceProvider;
+
+    var dbContext = services.GetRequiredService<AppDbContext>();
 
     await dbContext.Database.MigrateAsync();
 
-    await DataSeeder.SeedAsync(dbContext);
+    var resetDatabase = builder.Configuration.GetValue<bool>("SeederOptions:ResetDatabase");
+
+    var shouldResetDatabase = resetDatabase && app.Environment.IsDevelopment();
+
+    await DataSeeder.SeedAsync(dbContext, shouldResetDatabase);
 }
 
 app.UseHttpsRedirection();

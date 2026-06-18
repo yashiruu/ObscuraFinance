@@ -63,17 +63,6 @@ namespace Obscura.FinanceTracker.Infrastructure.Persistence.Seeders
                     Currency = "IDR",
                     Type = AccountType.EWallet,
                     IsActive = true
-                },
-
-                new Account()
-                {
-                    Name = "Gopay",
-                    Description = "Transportation wallet",
-                    InitialBalance = 300_000m,
-                    CurrentBalance = 150_000m,
-                    Currency = "IDR",
-                    Type = AccountType.EWallet,
-                    IsActive = true
                 }
             ];
         }

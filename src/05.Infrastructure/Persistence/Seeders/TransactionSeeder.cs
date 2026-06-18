@@ -49,7 +49,6 @@ public static class TransactionSeeder
 
         var transactions = new List<Transaction>();
 
-        // Generate 6 months of sample data
         for (int month = 0; month < 6; month++)
         {
             var targetMonth = DateTime.Today.AddMonths(-month);
@@ -105,65 +104,77 @@ public static class TransactionSeeder
                 CategoryId = bills.Id
             });
 
-            // Food
+            // Food (16 transactions/month)
 
-            for (int week = 0; week < 4; week++)
+            var foodTransactions = new[]
+            {
+                ("Lunch", 35000m),
+                ("Dinner", 30000m),
+                ("Coffee", 25000m),
+                ("Fried Rice", 28000m),
+                ("Chicken Rice", 32000m),
+                ("Iced Coffee", 22000m),
+                ("Bakso", 25000m),
+                ("Noodles", 18000m),
+                ("Cafe Visit", 45000m),
+                ("Weekend Brunch", 55000m),
+                ("Tea", 12000m),
+                ("Snack", 15000m),
+                ("Burger", 40000m),
+                ("Pizza Slice", 35000m),
+                ("Milk Tea", 28000m),
+                ("Late Dinner", 38000m)
+            };
+
+            for (int i = 0; i < foodTransactions.Length; i++)
             {
                 transactions.Add(new Transaction
                 {
-                    Date = baseDate.AddDays(week * 7),
-                    Name = "Lunch",
-                    Amount = 35_000m,
-                    Type = TransactionType.Expense,
-                    AccountId = mandiri.Id,
-                    CategoryId = food.Id
-                });
-
-                transactions.Add(new Transaction
-                {
-                    Date = baseDate.AddDays(week * 7 + 1),
-                    Name = "Dinner",
-                    Amount = 30_000m,
-                    Type = TransactionType.Expense,
-                    AccountId = mandiri.Id,
-                    CategoryId = food.Id
-                });
-
-                transactions.Add(new Transaction
-                {
-                    Date = baseDate.AddDays(week * 7 + 2),
-                    Name = "Coffee",
-                    Amount = 25_000m,
+                    Date = baseDate.AddDays(i + 1),
+                    Name = foodTransactions[i].Item1,
+                    Amount = foodTransactions[i].Item2,
                     Type = TransactionType.Expense,
                     AccountId = mandiri.Id,
                     CategoryId = food.Id
                 });
             }
 
-            // Transportation
+            // Transportation (12 transactions/month)
 
-            for (int trip = 0; trip < 8; trip++)
+            for (int trip = 0; trip < 12; trip++)
             {
                 transactions.Add(new Transaction
                 {
-                    Date = baseDate.AddDays(trip * 3),
-                    Name = "GoRide",
-                    Amount = 20_000m,
+                    Date = baseDate.AddDays((trip * 2) + 1),
+                    Name = trip % 2 == 0
+                        ? "GoRide"
+                        : "GoCar",
+                    Amount = trip % 2 == 0
+                        ? 18000m
+                        : 25000m,
                     Type = TransactionType.Expense,
                     AccountId = ovo.Id,
                     CategoryId = transportation.Id
                 });
             }
 
-            // Grocery
+            // Grocery (4 transactions/month)
 
-            for (int groceryTrip = 0; groceryTrip < 2; groceryTrip++)
+            var groceryAmounts = new[]
+            {
+                120000m,
+                185000m,
+                145000m,
+                210000m
+            };
+
+            for (int i = 0; i < groceryAmounts.Length; i++)
             {
                 transactions.Add(new Transaction
                 {
-                    Date = baseDate.AddDays(groceryTrip * 14 + 3),
+                    Date = baseDate.AddDays((i * 7) + 3),
                     Name = "Mini Market",
-                    Amount = 150_000m,
+                    Amount = groceryAmounts[i],
                     Type = TransactionType.Expense,
                     AccountId = mandiri.Id,
                     CategoryId = grocery.Id
@@ -176,7 +187,7 @@ public static class TransactionSeeder
             {
                 Date = baseDate.AddDays(10),
                 Name = "Movie Ticket",
-                Amount = 50_000m,
+                Amount = 50000m,
                 Type = TransactionType.Expense,
                 AccountId = mandiri.Id,
                 CategoryId = entertainment.Id
@@ -184,9 +195,19 @@ public static class TransactionSeeder
 
             transactions.Add(new Transaction
             {
-                Date = baseDate.AddDays(20),
+                Date = baseDate.AddDays(18),
                 Name = "Book Purchase",
-                Amount = 120_000m,
+                Amount = 120000m,
+                Type = TransactionType.Expense,
+                AccountId = mandiri.Id,
+                CategoryId = entertainment.Id
+            });
+
+            transactions.Add(new Transaction
+            {
+                Date = baseDate.AddDays(24),
+                Name = "Streaming Subscription",
+                Amount = 60000m,
                 Type = TransactionType.Expense,
                 AccountId = mandiri.Id,
                 CategoryId = entertainment.Id
