@@ -2,8 +2,8 @@
 
 Personal Finance Tracker built with ASP.NET Core, Blazor, EF Core, and SQL Server as a long-term learning project focused on enterprise software engineering.
 
-![Version](https://img.shields.io/badge/Version-v1.0.0-blue)
-![Release](https://img.shields.io/badge/Release-v1.0.0-success)
+![Version](https://img.shields.io/badge/Version-v1.2.0-blue)
+![Release](https://img.shields.io/badge/Release-v1.1.0-success)
 
 ![Architecture](https://img.shields.io/badge/Architecture-Clean_Architecture-success)
 ![Learning](https://img.shields.io/badge/Learning-Enterprise_.NET-blue)
@@ -18,9 +18,9 @@ Personal Finance Tracker built with ASP.NET Core, Blazor, EF Core, and SQL Serve
 
 ---
 
-## 🎉 Latest Release
+## Latest Release
 
-**v1.0.0 — Usable Finance Tracker**
+**v1.1.0 — Release Stabilization**
 
 Completed:
 
@@ -28,6 +28,7 @@ Completed:
 * ✅ Account Management
 * ✅ Transaction Management
 * ✅ Dashboard V1
+* ✅ v1.1.0 Release Stabilization
 
 Next Phase:
 * 🚧 Enterprise Foundation (v1.2.0)
@@ -36,9 +37,11 @@ Next Phase:
 
 ## Release History
 
-| Version | Status | Description |
-|----------|----------|----------|
-| v1.0.0 | Latest | Usable Finance Tracker |
+| Version | Status   | Description            |
+| ------- | -------- | ---------------------- |
+| v1.1.0  | Latest   | Release Stabilization  |
+| v1.0.0  | Previous | Usable Finance Tracker |
+
 
 ---
 
@@ -184,6 +187,9 @@ docs/
 ├── 04-project-status.md
 ├── 05-working-agreement.md
 ├── 06-ai-roadmap.md
+├── 07-git-workflow.md
+├── known-issues.md
+├── RoadmapGraph.md
 └── adr/
 ```
 
