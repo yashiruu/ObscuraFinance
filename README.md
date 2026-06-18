@@ -29,9 +29,16 @@ Completed:
 * ✅ Transaction Management
 * ✅ Dashboard V1
 
-Current Focus:
-
+Next Phase:
 * 🚧 Enterprise Foundation (v1.2.0)
+
+---
+
+## Release History
+
+| Version | Status | Description |
+|----------|----------|----------|
+| v1.0.0 | Latest | Usable Finance Tracker |
 
 ---
 
