@@ -141,14 +141,14 @@ This project is used to learn and practice:
 
 ```text
 src/
- ├── 01.Base
- ├── 02.Domain
- ├── 03.Shared
- ├── 04.Application
- ├── 05.Infrastructure
- ├── 06.WebApi
- ├── 07.Client
- └── 08.Bsui
+ ├── 01.Base            → Shared abstractions
+ ├── 02.Domain          → Business entities
+ ├── 03.Shared          → Common utilities
+ ├── 04.Application     → Use cases and DTOs
+ ├── 05.Infrastructure  → EF Core and persistence
+ ├── 06.WebApi          → API endpoints
+ ├── 07.Client          → API communication
+ └── 08.Bsui            → User interface
 ```
 
 ---
@@ -254,3 +254,23 @@ Production Platform
 The ultimate goal of this project is not to build the perfect finance tracker.
 
 The ultimate goal is to become a better enterprise .NET developer while building a useful real-world application.
+
+---
+
+## Screenshots
+
+### Dashboard
+
+![Dashboard](docs/screenshots/v1.0.0/dashboard-home.png)
+
+### Categories
+
+![Categories](docs/screenshots/v1.0.0/category-list.png)
+
+### Accounts
+
+![Accounts](docs/screenshots/v1.0.0/account-list.png)
+
+### Transactions
+
+![Transactions](docs/screenshots/v1.0.0/transaction-list.png)
