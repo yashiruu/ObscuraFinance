@@ -23,10 +23,10 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<CategoryDto>>> GetAll(CancellationToken cancellationToken)
+        public async Task<ActionResult<List<CategoryResponse>>> GetAll(CancellationToken cancellationToken)
         {
             var categories = await _dbContext.Categories
-                .Select(c => new CategoryDto
+                .Select(c => new CategoryResponse
                 {
                     Id = c.Id,
                     Name = c.Name,
@@ -38,11 +38,11 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
         }
 
         [HttpGet("{id:guid}")]
-        public async Task<ActionResult<CategoryDto>> GetById(Guid id, CancellationToken cancellationToken)
+        public async Task<ActionResult<CategoryResponse>> GetById(Guid id, CancellationToken cancellationToken)
         {
             var category = await _dbContext.Categories
                 .Where(c => c.Id == id)
-                .Select(c => new CategoryDto
+                .Select(c => new CategoryResponse
                 {
                     Id = c.Id,
                     Name = c.Name,
@@ -57,11 +57,11 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
         }
 
         [HttpGet("{type:int}")]
-        public async Task<ActionResult<List<CategoryDto>>> GetByType(int type, CancellationToken cancellationToken)
+        public async Task<ActionResult<List<CategoryResponse>>> GetByType(int type, CancellationToken cancellationToken)
         {
             var categories = await _dbContext.Categories
                 .Where(c => c.Type == (TransactionType)type)
-                .Select(c => new CategoryDto
+                .Select(c => new CategoryResponse
                 {
                     Id = c.Id,
                     Name = c.Name,
@@ -74,12 +74,12 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
         }
 
         [HttpGet("deleted")]
-        public async Task<ActionResult<List<CategoryDto>>> GetDeleted(CancellationToken cancellationToken)
+        public async Task<ActionResult<List<CategoryResponse>>> GetDeleted(CancellationToken cancellationToken)
         {
             var categories = await _dbContext.Categories
                 .IgnoreQueryFilters()
                 .Where(c => c.IsDeleted)
-                .Select(c => new CategoryDto
+                .Select(c => new CategoryResponse
                 {
                     Id = c.Id,
                     Name = c.Name,
@@ -106,7 +106,7 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
             
             await _dbContext.SaveChangesAsync(cancellationToken);
 
-            return CreatedAtAction(nameof(GetById), new { id = category.Id }, new CategoryDto
+            return CreatedAtAction(nameof(GetById), new { id = category.Id }, new CategoryResponse
             {
                 Id = category.Id,
                 Name = category.Name,

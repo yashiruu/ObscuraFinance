@@ -15,16 +15,16 @@ namespace Obscura.FinanceTracker.Client.Features
             _httpClient = httpClient;
         }
 
-        public async Task<List<CategoryDto>> GetAllAsync()
+        public async Task<List<CategoryResponse>> GetAllAsync()
         {
             var response = await _httpClient.GetAsync($"{BaseUrl}");
 
             response.EnsureSuccessStatusCode();
 
-            return await response.Content.ReadFromJsonAsync<List<CategoryDto>>() ?? [];
+            return await response.Content.ReadFromJsonAsync<List<CategoryResponse>>() ?? [];
         }
 
-        public async Task<CategoryDto?> GetByIdAsync(Guid id)
+        public async Task<CategoryResponse?> GetByIdAsync(Guid id)
         {
             var response = await _httpClient.GetAsync($"{BaseUrl}/{id}");
 
@@ -32,25 +32,25 @@ namespace Obscura.FinanceTracker.Client.Features
 
             response.EnsureSuccessStatusCode();
 
-            return await response.Content.ReadFromJsonAsync<CategoryDto>();
+            return await response.Content.ReadFromJsonAsync<CategoryResponse>();
         }
 
-        public async Task<List<CategoryDto>> GetByTypeAsync(int type)
+        public async Task<List<CategoryResponse>> GetByTypeAsync(int type)
         {
             var response = await _httpClient.GetAsync($"{BaseUrl}/type/{type}");
 
             response.EnsureSuccessStatusCode();
 
-            return await response.Content.ReadFromJsonAsync<List<CategoryDto>>() ?? [];
+            return await response.Content.ReadFromJsonAsync<List<CategoryResponse>>() ?? [];
         }
 
-        public async Task<List<CategoryDto>> GetDeletedAsync()
+        public async Task<List<CategoryResponse>> GetDeletedAsync()
         {
             var response = await _httpClient.GetAsync($"{BaseUrl}/deleted");
             
             response.EnsureSuccessStatusCode();
 
-            return await response.Content.ReadFromJsonAsync<List<CategoryDto>>() ?? [];
+            return await response.Content.ReadFromJsonAsync<List<CategoryResponse>>() ?? [];
         }
 
         public async Task CreateAsync(CategoryCreateRequest createCategoryRequest)
