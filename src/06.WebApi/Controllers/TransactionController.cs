@@ -22,7 +22,6 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
         public async Task<ActionResult<List<TransactionListResponse>>> GetAll(CancellationToken cancellationToken)
         {
             var transaction = await _dbContext.Transactions
-                .Where(t => !t.IsDeleted)
                 .Select(t => new TransactionListResponse
                 {
                     Id = t.Id,
@@ -44,7 +43,7 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
         public async Task<ActionResult<TransactionDetailResponse>> GetById(Guid id, CancellationToken cancellationToken)
         {
             var transaction = await _dbContext.Transactions
-                .Where(t => t.Id == id && !t.IsDeleted)
+                .Where(t => t.Id == id)
                 .Select(t => new TransactionDetailResponse
                 {
                     Id = t.Id,
@@ -105,7 +104,7 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
         [HttpPut("{id:guid}")]
         public async Task<ActionResult> Update(Guid id, TransactionUpdateRequest request, CancellationToken cancellationToken)
         {
-            var transaction = await _dbContext.Transactions.FirstOrDefaultAsync(t => t.Id == id && !t.IsDeleted, cancellationToken);
+            var transaction = await _dbContext.Transactions.FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
 
             if (transaction == null) return NotFound();
 
@@ -124,7 +123,7 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
         [HttpDelete("{id:guid}")]
         public async Task<ActionResult> Delete (Guid id, CancellationToken cancellationToken)
         {
-            var transaction = await _dbContext.Transactions.FirstOrDefaultAsync(t => t.Id == id && !t.IsDeleted, cancellationToken);
+            var transaction = await _dbContext.Transactions.FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
 
             if (transaction == null) return NotFound();
 
@@ -138,7 +137,7 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
         [HttpPatch("{id:guid}/restore")]
         public async Task<ActionResult> Restore(Guid id, CancellationToken cancellationToken)
         {
-            var transaction = await _dbContext.Transactions.FirstOrDefaultAsync(t => t.Id == id && t.IsDeleted, cancellationToken);
+            var transaction = await _dbContext.Transactions.IgnoreQueryFilters().FirstOrDefaultAsync(t => t.Id == id && t.IsDeleted, cancellationToken);
 
             if (transaction == null) return NotFound();
 
