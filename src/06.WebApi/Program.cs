@@ -3,6 +3,7 @@ using Obscura.FinanceTracker.Application.Interfaces;
 using Obscura.FinanceTracker.Application.Services;
 using Obscura.FinanceTracker.Infrastructure.Persistence;
 using Obscura.FinanceTracker.Infrastructure.Persistence.Seeders;
+using Obscura.FinanceTracker.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +22,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 /// Register Services and Interfaces
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IAccountService, AccountService>();
 
 var app = builder.Build();
 
