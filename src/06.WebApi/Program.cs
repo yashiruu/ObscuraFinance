@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using Obscura.FinanceTracker.Application.Interfaces;
+using Obscura.FinanceTracker.Application.Services;
 using Obscura.FinanceTracker.Infrastructure.Persistence;
 using Obscura.FinanceTracker.Infrastructure.Persistence.Seeders;
 
@@ -16,6 +18,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
+
+/// Register Services and Interfaces
+builder.Services.AddScoped<ICategoryService, CategoryService>();
 
 var app = builder.Build();
 
