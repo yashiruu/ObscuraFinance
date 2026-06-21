@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Obscura.FinanceTracker.Application.Interfaces
 {
-    public interface IDashboardSummary
+    public interface IDashboardService
     {
         Task<DashboardSummaryResponse> GetDashboardSummaryAsync(CancellationToken cancellationToken);
     }
