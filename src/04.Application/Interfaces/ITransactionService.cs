@@ -7,7 +7,7 @@ namespace Obscura.FinanceTracker.Application.Interfaces
     {
         Task<IEnumerable<TransactionListResponse>> GetAllAsync(CancellationToken cancellationToken);
         Task<TransactionDetailResponse> GetByIdAsync(Guid id, CancellationToken cancellationToken);
-        Task CreateAsync(TransactionCreateRequest request, CancellationToken cancellationToken);
+        Task<TransactionDetailResponse> CreateAsync(TransactionCreateRequest request, CancellationToken cancellationToken);
         Task UpdateAsync(Guid id, TransactionUpdateRequest request, CancellationToken cancellationToken);
         Task DeleteAsync(Guid id, CancellationToken cancellationToken);
         Task RestoreAsync(Guid id, CancellationToken cancellationToken);
