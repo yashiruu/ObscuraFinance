@@ -157,7 +157,7 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
             {
                 _logger.LogWarning("Account not found. AccountId: {AccountId}", id);
 
-                throw new KeyNotFoundException($"Account with '{id}' was not found or has been deleted");
+                throw new KeyNotFoundException($"Account with '{id}' was not found");
             }
 
             account.IsDeleted = true;
@@ -177,7 +177,7 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
             {
                 _logger.LogWarning("Account not found. AccountId: {AccountId}", id);
 
-                throw new KeyNotFoundException($"Account with '{id}' was not found or has been restored");
+                throw new KeyNotFoundException($"Account with '{id}' was not found");
             }
 
             account.IsDeleted = false;
