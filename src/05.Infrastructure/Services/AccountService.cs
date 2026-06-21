@@ -6,6 +6,7 @@ using Obscura.FinanceTracker.Application.Interfaces;
 using Obscura.FinanceTracker.Domain.Entities;
 using Obscura.FinanceTracker.Infrastructure.Persistence;
 using System.ComponentModel.DataAnnotations;
+using System.Threading;
 
 namespace Obscura.FinanceTracker.Infrastructure.Services
 {
@@ -37,7 +38,6 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
         public async Task<AccountDetailResponse> GetByIdAsync(Guid id, CancellationToken cancellationToken)
         {
             var account = await _context.Accounts
-                .Where(a => a.Id == id)
                 .Select(a => new AccountDetailResponse
                 {
                     Id = a.Id,
@@ -50,7 +50,7 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
                     IsActive = a.IsActive,
                     CreatedAt = a.CreatedAt
                 })
-                .FirstOrDefaultAsync(cancellationToken);
+                .FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
 
             if (account == null)
             {

@@ -6,7 +6,7 @@ using Obscura.FinanceTracker.Domain.Entities;
 using Obscura.FinanceTracker.Domain.Enums;
 using Obscura.FinanceTracker.Infrastructure.Persistence;
 
-namespace Obscura.FinanceTracker.Application.Services
+namespace Obscura.FinanceTracker.Infrastructure.Services
 {
     public class CategoryService : ICategoryService
     {
@@ -71,7 +71,6 @@ namespace Obscura.FinanceTracker.Application.Services
         public async Task<CategoryResponse?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
         {
             var category = await _context.Categories
-                .Where(c => c.Id == id)
                 .Select(c => new CategoryResponse
                 {
                     Id = c.Id,
@@ -79,7 +78,7 @@ namespace Obscura.FinanceTracker.Application.Services
                     Description = c.Description,
                     Type = c.Type
                 })
-                .FirstOrDefaultAsync(cancellationToken);
+                .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
 
             return category;
         }

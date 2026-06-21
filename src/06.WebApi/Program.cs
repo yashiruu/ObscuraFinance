@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Obscura.FinanceTracker.Application.Interfaces;
-using Obscura.FinanceTracker.Application.Services;
 using Obscura.FinanceTracker.Infrastructure.Persistence;
 using Obscura.FinanceTracker.Infrastructure.Persistence.Seeders;
 using Obscura.FinanceTracker.Infrastructure.Services;

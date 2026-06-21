@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Obscura.FinanceTracker.Application.DTOs.Categories.Requests;
 using Obscura.FinanceTracker.Application.DTOs.Categories.Responses;
 using Obscura.FinanceTracker.Application.Interfaces;
-using Obscura.FinanceTracker.Application.Services;
 using Obscura.FinanceTracker.Domain.Enums;
 
 namespace Obscura.FinanceTracker.WebApi.Controllers
@@ -12,13 +10,11 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
     [Route("api/[controller]")]
     public class CategoryController : ControllerBase
     {
-        // Inject the AppDbContext to interact with the database
         private readonly ICategoryService _categoryService;
 
-        // Constructor to initialize the AppDbContext
-        public CategoryController(ICategoryService service)
+        public CategoryController(ICategoryService categoryService)
         {
-            _categoryService = service;
+            _categoryService = categoryService;
         }
 
         [HttpGet]

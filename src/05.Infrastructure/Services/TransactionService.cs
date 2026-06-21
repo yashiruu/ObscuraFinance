@@ -39,7 +39,6 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
         public async Task<TransactionDetailResponse> GetByIdAsync(Guid id, CancellationToken cancellationToken)
         {
             var transaction = await _context.Transactions
-                .Where(t => t.Id == id)
                 .Select(t => new TransactionDetailResponse
                 {
                     Id = t.Id,
@@ -57,7 +56,7 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
                     UpdatedBy = t.UpdatedBy,
                     IsDeleted = t.IsDeleted
                 })
-                .FirstOrDefaultAsync(cancellationToken);
+                .FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
 
             if (transaction == null)
             {
@@ -68,30 +67,22 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
         }
         public async Task<TransactionDetailResponse> CreateAsync(TransactionCreateRequest request, CancellationToken cancellationToken)
         {
-            var account = await _context.Accounts
+            var accountExists = await _context.Accounts
                 .Where(a => a.Id == request.AccountId)
-                .Select(a => new
-                {
-                    a.Id,
-                    a.Name
-                })
+                .Select(a => new {a.Name})  // get only the Name property to reduce data transfer for response
                 .FirstOrDefaultAsync(cancellationToken);
 
-            var category = await _context.Categories
+            var categoryExists = await _context.Categories
                 .Where(c => c.Id == request.CategoryId)
-                .Select(c => new
-                {
-                    c.Id,
-                    c.Name
-                })
+                .Select(c => new {c.Name})  // get only the Name property to reduce data transfer for response
                 .FirstOrDefaultAsync(cancellationToken);
 
-            if (account == null)
+            if (accountExists == null)
             {
                 throw new KeyNotFoundException($"Account with `{request.AccountId}` was not found");
             }
 
-            if (category == null)
+            if (categoryExists == null)
             {
                 throw new KeyNotFoundException($"Category with `{request.CategoryId}` was not found");
             }
@@ -128,9 +119,9 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
                 Amount = transaction.Amount,
                 Type = transaction.Type,
                 CategoryId = transaction.CategoryId,
-                CategoryName = category.Name,
+                CategoryName = categoryExists.Name,
                 AccountId = transaction.AccountId,
-                AccountName = account.Name,
+                AccountName = accountExists.Name,
                 CreatedAt = transaction.CreatedAt,
                 CreatedBy = transaction.CreatedBy
             };
