@@ -3,6 +3,7 @@ using Obscura.FinanceTracker.Application.Interfaces;
 using Obscura.FinanceTracker.Infrastructure.Persistence;
 using Obscura.FinanceTracker.Infrastructure.Persistence.Seeders;
 using Obscura.FinanceTracker.Infrastructure.Services;
+using Obscura.FinanceTracker.WebApi.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -51,6 +52,9 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.UseHttpsRedirection();
+
+/// Use custom exception handling middleware
+app.UseExceptionMiddleware();
 
 app.MapControllers();
 
