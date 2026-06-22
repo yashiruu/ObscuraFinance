@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Asp.Versioning;
+using Microsoft.AspNetCore.Mvc;
 using Obscura.FinanceTracker.Application.Common.Responses;
 using Obscura.FinanceTracker.Application.DTOs.Transactions.Requests;
 using Obscura.FinanceTracker.Application.DTOs.Transactions.Responses;
@@ -7,7 +8,8 @@ using Obscura.FinanceTracker.Application.Interfaces;
 namespace Obscura.FinanceTracker.WebApi.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     public class TransactionController : ControllerBase
     {
         private readonly ITransactionService _transactionService;

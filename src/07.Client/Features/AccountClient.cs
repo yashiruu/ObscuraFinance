@@ -9,7 +9,7 @@ namespace Obscura.FinanceTracker.Client.Features
     public class AccountClient
     {
         private readonly HttpClient _httpClient;
-        private const string BaseUrl = "api/account";
+        private const string BaseUrl = "api/v1/account";
 
         public AccountClient(HttpClient httpClient)
         {

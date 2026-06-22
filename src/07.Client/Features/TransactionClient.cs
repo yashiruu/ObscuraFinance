@@ -8,7 +8,7 @@ namespace Obscura.FinanceTracker.Client.Features
     public class TransactionClient
     {
         private readonly HttpClient _httpClient;
-        private const string BaseUrl = "api/transaction";
+        private const string BaseUrl = "api/v1/transaction";
 
         public TransactionClient(HttpClient httpClient)
         {

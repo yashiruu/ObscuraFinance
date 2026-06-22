@@ -1,3 +1,5 @@
+using Asp.Versioning;
+using Asp.Versioning.ApiExplorer;
 using Microsoft.EntityFrameworkCore;
 using Obscura.FinanceTracker.Application.Interfaces;
 using Obscura.FinanceTracker.Infrastructure.Persistence;
@@ -16,6 +18,20 @@ var builder = WebApplication.CreateBuilder(args);
 // exploring and testing API endpoints during development.
 // =============================================================================
 builder.Services.AddControllers();
+builder.Services
+    .AddApiVersioning(options =>
+    {
+        options.DefaultApiVersion = new ApiVersion(1, 0);
+
+        options.AssumeDefaultVersionWhenUnspecified = true;
+
+        options.ReportApiVersions = true;
+    })
+    .AddApiExplorer(options =>
+    {
+        options.GroupNameFormat = "'v'VVV";
+        options.SubstituteApiVersionInUrl = true;
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -29,10 +45,6 @@ builder.Services.AddSwaggerGen();
 // The connection string is read from appsettings.json under:
 //   "ConnectionStrings": { "DefaultConnection": "..." }
 // =============================================================================
-builder.Services.AddDbContext<AppDbContext>(options =>
-{
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-});
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));

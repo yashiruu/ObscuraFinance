@@ -7,7 +7,7 @@ namespace Obscura.FinanceTracker.Client.Features
     public class DashboardClient
     {
         private readonly HttpClient _httpClient;
-        private const string BaseUrl = "api/dashboard";
+        private const string BaseUrl = "api/v1/dashboard";
 
         public DashboardClient(HttpClient httpClient)
         {
