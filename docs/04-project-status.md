@@ -113,14 +113,14 @@ Notes:
 
 Status:
 
-🚧 Current Focus
+✅ Completed
 
 Modules:
 
-* Interface
+* Interface Layer
 * Service Layer
-* Logging
-* Middleware
+* Structured Logging
+* Global Exception Middleware
 * Response Standardization
 * Global Query Filter
 
@@ -128,7 +128,18 @@ Goal:
 
 * Introduce foundational enterprise patterns
 * Improve separation of concerns
+* Improve API consistency
+* Centralize error handling
+* Complete soft delete implementation
 * Prepare for Repository Pattern and CQRS
+
+Notes:
+
+* Service layer introduced for business logic separation.
+* API responses standardized using `ApiResponse<T>`.
+* Global exception handling implemented through middleware.
+* Soft delete completed using EF Core global query filters.
+* Client applications updated to support standardized API responses.
 
 ---
 
@@ -137,7 +148,7 @@ Goal:
 ```text
 Phase 1 ██████████ 100%
 
-Phase 2 ░░░░░░░░░░ 0%
+Phase 2 ██████████ 100%
 
 Phase 3 ░░░░░░░░░░ 0%
 
@@ -155,11 +166,13 @@ Phase 7 ░░░░░░░░░░ 0%
 # Current Priority
 
 ```text
-Enterprise Foundation
+Phase 3
     ↓
-v1.2.0 Release
+Data Access Patterns
     ↓
-Data Access & Application Patterns
+Repository Pattern
+    ↓
+Unit Of Work
 ```
 
 ---
@@ -167,35 +180,92 @@ Data Access & Application Patterns
 # Latest Release
 
 ```text
-v1.0.0
-Usable Finance Tracker
+v1.2.0
+Enterprise Foundation
 ```
 
 Delivered:
 
-* Category Management
-* Account Management
-* Transaction Management
-* Dashboard V1
+* Interface Layer
+* Service Layer
+* Structured Logging
+* Global Exception Middleware
+* Response Standardization
+* Global Query Filter
 
 ---
 
 # Next Major Milestone
 
 ```text
-v1.2.0
-Enterprise Foundation Ready
+v1.5.0
+Data Access Patterns
 ```
 
 Requirements:
 
-* Interface
-* Service Layer
-* Logging
-* Middleware
-* Response Standardization
-* Global Query Filter
+* Repository Pattern
+* Unit Of Work
+* Validation
+* AutoMapper
+* Testing
 
 Current Progress:
 
-🚧 Preparing
+🚧 Planning
+
+---
+
+# Upcoming Focus
+
+## Module 11 — Repository Pattern
+
+Objectives:
+
+* Introduce data access abstraction
+* Reduce direct dependency on DbContext
+* Prepare foundation for Unit Of Work
+* Learn generic repositories and constraints
+
+---
+
+## Module 12 — Unit Of Work
+
+Objectives:
+
+* Coordinate repositories
+* Manage transactions consistently
+* Centralize SaveChanges operations
+
+---
+
+## Module 13 — Validation
+
+Objectives:
+
+* Introduce request validation
+* Improve API error handling
+* Standardize validation responses
+
+---
+
+## Module 14 — AutoMapper
+
+Objectives:
+
+* Reduce manual mapping
+* Improve DTO maintainability
+* Prepare for CQRS architecture
+
+---
+
+## Module 15 — Testing
+
+Objectives:
+
+* Unit Testing
+* Integration Testing
+* Improve confidence during refactoring
+
+```
+```
