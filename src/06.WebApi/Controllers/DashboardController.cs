@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using Obscura.FinanceTracker.Application.Common.Responses;
 using Obscura.FinanceTracker.Application.DTOs.Dashboard.Responses;
 using Obscura.FinanceTracker.Application.Interfaces;
-using Obscura.FinanceTracker.Domain.Enums;
-using Obscura.FinanceTracker.Infrastructure.Persistence;
 
 namespace Obscura.FinanceTracker.WebApi.Controllers
 {
@@ -23,7 +21,12 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
         {
             var response = await _dashboardService.GetDashboardSummaryAsync(CancellationToken.None);
 
-            return Ok(response);
+            return Ok(new ApiResponse<DashboardSummaryResponse>
+            {
+                Success = true,
+                Message = "Dashboard summary retrieved successfully",
+                Data = response
+            });
         }
     }
 }

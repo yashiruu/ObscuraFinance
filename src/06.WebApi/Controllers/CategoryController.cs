@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Obscura.FinanceTracker.Application.Common.Responses;
 using Obscura.FinanceTracker.Application.DTOs.Categories.Requests;
 using Obscura.FinanceTracker.Application.DTOs.Categories.Responses;
 using Obscura.FinanceTracker.Application.Interfaces;
@@ -21,7 +22,13 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
         public async Task<ActionResult<IEnumerable<CategoryResponse>>> GetAll(CancellationToken cancellationToken)
         {
             var categories = await _categoryService.GetAllAsync(cancellationToken);
-            return Ok(categories);
+
+            return Ok(new ApiResponse<IEnumerable<CategoryResponse>>
+            {
+                Success = true,
+                Message = "Categories retrieved successfully",
+                Data = categories
+            });
         }
 
         [HttpGet("{id:guid}")]
@@ -31,7 +38,12 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
 
             if (category == null) return NotFound();
 
-            return Ok(category);
+            return Ok(new ApiResponse<CategoryResponse>
+            {
+                Success = true,
+                Message = "Category retrieved successfully",
+                Data = category
+            });
         }
 
         [HttpGet("type/{type:int}")]
@@ -39,14 +51,24 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
         {
             var categories = await _categoryService.GetByTypeAsync((TransactionType)type, cancellationToken);
 
-            return Ok(categories);
+            return Ok(new ApiResponse<IEnumerable<CategoryResponse>>
+            {
+                Success = true,
+                Message = "Categories retrieved successfully",
+                Data = categories
+            });
         }
 
         [HttpGet("deleted")]
         public async Task<ActionResult<IEnumerable<CategoryResponse>>> GetDeleted(CancellationToken cancellationToken)
         {
             var categories = await _categoryService.GetDeletedAsync(cancellationToken);
-            return Ok(categories);
+            return Ok(new ApiResponse<IEnumerable<CategoryResponse>>
+            {
+                Success = true,
+                Message = "Deleted categories retrieved successfully",
+                Data = categories
+            });
         }
 
         [HttpPost]
@@ -54,7 +76,12 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
         {
             var category = await _categoryService.CreateAsync(request, cancellationToken);
 
-            return CreatedAtAction(nameof(GetById), new { id = category.Id }, category);
+            return CreatedAtAction(nameof(GetById), new { id = category.Id }, new ApiResponse<CategoryResponse>
+            {
+                Success = true,
+                Message = "Category created successfully",
+                Data = category
+            });
         }
 
         [HttpPut("{id:guid}")]

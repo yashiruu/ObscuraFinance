@@ -1,10 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using Obscura.FinanceTracker.Application.Common.Responses;
 using Obscura.FinanceTracker.Application.DTOs.Transactions.Requests;
 using Obscura.FinanceTracker.Application.DTOs.Transactions.Responses;
 using Obscura.FinanceTracker.Application.Interfaces;
-using Obscura.FinanceTracker.Domain.Entities;
-using Obscura.FinanceTracker.Infrastructure.Persistence;
 
 namespace Obscura.FinanceTracker.WebApi.Controllers
 {
@@ -24,7 +22,12 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
         {
             var transactions = await _transactionService.GetAllAsync(cancellationToken);
 
-            return Ok(transactions);
+            return Ok(new ApiResponse<IEnumerable<TransactionListResponse>>
+            {
+                Success = true,
+                Message = "Transactions retrieved successfully",
+                Data = transactions
+            });
         }
 
         [HttpGet("{id:guid}")]
@@ -32,7 +35,12 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
         {
             var transaction = await _transactionService.GetByIdAsync(id, cancellationToken);
 
-            return Ok(transaction);
+            return Ok(new ApiResponse<TransactionDetailResponse>
+            {
+                Success = true,
+                Message = "Transaction retrieved successfully",
+                Data = transaction
+            });
         }
 
         [HttpPost]
@@ -40,7 +48,12 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
         {
             var transaction = await _transactionService.CreateAsync(request, cancellationToken);
 
-            return CreatedAtAction(nameof(GetById), new { id = transaction.Id }, transaction);
+            return CreatedAtAction(nameof(GetById), new { id = transaction.Id }, new ApiResponse<TransactionDetailResponse>
+            {
+                Success = true,
+                Message = "Transaction created successfully",
+                Data = transaction
+            });
         }
 
         [HttpPut("{id:guid}")]

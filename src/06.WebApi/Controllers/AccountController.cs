@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Obscura.FinanceTracker.Application.Accounts.DTOs;
+using Obscura.FinanceTracker.Application.Common.Responses;
 using Obscura.FinanceTracker.Application.DTOs.Accounts.Requests;
 using Obscura.FinanceTracker.Application.DTOs.Accounts.Responses;
 using Obscura.FinanceTracker.Application.Interfaces;
@@ -22,7 +23,12 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
         {
             var accounts = await _accountService.GetAllAsync(cancellationToken);
 
-            return Ok(accounts);
+            return Ok(new ApiResponse<IEnumerable<AccountListResponse>>
+            {
+                Success = true,
+                Message = "Accounts retrieved successfully",
+                Data = accounts
+            });
         }
 
         [HttpGet("{id:guid}")]
@@ -30,7 +36,12 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
         {
             var account = await _accountService.GetByIdAsync(id, cancellationToken);
 
-            return Ok(account);
+            return Ok(new ApiResponse<AccountDetailResponse>
+            {
+                Success = true,
+                Message = "Account retrieved successfully",
+                Data = account
+            });
         }
 
         [HttpPost]
@@ -38,7 +49,12 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
         {
             var account = await _accountService.CreateAsync(request, cancellationToken);
 
-            return CreatedAtAction(nameof(GetById), new { id = account.Id }, account);
+            return CreatedAtAction(nameof(GetById), new { id = account.Id }, new ApiResponse<AccountDetailResponse>
+            {
+                Success = true,
+                Message = "Account created successfully",
+                Data = account
+            });
         }
 
         [HttpPut("{id:guid}")]
