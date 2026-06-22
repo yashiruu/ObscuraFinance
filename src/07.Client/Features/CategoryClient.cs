@@ -1,4 +1,5 @@
-﻿using Obscura.FinanceTracker.Application.DTOs.Categories.Requests;
+﻿using Obscura.FinanceTracker.Application.Common.Responses;
+using Obscura.FinanceTracker.Application.DTOs.Categories.Requests;
 using Obscura.FinanceTracker.Application.DTOs.Categories.Responses;
 using System.Net;
 using System.Net.Http.Json;
@@ -21,7 +22,9 @@ namespace Obscura.FinanceTracker.Client.Features
 
             response.EnsureSuccessStatusCode();
 
-            return await response.Content.ReadFromJsonAsync<List<CategoryResponse>>() ?? [];
+            var result = await response.Content.ReadFromJsonAsync<ApiResponse<List<CategoryResponse>>>();
+
+            return result?.Data ?? [];
         }
 
         public async Task<CategoryResponse?> GetByIdAsync(Guid id)
@@ -32,7 +35,9 @@ namespace Obscura.FinanceTracker.Client.Features
 
             response.EnsureSuccessStatusCode();
 
-            return await response.Content.ReadFromJsonAsync<CategoryResponse>();
+            var result = await response.Content.ReadFromJsonAsync<ApiResponse<CategoryResponse>>();
+
+            return result?.Data;
         }
 
         public async Task<List<CategoryResponse>> GetByTypeAsync(int type)
@@ -41,7 +46,9 @@ namespace Obscura.FinanceTracker.Client.Features
 
             response.EnsureSuccessStatusCode();
 
-            return await response.Content.ReadFromJsonAsync<List<CategoryResponse>>() ?? [];
+            var result = await response.Content.ReadFromJsonAsync<ApiResponse<List<CategoryResponse>>>();
+
+            return result?.Data ?? [];
         }
 
         public async Task<List<CategoryResponse>> GetDeletedAsync()
@@ -50,7 +57,9 @@ namespace Obscura.FinanceTracker.Client.Features
             
             response.EnsureSuccessStatusCode();
 
-            return await response.Content.ReadFromJsonAsync<List<CategoryResponse>>() ?? [];
+            var result = await response.Content.ReadFromJsonAsync<ApiResponse<List<CategoryResponse>>>();
+
+            return result?.Data ?? [];
         }
 
         public async Task CreateAsync(CategoryCreateRequest createCategoryRequest)

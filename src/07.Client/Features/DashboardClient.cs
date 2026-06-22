@@ -1,4 +1,5 @@
-﻿using Obscura.FinanceTracker.Application.DTOs.Dashboard.Responses;
+﻿using Obscura.FinanceTracker.Application.Common.Responses;
+using Obscura.FinanceTracker.Application.DTOs.Dashboard.Responses;
 using System.Net.Http.Json;
 
 namespace Obscura.FinanceTracker.Client.Features
@@ -19,7 +20,9 @@ namespace Obscura.FinanceTracker.Client.Features
 
             response.EnsureSuccessStatusCode();
 
-            return await response.Content.ReadFromJsonAsync<DashboardSummaryResponse>();
+            var result = await response.Content.ReadFromJsonAsync<ApiResponse<DashboardSummaryResponse>>();
+
+            return result?.Data;
         }
     }
 }

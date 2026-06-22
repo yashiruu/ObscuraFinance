@@ -1,4 +1,5 @@
 ﻿using Obscura.FinanceTracker.Application.Accounts.DTOs;
+using Obscura.FinanceTracker.Application.Common.Responses;
 using Obscura.FinanceTracker.Application.DTOs.Accounts.Requests;
 using Obscura.FinanceTracker.Application.DTOs.Accounts.Responses;
 using System.Net.Http.Json;
@@ -21,7 +22,9 @@ namespace Obscura.FinanceTracker.Client.Features
 
             response.EnsureSuccessStatusCode();
 
-            return await response.Content.ReadFromJsonAsync<List<AccountListResponse>>() ?? [];
+            var result = await response.Content.ReadFromJsonAsync<ApiResponse<List<AccountListResponse>>>();
+
+            return result?.Data ?? [];
         }
 
         public async Task<AccountDetailResponse?> GetByIdAsync(Guid id)
@@ -32,7 +35,9 @@ namespace Obscura.FinanceTracker.Client.Features
 
             response.EnsureSuccessStatusCode();
             
-            return await response.Content.ReadFromJsonAsync<AccountDetailResponse>();
+            var result = await response.Content.ReadFromJsonAsync<ApiResponse<AccountDetailResponse>>();
+
+            return result?.Data;
         }
 
         public async Task CreateAsync(AccountCreateRequest request)
