@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Obscura.FinanceTracker.Application.Common.Responses;
+using System.ComponentModel.DataAnnotations;
 
 namespace Obscura.FinanceTracker.WebApi.Middleware
 {
@@ -30,6 +32,14 @@ namespace Obscura.FinanceTracker.WebApi.Middleware
                         success = false,
                         message = ex.Message
                     });
+            }
+            catch (ValidationException ex)
+            {
+                context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                context.Response.ContentType = "application/json";
+
+                await context.Response.WriteAsJsonAsync(
+                    ApiResponse<object>.ErrorResponse(ex.Message));
             }
             catch (ArgumentException ex)
             {
