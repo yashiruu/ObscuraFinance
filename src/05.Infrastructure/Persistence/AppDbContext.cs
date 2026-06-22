@@ -17,6 +17,16 @@ namespace Obscura.FinanceTracker.Infrastructure.Persistence
             modelBuilder.ApplyConfigurationsFromAssembly(
                 typeof(AppDbContext).Assembly);
 
+            /// <summary> Global Query Filter </summary>
+            modelBuilder.Entity<Category>()
+                .HasQueryFilter(c => !c.IsDeleted);
+
+            modelBuilder.Entity<Account>()
+                .HasQueryFilter(a => !a.IsDeleted);
+
+            modelBuilder.Entity<Transaction>()
+                .HasQueryFilter(t => !t.IsDeleted);
+
             base.OnModelCreating(modelBuilder);
         }
 

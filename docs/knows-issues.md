@@ -16,25 +16,30 @@ This document should be updated whenever a meaningful issue is discovered.
 
 Status:
 
-✅ No Known Issues
+⚠️ Known Architectural Observations
 
-At the time of the v1.0.0 release stabilization review, no unresolved functional issues have been identified.
+At the completion of the v1.2.0 Enterprise Foundation release, no unresolved release-blocking defects have been identified.
 
-The following modules have been implemented and verified through feature development:
+The following modules have been implemented and verified:
 
 * Category Management
 * Account Management
 * Transaction Management
 * Dashboard V1
+* Enterprise Foundation
 
-Previously identified issues during development have been resolved before release stabilization.
+Previously identified functional issues have been resolved during development.
 
 Examples include:
 
 * Transaction account dropdown binding issue
 * Transaction category dropdown binding issue
+* ApiResponse client deserialization issue
+* Validation exception middleware mapping issue
 
-No active defects are currently being tracked.
+No active critical defects are currently being tracked.
+
+Several architectural observations have been identified and are documented in this file for future improvement.
 
 ---
 
@@ -45,26 +50,28 @@ Current testing has primarily consisted of:
 * Feature development testing
 * Manual workflow validation
 * CRUD verification
+* API verification
 * UI interaction testing
 * Development-time debugging
+* Enterprise Foundation regression testing
 
-The project has not yet undergone a dedicated full-system testing phase.
+The project has not yet undergone a dedicated full-system testing phase or automated testing implementation.
 
-As a result, the absence of known issues should not be interpreted as proof that no defects exist.
+As a result, the absence of critical known issues should not be interpreted as proof that no defects exist.
 
-It only indicates that no unresolved defects are currently known.
+It only indicates that no release-blocking defects are currently known.
 
 ---
 
 # Deferred Validation
 
-A comprehensive testing phase is intentionally postponed until after Phase 2.
+A comprehensive testing phase is intentionally postponed until after Phase 3.
 
 Reasoning:
 
-* Current focus is feature completion and architectural learning.
-* Phase 2 introduces foundational enterprise improvements.
-* Conducting full regression testing after those improvements provides better value than repeating the process multiple times.
+* Current focus is architectural learning and implementation.
+* Phase 3 introduces significant data access refactoring.
+* Performing a dedicated testing phase after Repository Pattern, Unit Of Work, Validation, and AutoMapper provides greater value.
 
 The future validation phase should include:
 
@@ -141,24 +148,121 @@ Verify:
 
 # Technical Debt
 
-No significant technical debt has been formally identified at this stage.
+No significant technical debt has been formally identified.
 
-Future architectural improvements are planned as part of the roadmap and should not be considered technical debt.
+The following items are planned roadmap objectives and should not be considered technical debt:
 
-Examples:
-
-* Service Layer
-* Interface Abstraction
-* Logging
-* Middleware
-* Response Standardization
-* Global Query Filter
 * Repository Pattern
 * Unit Of Work
+* Validation
+* AutoMapper
+* Testing
 * CQRS
 * MediatR
 
-These items are roadmap objectives rather than corrective actions.
+These items represent planned architectural evolution rather than corrective actions.
+
+---
+
+# Architectural Observations
+
+The following items are not considered release-blocking defects but have been identified as areas for future improvement.
+
+## AO-001 — ApiResponse Coupling Between API and Client
+
+Description:
+
+The introduction of standardized API responses requires client applications to understand and deserialize `ApiResponse<T>`.
+
+Current flow:
+
+```text
+WebApi
+    ↓
+ApiResponse<T>
+
+Client
+    ↓
+Needs to understand ApiResponse<T>
+```
+
+Impact:
+
+* Increased coupling between API and Client layers.
+* Response deserialization logic is repeated across multiple client classes.
+* Future response contract changes may require updates across all clients.
+
+Future Improvement:
+
+Consider introducing a shared helper method:
+
+```csharp
+ReadApiResponseAsync<T>()
+```
+
+to centralize response deserialization and reduce duplication.
+
+Target Phase:
+
+* Phase 3 — Data Access & Application Patterns
+
+---
+
+## AO-002 — Client Error Handling Is Still Primitive
+
+Description:
+
+Most client implementations currently rely on:
+
+```csharp
+response.EnsureSuccessStatusCode();
+```
+
+When the API returns a structured business error response:
+
+```json
+{
+  "success": false,
+  "message": "Category already exists"
+}
+```
+
+the client receives only:
+
+```text
+HttpRequestException
+```
+
+and loses the business message provided by the API.
+
+Impact:
+
+* Reduced user feedback quality.
+* Business error messages are not fully utilized.
+* UI cannot consistently display meaningful validation messages.
+
+Future Improvement:
+
+Introduce a centralized response handling mechanism:
+
+```csharp
+ReadApiResponseAsync<T>()
+```
+
+Expected flow:
+
+```text
+Success = false
+    ↓
+Throw Business Exception
+    ↓
+UI displays meaningful message
+```
+
+Target Phase:
+
+* Phase 3 — Data Access & Application Patterns
+* Module 13 — Validation
 
 ---
 
@@ -171,16 +275,17 @@ Low
 Reasoning:
 
 * Core CRUD workflows are operational.
-* Major feature modules are complete.
-* Previously identified functional issues have been resolved.
-* Application remains relatively small and understandable.
+* Enterprise Foundation implementation has been completed.
+* No release-blocking defects are known.
+* Remaining issues are architectural and manageable.
 
 Primary risk areas moving forward:
 
 * Dashboard aggregation accuracy
-* Data consistency after future refactoring
+* Data consistency after Repository Pattern implementation
 * Soft delete behavior across future modules
-* Regression issues introduced during enterprise architecture upgrades
+* Client-side error handling consistency
+* Regression issues introduced during architectural refactoring
 
 ---
 
@@ -188,11 +293,11 @@ Primary risk areas moving forward:
 
 Version:
 
-v1.0.0
+v1.2.0
 
 Assessment:
 
-The application is considered stable enough to serve as the baseline release for future development.
+The application is considered stable enough to serve as the Enterprise Foundation release and the baseline for Phase 3 development.
 
 No release-blocking issues are currently known.
 
@@ -202,9 +307,9 @@ No release-blocking issues are currently known.
 
 The next known issues review should be performed:
 
-* Before v1.2.0 release
-* After Enterprise Foundation implementation
-* Before the first dedicated full-system testing cycle
+* Before v1.5.0 release
+* After Data Access Patterns implementation
+* Before the first dedicated testing phase
 
 At that time this document should be updated with:
 

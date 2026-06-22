@@ -1,4 +1,5 @@
-﻿using Obscura.FinanceTracker.Application.DTOs.Categories.Requests;
+﻿using Obscura.FinanceTracker.Application.Common.Responses;
+using Obscura.FinanceTracker.Application.DTOs.Categories.Requests;
 using Obscura.FinanceTracker.Application.DTOs.Categories.Responses;
 using System.Net;
 using System.Net.Http.Json;
@@ -15,16 +16,18 @@ namespace Obscura.FinanceTracker.Client.Features
             _httpClient = httpClient;
         }
 
-        public async Task<List<CategoryDto>> GetAllAsync()
+        public async Task<List<CategoryResponse>> GetAllAsync()
         {
             var response = await _httpClient.GetAsync($"{BaseUrl}");
 
             response.EnsureSuccessStatusCode();
 
-            return await response.Content.ReadFromJsonAsync<List<CategoryDto>>() ?? [];
+            var result = await response.Content.ReadFromJsonAsync<ApiResponse<List<CategoryResponse>>>();
+
+            return result?.Data ?? [];
         }
 
-        public async Task<CategoryDto?> GetByIdAsync(Guid id)
+        public async Task<CategoryResponse?> GetByIdAsync(Guid id)
         {
             var response = await _httpClient.GetAsync($"{BaseUrl}/{id}");
 
@@ -32,25 +35,31 @@ namespace Obscura.FinanceTracker.Client.Features
 
             response.EnsureSuccessStatusCode();
 
-            return await response.Content.ReadFromJsonAsync<CategoryDto>();
+            var result = await response.Content.ReadFromJsonAsync<ApiResponse<CategoryResponse>>();
+
+            return result?.Data;
         }
 
-        public async Task<List<CategoryDto>> GetByTypeAsync(int type)
+        public async Task<List<CategoryResponse>> GetByTypeAsync(int type)
         {
             var response = await _httpClient.GetAsync($"{BaseUrl}/type/{type}");
 
             response.EnsureSuccessStatusCode();
 
-            return await response.Content.ReadFromJsonAsync<List<CategoryDto>>() ?? [];
+            var result = await response.Content.ReadFromJsonAsync<ApiResponse<List<CategoryResponse>>>();
+
+            return result?.Data ?? [];
         }
 
-        public async Task<List<CategoryDto>> GetDeletedAsync()
+        public async Task<List<CategoryResponse>> GetDeletedAsync()
         {
             var response = await _httpClient.GetAsync($"{BaseUrl}/deleted");
             
             response.EnsureSuccessStatusCode();
 
-            return await response.Content.ReadFromJsonAsync<List<CategoryDto>>() ?? [];
+            var result = await response.Content.ReadFromJsonAsync<ApiResponse<List<CategoryResponse>>>();
+
+            return result?.Data ?? [];
         }
 
         public async Task CreateAsync(CategoryCreateRequest createCategoryRequest)

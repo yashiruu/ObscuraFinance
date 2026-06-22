@@ -1,11 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
+using Obscura.FinanceTracker.Application.Common.Responses;
 using Obscura.FinanceTracker.Application.DTOs.Categories.Requests;
 using Obscura.FinanceTracker.Application.DTOs.Categories.Responses;
-using Obscura.FinanceTracker.Domain.Entities;
+using Obscura.FinanceTracker.Application.Interfaces;
 using Obscura.FinanceTracker.Domain.Enums;
-using Obscura.FinanceTracker.Infrastructure.Persistence;
 
 namespace Obscura.FinanceTracker.WebApi.Controllers
 {
@@ -13,120 +11,83 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
     [Route("api/[controller]")]
     public class CategoryController : ControllerBase
     {
-        // Inject the AppDbContext to interact with the database
-        private readonly AppDbContext _dbContext;
+        private readonly ICategoryService _categoryService;
 
-        // Constructor to initialize the AppDbContext
-        public CategoryController(AppDbContext dbContext)
+        public CategoryController(ICategoryService categoryService)
         {
-            _dbContext = dbContext;
+            _categoryService = categoryService;
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<CategoryDto>>> GetAll(CancellationToken cancellationToken)
+        public async Task<ActionResult<IEnumerable<CategoryResponse>>> GetAll(CancellationToken cancellationToken)
         {
-            var categories = await _dbContext.Categories
-                .Where(c => c.IsDeleted == false)
-                .Select(c => new CategoryDto
-                {
-                    Id = c.Id,
-                    Name = c.Name,
-                    Description = c.Description,
-                    Type = c.Type
-                })
-                .ToListAsync(cancellationToken);
-            return Ok(categories);
+            var categories = await _categoryService.GetAllAsync(cancellationToken);
+
+            return Ok(new ApiResponse<IEnumerable<CategoryResponse>>
+            {
+                Success = true,
+                Message = "Categories retrieved successfully",
+                Data = categories
+            });
         }
 
         [HttpGet("{id:guid}")]
-        public async Task<ActionResult<CategoryDto>> GetById(Guid id, CancellationToken cancellationToken)
+        public async Task<ActionResult<CategoryResponse>> GetById(Guid id, CancellationToken cancellationToken)
         {
-            var category = await _dbContext.Categories
-                .Where(c => c.Id == id && c.IsDeleted == false)
-                .Select(c => new CategoryDto
-                {
-                    Id = c.Id,
-                    Name = c.Name,
-                    Description = c.Description,
-                    Type = c.Type
-                })
-                .FirstOrDefaultAsync(cancellationToken);
+            var category = await _categoryService.GetByIdAsync(id, cancellationToken);
 
             if (category == null) return NotFound();
 
-            return Ok(category);
+            return Ok(new ApiResponse<CategoryResponse>
+            {
+                Success = true,
+                Message = "Category retrieved successfully",
+                Data = category
+            });
         }
 
-        [HttpGet("{type:int}")]
-        public async Task<ActionResult<List<CategoryDto>>> GetByType(int type, CancellationToken cancellationToken)
+        [HttpGet("type/{type:int}")]
+        public async Task<ActionResult<IEnumerable<CategoryResponse>>> GetByType(int type, CancellationToken cancellationToken)
         {
-            var categories = await _dbContext.Categories
-                .Where(c => c.Type == (TransactionType)type && !c.IsDeleted)
-                .Select(c => new CategoryDto
-                {
-                    Id = c.Id,
-                    Name = c.Name,
-                    Description = c.Description,
-                    Type = c.Type
-                })
-                .ToListAsync(cancellationToken);
+            var categories = await _categoryService.GetByTypeAsync((TransactionType)type, cancellationToken);
 
-            return Ok(categories);
+            return Ok(new ApiResponse<IEnumerable<CategoryResponse>>
+            {
+                Success = true,
+                Message = "Categories retrieved successfully",
+                Data = categories
+            });
         }
 
         [HttpGet("deleted")]
-        public async Task<ActionResult<List<CategoryDto>>> GetDeleted(CancellationToken cancellationToken)
+        public async Task<ActionResult<IEnumerable<CategoryResponse>>> GetDeleted(CancellationToken cancellationToken)
         {
-            var categories = await _dbContext.Categories
-                .Where(c => c.IsDeleted)
-                .Select(c => new CategoryDto
-                {
-                    Id = c.Id,
-                    Name = c.Name,
-                    Description = c.Description,
-                    Type = c.Type
-                })
-                .ToListAsync(cancellationToken);
-            return Ok(categories);
+            var categories = await _categoryService.GetDeletedAsync(cancellationToken);
+            return Ok(new ApiResponse<IEnumerable<CategoryResponse>>
+            {
+                Success = true,
+                Message = "Deleted categories retrieved successfully",
+                Data = categories
+            });
         }
 
         [HttpPost]
-        public async Task<ActionResult> Create(CategoryCreateRequest request, CancellationToken cancellationToken)
+        public async Task<ActionResult<CategoryResponse>> Create(CategoryCreateRequest request, CancellationToken cancellationToken)
         {
-            var category = new Category
-            {
-                Id = Guid.NewGuid(),
-                Name = request.Name,
-                Description = request.Description,
-                Type = (TransactionType)request.Type,
-                IsDeleted = false
-            };
+            var category = await _categoryService.CreateAsync(request, cancellationToken);
 
-            _dbContext.Categories.Add(category);
-            
-            await _dbContext.SaveChangesAsync(cancellationToken);
-
-            return CreatedAtAction(nameof(GetById), new { id = category.Id }, new CategoryDto
+            return CreatedAtAction(nameof(GetById), new { id = category.Id }, new ApiResponse<CategoryResponse>
             {
-                Id = category.Id,
-                Name = category.Name,
-                Description = category.Description,
-                Type = category.Type
+                Success = true,
+                Message = "Category created successfully",
+                Data = category
             });
         }
 
         [HttpPut("{id:guid}")]
         public async Task<ActionResult> Update(Guid id, CategoryUpdateRequest request, CancellationToken cancellationToken)
         {
-            var category = await _dbContext.Categories.FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted, cancellationToken);
-
-            if (category == null) return NotFound();
-
-            category.Name = request.Name;
-            category.Description = request.Description;
-            category.Type = (TransactionType)request.Type;
-
-            await _dbContext.SaveChangesAsync(cancellationToken);
+            await _categoryService.UpdateAsync(id, request, cancellationToken);
 
             return NoContent();
         }
@@ -134,13 +95,7 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
         [HttpDelete("{id:guid}")]
         public async Task<ActionResult> Delete(Guid id, CancellationToken cancellationToken)
         {
-            var category = await _dbContext.Categories.FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted, cancellationToken);
-
-            if (category == null) return NotFound();
-
-            category.IsDeleted = true;
-
-            await _dbContext.SaveChangesAsync(cancellationToken);
+            await _categoryService.DeleteAsync(id, cancellationToken);
 
             return NoContent();
         }
@@ -148,13 +103,7 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
         [HttpPatch("{id:guid}/restore")]
         public async Task<ActionResult> Restore(Guid id, CancellationToken cancellationToken)
         {
-            var category = await _dbContext.Categories.FirstOrDefaultAsync(c => c.Id == id && c.IsDeleted, cancellationToken);
-
-            if (category == null) return NotFound();
-
-            category.IsDeleted = false;
-
-            await _dbContext.SaveChangesAsync(cancellationToken);
+            await _categoryService.RestoreAsync(id, cancellationToken);
 
             return NoContent();
         }

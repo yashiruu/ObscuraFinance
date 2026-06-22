@@ -100,13 +100,13 @@
 
 @code {
     // ── State ────────────────────────────────────────────────────────
-    private List<CategoryDto> _categories = [];
+    private List<CategoryResponse> _categories = [];
     private bool _isLoading = true;
     private string? _errorMessage;
 
     // Delete confirm state
     private bool _showDeleteConfirm = false;
-    private CategoryDto? _pendingDelete;
+    private CategoryResponse? _pendingDelete;
     private bool _isDeleting = false;
 
     // ── Lifecycle ────────────────────────────────────────────────────
@@ -141,7 +141,7 @@
         => NavigationManager.NavigateTo($"/categories/edit/{id}");
 
     // ── Delete Flow ──────────────────────────────────────────────────
-    private void OpenDeleteConfirm(CategoryDto category)
+    private void OpenDeleteConfirm(CategoryResponse category)
     {
         Console.WriteLine("Open Delete Confirmation");
         _pendingDelete     = category;

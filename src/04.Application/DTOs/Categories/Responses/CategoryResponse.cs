@@ -2,7 +2,7 @@
 
 namespace Obscura.FinanceTracker.Application.DTOs.Categories.Responses
 {
-    public class CategoryDto
+    public class CategoryResponse
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = default!;

@@ -2,8 +2,8 @@
 
 Personal Finance Tracker built with ASP.NET Core, Blazor, EF Core, and SQL Server as a long-term learning project focused on enterprise software engineering.
 
-![Version](https://img.shields.io/badge/Version-v1.0.0-blue)
-![Release](https://img.shields.io/badge/Release-v1.0.0-success)
+![Version](https://img.shields.io/badge/Version-v1.2.0-blue)
+![Release](https://img.shields.io/badge/Release-v1.2.0-success)
 
 ![Architecture](https://img.shields.io/badge/Architecture-Clean_Architecture-success)
 ![Learning](https://img.shields.io/badge/Learning-Enterprise_.NET-blue)
@@ -18,27 +18,33 @@ Personal Finance Tracker built with ASP.NET Core, Blazor, EF Core, and SQL Serve
 
 ---
 
-## 🎉 Latest Release
+## Latest Release
 
-**v1.0.0 — Usable Finance Tracker**
+**v1.2.0 — Enterprise Foundation**
 
 Completed:
 
-* ✅ Category Management
-* ✅ Account Management
-* ✅ Transaction Management
-* ✅ Dashboard V1
+* ✅ Interface Layer 
+* ✅ Service Layer 
+* ✅ Structured Logging 
+* ✅ Global Exception Middleware 
+* ✅ Response Standardization 
+* ✅ Global Query Filter
 
-Next Phase:
-* 🚧 Enterprise Foundation (v1.2.0)
+This release establishes the enterprise foundation of the application and prepares the codebase for Repository Pattern, Unit Of Work, Validation, and CQRS. 
+Next Phase: 
+* 🚧 Data Access Patterns (v1.5.0)
 
 ---
 
 ## Release History
 
-| Version | Status | Description |
-|----------|----------|----------|
-| v1.0.0 | Latest | Usable Finance Tracker |
+| Version | Status   | Description            |
+| ------- | -------- | ---------------------- |
+| v1.2.0  | Latest   | Enterprise Foundation |
+| v1.1.0  | Previous | Release Stabilization  |
+| v1.0.0  | Previous | Usable Finance Tracker |
+
 
 ---
 
@@ -77,19 +83,19 @@ This project is used to learn and practice:
 
 ### 🏁 Completed
 
-* Foundation
-* Category Management
-* Account Management
-* Transaction Management
-* Dashboard V1
-
-### 🔄️ In Progress
-
+* Foundation 
+* Category Management 
+* Account Management 
+* Transaction Management 
+* Dashboard V1 
 * Enterprise Foundation
+
+### 🔄️ In Progress / Current Focus
+
+* Data Access Patterns
 
 ### 💡 Planned
 
-* Data Access Patterns
 * CQRS Architecture
 * AI Integration
 * Agentic AI
@@ -101,13 +107,14 @@ This project is used to learn and practice:
 
 | Feature                | Status |
 | ---------------------- | ------ |
-| Category Management    | ✅      |
-| Account Management     | ✅      |
-| Transaction Management | ✅      |
-| Dashboard V1           | ✅      |
-| Enterprise Foundation  | 🚧     |
-| CQRS                   | ⏳      |
-| AI Integration         | ⏳      |
+| Category Management    | ✅    |
+| Account Management     | ✅    |
+| Transaction Management | ✅    |
+| Dashboard V1           | ✅    |
+| Enterprise Foundation  | ✅    |
+| Data Access Patterns   | 🚧    |
+| CQRS                   | ⏳    |
+| AI Integration         | ⏳    |
 
 ---
 
@@ -165,8 +172,8 @@ src/
 | Phase                              | Status      |
 | ---------------------------------- | ----------- |
 | Phase 1 — Core Finance Application | ✅ Completed |
-| Phase 2 — Enterprise Foundation    | 🚧 Next     |
-| Phase 3 — Data Access Patterns     | ⏳ Planned   |
+| Phase 2 — Enterprise Foundation    | ✅ Completed |
+| Phase 3 — Data Access Patterns     | 🚧 Current   |
 | Phase 4 — CQRS Architecture        | ⏳ Planned   |
 | Phase 5 — AI Integration           | ⏳ Planned   |
 | Phase 6 — Agentic AI               | ⏳ Planned   |
@@ -184,6 +191,9 @@ docs/
 ├── 04-project-status.md
 ├── 05-working-agreement.md
 ├── 06-ai-roadmap.md
+├── 07-git-workflow.md
+├── known-issues.md
+├── RoadmapGraph.md
 └── adr/
 ```
 
@@ -232,15 +242,6 @@ Production Platform
 
 ## 🔮 Future Direction
 
-### v1.2.0 — Enterprise Foundation
-
-* Interface
-* Service Layer
-* Logging
-* Middleware
-* Response Standardization
-* Global Query Filter
-
 ### v1.5.0 — Data Access Patterns
 
 * Repository Pattern
@@ -253,6 +254,17 @@ Production Platform
 
 * CQRS
 * MediatR
+
+Optionally add:
+
+### Recently Completed — v1.2.0 Enterprise Foundation
+
+* Interface Abstraction
+* Service Layer
+* Structured Logging
+* Global Exception Middleware
+* Standardized API Responses
+* Global Query Filters
 
 ---
 

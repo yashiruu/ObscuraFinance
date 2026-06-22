@@ -1,10 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Obscura.FinanceTracker.Application.Accounts.DTOs;
+using Obscura.FinanceTracker.Application.Common.Responses;
 using Obscura.FinanceTracker.Application.DTOs.Accounts.Requests;
 using Obscura.FinanceTracker.Application.DTOs.Accounts.Responses;
-using Obscura.FinanceTracker.Domain.Entities;
-using Obscura.FinanceTracker.Infrastructure.Persistence;
+using Obscura.FinanceTracker.Application.Interfaces;
 
 namespace Obscura.FinanceTracker.WebApi.Controllers
 {
@@ -12,109 +11,56 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
     [Route("api/[controller]")]
     public class AccountController : ControllerBase
     {
-        private readonly AppDbContext _dbContext;
+        private readonly IAccountService _accountService;
 
-        public AccountController(AppDbContext dbContext)
+        public AccountController(IAccountService accountService)
         {
-            _dbContext = dbContext;
+            _accountService = accountService;
         }
 
         [HttpGet]
         public async Task<ActionResult<List<AccountListResponse>>> GetAll(CancellationToken cancellationToken)
         {
-            var accounts = await _dbContext.Accounts
-                .Where(a => !a.IsDeleted)
-                .Select(a => new AccountListResponse
-                {
-                    Id = a.Id,
-                    Name = a.Name,
-                    CurrentBalance = a.CurrentBalance,
-                    Type = a.Type,
-                    IsActive = a.IsActive
-                })
-                .ToListAsync(cancellationToken);
+            var accounts = await _accountService.GetAllAsync(cancellationToken);
 
-            return Ok(accounts);
+            return Ok(new ApiResponse<IEnumerable<AccountListResponse>>
+            {
+                Success = true,
+                Message = "Accounts retrieved successfully",
+                Data = accounts
+            });
         }
 
         [HttpGet("{id:guid}")]
         public async Task<ActionResult<AccountDetailResponse>> GetById(Guid id, CancellationToken cancellationToken)
         {
-            var account = await _dbContext.Accounts
-                .Where(a => a.Id == id && !a.IsDeleted)
-                .Select(a => new AccountDetailResponse
-                {
-                    Id = a.Id,
-                    Name = a.Name,
-                    Description = a.Description,
-                    CurrentBalance = a.CurrentBalance,
-                    InitialBalance = a.InitialBalance,
-                    Currency = a.Currency,
-                    Type = a.Type,
-                    IsActive = a.IsActive,
-                    CreatedAt = a.CreatedAt
-                })
-                .FirstOrDefaultAsync(cancellationToken);
+            var account = await _accountService.GetByIdAsync(id, cancellationToken);
 
-            if (account == null) return NotFound();
-
-            return Ok(account);
+            return Ok(new ApiResponse<AccountDetailResponse>
+            {
+                Success = true,
+                Message = "Account retrieved successfully",
+                Data = account
+            });
         }
 
         [HttpPost]
-        public async Task<ActionResult> Create(AccountCreateRequest request, CancellationToken cancellationToken)
+        public async Task<ActionResult<AccountDetailResponse>> Create(AccountCreateRequest request, CancellationToken cancellationToken)
         {
-            var account = new Account
+            var account = await _accountService.CreateAsync(request, cancellationToken);
+
+            return CreatedAtAction(nameof(GetById), new { id = account.Id }, new ApiResponse<AccountDetailResponse>
             {
-                Id = Guid.NewGuid(),
-                Name = request.Name,
-                Description = request.Description,
-                InitialBalance = request.InitialBalance,
-                CurrentBalance = request.InitialBalance,
-                Currency = request.Currency,
-                Type = request.Type,
-                IsActive = true
-            };
-
-            var exists = await _dbContext.Accounts.AnyAsync(a => a.Name == request.Name);
-
-            if (exists) return BadRequest(new { errors = new { Name = new[] { "Account name already exists." } } });
-
-            _dbContext.Accounts.Add(account);
-            await _dbContext.SaveChangesAsync(cancellationToken);
-
-            var response = new AccountDetailResponse
-            {
-                Id = account.Id,
-                Name = account.Name,
-                Description = account.Description,
-                InitialBalance = account.InitialBalance,
-                CurrentBalance = account.CurrentBalance,
-                Currency = account.Currency,
-                Type = account.Type,
-                IsActive = account.IsActive,
-                CreatedAt = account.CreatedAt
-            };
-
-            return CreatedAtAction(nameof(GetById), new { id = account.Id }, response);
+                Success = true,
+                Message = "Account created successfully",
+                Data = account
+            });
         }
 
         [HttpPut("{id:guid}")]
         public async Task<ActionResult> Update(Guid id, AccountUpdateRequest request, CancellationToken cancellationToken)
         {
-            var exists = await _dbContext.Accounts.AnyAsync(a => a.Id != id && a.Name == request.Name && !a.IsDeleted, cancellationToken);
-
-            if (exists) return BadRequest(new { errors = new { Name = new[] { "Account name already exists."  } } });
-
-            var account = await _dbContext.Accounts.FirstOrDefaultAsync(a=> a.Id == id && !a.IsDeleted, cancellationToken);
-
-            if (account == null) return NotFound();
-
-            account.Name = request.Name;
-            account.Description = request.Description;
-            account.IsActive = request.IsActive;
-
-            await _dbContext.SaveChangesAsync(cancellationToken);
+            await _accountService.UpdateAsync(id, request, cancellationToken);
 
             return NoContent();
         }
@@ -122,13 +68,7 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
         [HttpDelete("{id:guid}")]
         public async Task<ActionResult> Delete(Guid id, CancellationToken cancellationToken)
         {
-            var account = await _dbContext.Accounts.FirstOrDefaultAsync(a => a.Id == id && !a.IsDeleted, cancellationToken);
-
-            if (account == null) return NotFound();
-
-            account.IsDeleted = true;
-
-            await _dbContext.SaveChangesAsync(cancellationToken);
+            await _accountService.DeleteAsync(id, cancellationToken);
 
             return NoContent();
         }
@@ -136,13 +76,7 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
         [HttpPatch("{id:guid}/restore")]
         public async Task<ActionResult> Restore(Guid id, CancellationToken cancellationToken)
         {
-            var account = await _dbContext.Accounts.FirstOrDefaultAsync(a => a.Id == id && a.IsDeleted, cancellationToken);
-
-            if (account == null) return NotFound();
-
-            account.IsDeleted = false;
-
-            await _dbContext.SaveChangesAsync(cancellationToken);
+            await _accountService.RestoreAsync(id, cancellationToken);
 
             return NoContent();
         }

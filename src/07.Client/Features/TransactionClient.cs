@@ -1,4 +1,5 @@
-﻿using Obscura.FinanceTracker.Application.DTOs.Transactions.Requests;
+﻿using Obscura.FinanceTracker.Application.Common.Responses;
+using Obscura.FinanceTracker.Application.DTOs.Transactions.Requests;
 using Obscura.FinanceTracker.Application.DTOs.Transactions.Responses;
 using System.Net.Http.Json;
 
@@ -20,7 +21,9 @@ namespace Obscura.FinanceTracker.Client.Features
 
             response.EnsureSuccessStatusCode();
 
-            return await response.Content.ReadFromJsonAsync<List<TransactionListResponse>>() ?? [];
+            var result = await response.Content.ReadFromJsonAsync<ApiResponse<List<TransactionListResponse>>>();
+
+            return result?.Data ?? [];
         }
 
         public async Task<TransactionDetailResponse?> GetByIdAsync(Guid id)
@@ -31,7 +34,9 @@ namespace Obscura.FinanceTracker.Client.Features
 
             response.EnsureSuccessStatusCode();
 
-            return await response.Content.ReadFromJsonAsync<TransactionDetailResponse>();
+            var result = await response.Content.ReadFromJsonAsync<ApiResponse<TransactionDetailResponse>>();
+
+            return result?.Data;
         }
 
         public async Task CreateAsync(TransactionCreateRequest request)

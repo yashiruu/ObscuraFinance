@@ -8,6 +8,17 @@ The goal is not only to build a finance application but also to progressively le
 
 ---
 
+## Add Current Position (after Overview)
+Current Position:
+
+✅ Phase 1 — Core Finance Application Completed
+
+✅ Phase 2 — Enterprise Foundation Completed
+
+🚧 Phase 3 — Data Access & Application Patterns In Progress
+
+---
+
 # Architecture Evolution
 
 ```text id="fx4kzi"
@@ -125,9 +136,17 @@ Usable Finance Tracker
 
 Learn foundational enterprise patterns.
 
+## Status:
+
+✅ Completed
+
 ---
 
 ## Module 5 — Interface
+
+Status:
+
+✅ Completed
 
 Learning Objectives:
 
@@ -141,12 +160,16 @@ Topics:
 IAccountService
 ITransactionService
 ICategoryService
-ISummaryService
+IDashboardService
 ```
 
 ---
 
 ## Module 6 — Service Layer
+
+Status:
+
+✅ Completed
 
 Learning Objectives:
 
@@ -167,6 +190,10 @@ DbContext
 
 ## Module 7 — Logging
 
+Status:
+
+✅ Completed
+
 Learning Objectives:
 
 * Diagnostics
@@ -183,6 +210,10 @@ Log Levels
 ---
 
 ## Module 8 — Middleware
+
+Status:
+
+✅ Completed
 
 Learning Objectives:
 
@@ -201,6 +232,10 @@ Response Processing
 
 ## Module 9 — Response Standardization
 
+Status:
+
+✅ Completed
+
 Learning Objectives:
 
 * API Contracts
@@ -217,6 +252,10 @@ Error Response
 ---
 
 ## Module 10 — Global Query Filter
+
+Status:
+
+✅ Completed
 
 Learning Objectives:
 
@@ -247,44 +286,107 @@ Enterprise Foundation Ready
 
 Understand enterprise data access patterns.
 
+Status:
+
+🚧 Current Phase
+
 ---
 
 ## Module 11 — Repository Pattern
 
+Status:
+
+🚧 Next
+
 Learning Objectives:
 
 * Data Access Abstraction
+* Generic Repository
+* Generic Constraints
+* Repository Design
+
+Topics:
+
+```text
+IRepository<TEntity>
+Generic Constraints
+Repository Abstraction
+Data Access Separation
+```
 
 ---
 
 ## Module 12 — Unit Of Work
+
+Status:
+
+⏳ Planned
 
 Learning Objectives:
 
 * Transaction Management
 * Consistency
 
+Topics:
+
+```text
+Unit Of Work
+Transaction Coordination
+Repository Aggregation
+SaveChanges Management
+```
+
 ---
 
 ## Module 13 — Validation
+
+Status:
+
+⏳ Planned
 
 Learning Objectives:
 
 * FluentValidation
 * Fail Fast Principle
 
+Topics:
+
+```text
+FluentValidation
+Validation Pipeline
+Business Validation
+Error Handling
+```
+
 ---
 
 ## Module 14 — AutoMapper
+
+Status:
+
+⏳ Planned
 
 Learning Objectives:
 
 * DTO Mapping
 * Entity Mapping
 
+Topics:
+
+```text
+AutoMapper
+Projection
+DTO Mapping
+Entity Mapping
+```
+
 ---
 
 ## Module 15 — Testing
+
+Status:
+
+⏳ Planned
 
 Learning Objectives:
 
@@ -292,13 +394,24 @@ Learning Objectives:
 * Integration Testing
 * Validation Testing
 
+Topics:
+
+```text
+Unit Testing
+Integration Testing
+Mocking
+Test Isolation
+```
+
 ---
 
 ## Milestone
 
-```text id="gq6b4i"
+```text
 v1.5.0
 Enterprise Finance Tracker
+
+🎯 Current Target
 ```
 
 ---
