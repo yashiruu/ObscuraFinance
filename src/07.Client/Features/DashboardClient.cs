@@ -1,5 +1,6 @@
 ﻿using Obscura.FinanceTracker.Application.Common.Responses;
 using Obscura.FinanceTracker.Application.DTOs.Dashboard.Responses;
+using Obscura.FinanceTracker.Client.Constants;
 using System.Net.Http.Json;
 
 namespace Obscura.FinanceTracker.Client.Features
@@ -7,7 +8,6 @@ namespace Obscura.FinanceTracker.Client.Features
     public class DashboardClient
     {
         private readonly HttpClient _httpClient;
-        private const string BaseUrl = "api/v1/dashboard";
 
         public DashboardClient(HttpClient httpClient)
         {
@@ -16,7 +16,7 @@ namespace Obscura.FinanceTracker.Client.Features
 
         public async Task<DashboardSummaryResponse?> GetSummaryAsync()
         {
-            var response = await _httpClient.GetAsync($"{BaseUrl}/summary");
+            var response = await _httpClient.GetAsync($"{ApiRoutes.Dashboard}/summary");
 
             response.EnsureSuccessStatusCode();
 

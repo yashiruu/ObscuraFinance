@@ -2,6 +2,7 @@
 using Obscura.FinanceTracker.Application.Common.Responses;
 using Obscura.FinanceTracker.Application.DTOs.Accounts.Requests;
 using Obscura.FinanceTracker.Application.DTOs.Accounts.Responses;
+using Obscura.FinanceTracker.Client.Constants;
 using System.Net.Http.Json;
 
 namespace Obscura.FinanceTracker.Client.Features
@@ -9,7 +10,6 @@ namespace Obscura.FinanceTracker.Client.Features
     public class AccountClient
     {
         private readonly HttpClient _httpClient;
-        private const string BaseUrl = "api/v1/account";
 
         public AccountClient(HttpClient httpClient)
         {
@@ -18,7 +18,7 @@ namespace Obscura.FinanceTracker.Client.Features
 
         public async Task<List<AccountListResponse>> GetAllAsync()
         {
-            var response = await _httpClient.GetAsync(BaseUrl);
+            var response = await _httpClient.GetAsync(ApiRoutes.Accounts);
 
             response.EnsureSuccessStatusCode();
 
@@ -29,7 +29,7 @@ namespace Obscura.FinanceTracker.Client.Features
 
         public async Task<AccountDetailResponse?> GetByIdAsync(Guid id)
         {
-            var response = await _httpClient.GetAsync($"{BaseUrl}/{id}");
+            var response = await _httpClient.GetAsync($"{ApiRoutes.Accounts}/{id}");
 
             if (response.StatusCode == System.Net.HttpStatusCode.NotFound) return null;
 
@@ -42,28 +42,28 @@ namespace Obscura.FinanceTracker.Client.Features
 
         public async Task CreateAsync(AccountCreateRequest request)
         {
-            var response = await _httpClient.PostAsJsonAsync($"{BaseUrl}", request);
+            var response = await _httpClient.PostAsJsonAsync($"{ApiRoutes.Accounts}", request);
             
             response.EnsureSuccessStatusCode();
         }
 
         public async Task UpdateAsync(Guid id, AccountUpdateRequest request)
         {
-            var response = await _httpClient.PutAsJsonAsync($"{BaseUrl}/{id}", request);
+            var response = await _httpClient.PutAsJsonAsync($"{ApiRoutes.Accounts}/{id}", request);
 
             response.EnsureSuccessStatusCode();
         }
 
         public async Task DeleteAsync(Guid id)
         {
-            var response = await _httpClient.DeleteAsync($"{BaseUrl}/{id}");
+            var response = await _httpClient.DeleteAsync($"{ApiRoutes.Accounts}/{id}");
 
             response.EnsureSuccessStatusCode();
         }
 
         public async Task RestoreAsync(Guid id)
         {
-            var response = await _httpClient.PatchAsync($"{BaseUrl}/{id}/restore", null);
+            var response = await _httpClient.PatchAsync($"{ApiRoutes.Accounts}/{id}/restore", null);
 
             response.EnsureSuccessStatusCode();
         }

@@ -1,6 +1,7 @@
 ﻿using Obscura.FinanceTracker.Application.Common.Responses;
 using Obscura.FinanceTracker.Application.DTOs.Categories.Requests;
 using Obscura.FinanceTracker.Application.DTOs.Categories.Responses;
+using Obscura.FinanceTracker.Client.Constants;
 using System.Net;
 using System.Net.Http.Json;
 
@@ -9,7 +10,6 @@ namespace Obscura.FinanceTracker.Client.Features
     public class CategoryClient
     {
         private readonly HttpClient _httpClient;
-        private const string BaseUrl = "api/v1/category";
 
         public CategoryClient(HttpClient httpClient)
         {
@@ -18,7 +18,7 @@ namespace Obscura.FinanceTracker.Client.Features
 
         public async Task<List<CategoryResponse>> GetAllAsync()
         {
-            var response = await _httpClient.GetAsync($"{BaseUrl}");
+            var response = await _httpClient.GetAsync($"{ApiRoutes.Categories}");
 
             response.EnsureSuccessStatusCode();
 
@@ -29,7 +29,7 @@ namespace Obscura.FinanceTracker.Client.Features
 
         public async Task<CategoryResponse?> GetByIdAsync(Guid id)
         {
-            var response = await _httpClient.GetAsync($"{BaseUrl}/{id}");
+            var response = await _httpClient.GetAsync($"{ApiRoutes.Categories}/{id}");
 
             if (response.StatusCode == HttpStatusCode.NotFound) return null;
 
@@ -42,7 +42,7 @@ namespace Obscura.FinanceTracker.Client.Features
 
         public async Task<List<CategoryResponse>> GetByTypeAsync(int type)
         {
-            var response = await _httpClient.GetAsync($"{BaseUrl}/type/{type}");
+            var response = await _httpClient.GetAsync($"{ApiRoutes.Categories}/type/{type}");
 
             response.EnsureSuccessStatusCode();
 
@@ -53,7 +53,7 @@ namespace Obscura.FinanceTracker.Client.Features
 
         public async Task<List<CategoryResponse>> GetDeletedAsync()
         {
-            var response = await _httpClient.GetAsync($"{BaseUrl}/deleted");
+            var response = await _httpClient.GetAsync($"{ApiRoutes.Categories}/deleted");
             
             response.EnsureSuccessStatusCode();
 
@@ -64,28 +64,28 @@ namespace Obscura.FinanceTracker.Client.Features
 
         public async Task CreateAsync(CategoryCreateRequest createCategoryRequest)
         {
-            var response = await _httpClient.PostAsJsonAsync($"{BaseUrl}", createCategoryRequest);
+            var response = await _httpClient.PostAsJsonAsync($"{ApiRoutes.Categories}", createCategoryRequest);
             
             response.EnsureSuccessStatusCode();
         }
 
         public async Task UpdateAsync(Guid id, CategoryUpdateRequest request)
         {
-            var response = await _httpClient.PutAsJsonAsync($"{BaseUrl}/{id}", request);
+            var response = await _httpClient.PutAsJsonAsync($"{ApiRoutes.Categories}/{id}", request);
 
             response.EnsureSuccessStatusCode();
         }
 
         public async Task DeleteAsync(Guid id)
         {
-            var response = await _httpClient.DeleteAsync($"{BaseUrl}/{id}");
+            var response = await _httpClient.DeleteAsync($"{ApiRoutes.Categories}/{id}");
 
             response.EnsureSuccessStatusCode();
         }
 
         public async Task RestoreAsync(Guid id)
         {
-            var response = await _httpClient.PatchAsync($"{BaseUrl}/{id}/restore", null);
+            var response = await _httpClient.PatchAsync($"{ApiRoutes.Categories}/{id}/restore", null);
 
             response.EnsureSuccessStatusCode();
         }
