@@ -1,4 +1,6 @@
 ﻿using Obscura.FinanceTracker.Application.Interfaces;
+using Obscura.FinanceTracker.Application.Interfaces.Repositories;
+using Obscura.FinanceTracker.Infrastructure.Persistence.Repositories;
 using Obscura.FinanceTracker.Infrastructure.Services;
 
 namespace Obscura.FinanceTracker.WebApi.Extensions
@@ -22,10 +24,14 @@ namespace Obscura.FinanceTracker.WebApi.Extensions
         // =============================================================================
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
+            // Services are registered with their interfaces to allow for dependency injection.
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<ITransactionService, TransactionService>();
             services.AddScoped<IDashboardService, DashboardService>();
+
+            // Repository
+            services.AddScoped(typeof(IRepository<>), typeof(Repository<>));    
 
             return services;
         }
