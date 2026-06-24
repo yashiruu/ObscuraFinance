@@ -13,6 +13,7 @@ namespace Obscura.FinanceTracker.Application.Interfaces
         IRepository<Account> Accounts { get; }
         IRepository<Category> Categories { get; }
         IRepository<Transaction> Transactions { get; }
+        ICategoryRepository Category { get; }
 
         // --- Commit ---
         // All tracked changes are persisted to the database

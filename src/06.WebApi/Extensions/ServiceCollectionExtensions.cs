@@ -31,7 +31,8 @@ namespace Obscura.FinanceTracker.WebApi.Extensions
             services.AddScoped<IDashboardService, DashboardService>();
 
             // Repository
-            services.AddScoped(typeof(IRepository<>), typeof(Repository<>));    
+            services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            services.AddScoped<ICategoryRepository, CategoryRepository>();
 
             return services;
         }
