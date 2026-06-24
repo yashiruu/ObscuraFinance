@@ -15,7 +15,7 @@ builder.Services.AddApiVersioningConfiguration();
 builder.Services.AddSwaggerDocumentation();
 
 // DATABASE CONFIGURATION
-builder.Services.AddDatabase(builder.Configuration);
+builder.Services.AddInfrastructureServices(builder.Configuration);
 
 // APPLICATION SERVICES
 builder.Services.AddApplicationServices();
