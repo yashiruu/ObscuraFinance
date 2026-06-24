@@ -12,12 +12,12 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
 {
     public class AccountService : IAccountService
     {
-        private readonly AppDbContext _context;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<AccountService> _logger;
 
-        public AccountService(AppDbContext context, ILogger<AccountService> logger)
+        public AccountService(IUnitOfWork unitOfWork, ILogger<AccountService> logger)
         {
-            _context = context;
+            _unitOfWork = unitOfWork;
             _logger = logger;
         }
 
@@ -25,40 +25,24 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
         {
             _logger.LogInformation("Retrieving all accounts");
 
-            var accounts = await _context.Accounts
-                .OrderBy(a => a.Name)
-                .Select(a => new AccountListResponse
-                {
-                    Id = a.Id,
-                    Name = a.Name,
-                    CurrentBalance = a.CurrentBalance,
-                    Type = a.Type,
-                    IsActive = a.IsActive
-                })
-                .ToListAsync(cancellationToken);
+            var accounts = await _unitOfWork.Accounts.GetAllAsync();
 
             _logger.LogInformation("Retrieved {Count} accounts", accounts.Count);
 
-            return accounts;
+            return accounts.Select(account => new AccountListResponse
+            {
+                Id = account.Id,
+                Name= account.Name,
+                Type = account.Type,
+                CurrentBalance = account.CurrentBalance,
+                IsActive = account.IsActive
+            });
         }
         public async Task<AccountDetailResponse> GetByIdAsync(Guid id, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Retrieving account. AccountId: {AccountId}", id);
 
-            var account = await _context.Accounts
-                .Select(a => new AccountDetailResponse
-                {
-                    Id = a.Id,
-                    Name = a.Name,
-                    Description = a.Description,
-                    CurrentBalance = a.CurrentBalance,
-                    InitialBalance = a.InitialBalance,
-                    Currency = a.Currency,
-                    Type = a.Type,
-                    IsActive = a.IsActive,
-                    CreatedAt = a.CreatedAt
-                })
-                .FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
+            var account = await _unitOfWork.Accounts.GetByIdAsync(id);
 
             if (account == null)
             {
@@ -69,15 +53,24 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
 
             _logger.LogInformation("Account retrieved successfully. AccountId: {AccountId}", id);
 
-            return account;
+            return new AccountDetailResponse
+            {
+                Id = account.Id,
+                Name = account.Name,
+                Description = account.Description,
+                CurrentBalance = account.CurrentBalance,
+                InitialBalance = account.InitialBalance,
+                Currency = account.Currency,
+                Type = account.Type,
+                IsActive = account.IsActive,
+                CreatedAt = account.CreatedAt
+            };
         }
         public async Task<AccountDetailResponse> CreateAsync(AccountCreateRequest request, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Creating account. AccountName: {AccountName}", request.Name);
 
-            var exists = await _context.Accounts
-                .IgnoreQueryFilters()
-                .AnyAsync(a => a.Name == request.Name, cancellationToken);
+            var exists = await _unitOfWork.Accounts.ExistsAsync(a => a.Name == request.Name);
 
             if (exists)
             {
@@ -97,9 +90,9 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
                 IsActive = true
             };
 
-            await _context.Accounts.AddAsync(account, cancellationToken);
+            await _unitOfWork.Accounts.AddAsync(account);
 
-            await _context.SaveChangesAsync(cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             _logger.LogInformation("Account created successfully. AccountId: {AccountId}", account.Id);
 
@@ -119,9 +112,7 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
         {
             _logger.LogInformation("Updating account. AccountId: {AccountId}", id);
 
-            var exists = await _context.Accounts
-                .IgnoreQueryFilters()
-                .AnyAsync(a => a.Id != id && a.Name == request.Name, cancellationToken);
+            var exists = await _unitOfWork.Accounts.ExistsAsync(a => a.Id != id && a.Name == request.Name);
 
             if (exists)
             {
@@ -130,8 +121,7 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
                 throw new ValidationException($"Account with '{request.Name}' already exists.");
             }
 
-            var account = await _context.Accounts
-                .FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
+            var account = await _unitOfWork.Accounts.GetByIdAsync(id);
 
             if (account == null)
             {
@@ -142,16 +132,19 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
 
             account.Name = request.Name;
             account.Description = request.Description;
+            account.Type = request.Type;
             account.IsActive = request.IsActive;
 
-            await _context.SaveChangesAsync(cancellationToken);
+            _unitOfWork.Accounts.Update(account);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             _logger.LogInformation("Account updated successfully. AccountId: {AccountId}", id);
         }
         public async Task DeleteAsync(Guid id, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Soft deleting account. AccountId: {AccountId}", id);
-            var account = await _context.Accounts.FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
+
+            var account = await _unitOfWork.Accounts.GetByIdAsync(id);
 
             if (account == null)
             {
@@ -160,18 +153,16 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
                 throw new KeyNotFoundException($"Account with '{id}' was not found");
             }
 
-            account.IsDeleted = true;
-
-            await _context.SaveChangesAsync(cancellationToken);
+            _unitOfWork.Accounts.Delete(account);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             _logger.LogInformation("Account soft deleted successfully. AccountId: {AccountId}", id);
         }
         public async Task RestoreAsync(Guid id, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Restoring account. AccountId: {AccountId}", id);
-            var account = await _context.Accounts
-                .IgnoreQueryFilters()
-                .FirstOrDefaultAsync(a => a.Id == id && a.IsDeleted, cancellationToken);
+
+            var account = await _unitOfWork.Accounts.GetByIdIncludingDeletedAsync(id);
 
             if (account == null)
             {
@@ -182,7 +173,8 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
 
             account.IsDeleted = false;
 
-            await _context.SaveChangesAsync(cancellationToken);
+            _unitOfWork.Accounts.Update(account);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             _logger.LogInformation("Account restored successfully. AccountId: {AccountId}", id);
         }
