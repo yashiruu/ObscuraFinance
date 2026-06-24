@@ -8,8 +8,9 @@ namespace Obscura.FinanceTracker.Application.Interfaces.Repositories
         // Read
         Task<IReadOnlyList<TEntity>> GetAllAsync();
         Task<TEntity?> GetByIdAsync(Guid id);
+        Task<TEntity?> GetByIdIncludingDeletedAsync(Guid id);
 
-        Task<IReadOnlyList<TEntity>> GetAsync(Expression<Func<TEntity, bool>> predicate);
+        Task <IReadOnlyList<TEntity>> GetWhereAsync(Expression<Func<TEntity, bool>> predicate);
         Task<TEntity?> GetFirstOrDefaultAsync(Expression<Func<TEntity, bool>> predicate);
 
         // Write
@@ -21,8 +22,5 @@ namespace Obscura.FinanceTracker.Application.Interfaces.Repositories
         Task<bool> ExistsAsync(Expression<Func<TEntity, bool>> predication);
         Task<int> CountAsync();
         Task<int> CountAsync(Expression<Func<TEntity, bool>> predication);
-
-        // Persistance
-        Task<int> SaveChangeAsync();
     }
 }

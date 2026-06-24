@@ -25,10 +25,15 @@ namespace Obscura.FinanceTracker.Infrastructure.Persistence.Repositories
 
         public async Task<TEntity?> GetByIdAsync(Guid id)
         {
-            return await _dbSet.FindAsync(id);
+            return await _dbSet.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
         }
 
-        public async Task<IReadOnlyList<TEntity>> GetAsync(Expression<Func<TEntity, bool>> predicate)
+        public async Task<TEntity?> GetByIdIncludingDeletedAsync(Guid id)
+        {
+            return await _dbSet.IgnoreQueryFilters().AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+        }
+
+        public async Task<IReadOnlyList<TEntity>> GetWhereAsync(Expression<Func<TEntity, bool>> predicate)
         {
             return await _dbSet.AsNoTracking().Where(predicate).ToListAsync();
         }
@@ -63,7 +68,7 @@ namespace Obscura.FinanceTracker.Infrastructure.Persistence.Repositories
         #region Add on
         public async Task<bool> ExistsAsync(Expression<Func<TEntity, bool>> predicate)
         {
-            return await _dbSet.AnyAsync(predicate);
+            return await _dbSet.IgnoreQueryFilters().AnyAsync(predicate);
         }
 
         public async Task<int> CountAsync()
@@ -74,13 +79,6 @@ namespace Obscura.FinanceTracker.Infrastructure.Persistence.Repositories
         public async Task<int> CountAsync(Expression<Func<TEntity, bool>> predicate)
         {
             return await _dbSet.CountAsync(predicate);
-        }
-        #endregion
-
-        #region Persistence
-        public async Task<int> SaveChangeAsync()
-        {
-            return await _context.SaveChangesAsync();
         }
         #endregion
     }
