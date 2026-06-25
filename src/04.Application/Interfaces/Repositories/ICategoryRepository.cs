@@ -3,7 +3,7 @@ using Obscura.FinanceTracker.Domain.Enums;
 
 namespace Obscura.FinanceTracker.Application.Interfaces.Repositories
 {
-    public interface ICategoryRepository
+    public interface ICategoryRepository : IRepository<Category>
     {
         Task<IReadOnlyList<Category>> GetAllByTypeAsync(TransactionType type);
         Task<IReadOnlyList<Category>> GetAllDeletedAsync();

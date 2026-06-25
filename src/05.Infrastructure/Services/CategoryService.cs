@@ -41,7 +41,7 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
         {
             _logger.LogInformation("Retrieving categories by type. Type: {CategoryType}", type);
 
-            var categories = await _unitOfWork.Category.GetAllByTypeAsync(type);
+            var categories = await _unitOfWork.Categories.GetAllByTypeAsync(type);
 
             _logger.LogInformation("Retrieved {Count} categories for type {CategoryType}", categories.Count, type);
 
@@ -58,7 +58,7 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
         {
             _logger.LogInformation("Retrieving deleted categories");
 
-            var categories = await _unitOfWork.Category.Get
+            var categories = await _unitOfWork.Categories.GetAllDeletedAsync();
 
             _logger.LogInformation(
                 "Retrieved {Count} deleted categories",

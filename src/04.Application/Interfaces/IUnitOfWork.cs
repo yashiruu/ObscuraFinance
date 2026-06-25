@@ -11,9 +11,8 @@ namespace Obscura.FinanceTracker.Application.Interfaces
         // repositories into every service constructor.
 
         IRepository<Account> Accounts { get; }
-        IRepository<Category> Categories { get; }
+        ICategoryRepository Categories { get; }
         IRepository<Transaction> Transactions { get; }
-        ICategoryRepository Category { get; }
 
         // --- Commit ---
         // All tracked changes are persisted to the database
