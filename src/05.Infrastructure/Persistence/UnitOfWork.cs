@@ -11,7 +11,7 @@ namespace Obscura.FinanceTracker.Infrastructure.Persistence
 
         private IRepository<Account>? _accounts;
         private ICategoryRepository? _categories;
-        private IRepository<Transaction>? _transactions;
+        private ITransactionRepository? _transactions;
         
         public UnitOfWork(AppDbContext context) 
         {
@@ -24,7 +24,7 @@ namespace Obscura.FinanceTracker.Infrastructure.Persistence
         // This ensures all repositories share the same change tracker.
         public IRepository<Account> Accounts => _accounts ??= new Repository<Account>(_context);
         public ICategoryRepository Categories => _categories ??= new CategoryRepository(_context);
-        public IRepository<Transaction> Transactions => _transactions ??= new Repository<Transaction>(_context);
+        public ITransactionRepository Transactions => _transactions ??= new TransactionRepository(_context);
 
         // --- Commit ---
         // One call persists all tracked changes from all repositories.
