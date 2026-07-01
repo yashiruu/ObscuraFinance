@@ -1,10 +1,10 @@
 # Git Workflow
 
-## Purpose
+# Purpose
 
-This document defines the Git workflow used in the Obscura Finance Tracker project.
+This document defines the Git workflow, release process, and versioning strategy used throughout the Obscura Finance Tracker project.
 
-The goal is to maintain a clean development history while preserving release milestones.
+The objective is to maintain a clean development history while ensuring every architectural milestone is fully documented, tested, and reproducible.
 
 ---
 
@@ -95,6 +95,29 @@ git push origin feature/my-feature
 
 ---
 
+# Development Workflow
+
+Every feature follows the same engineering process.
+
+```text
+Understand
+    ↓
+Discuss
+    ↓
+Implement
+    ↓
+Review
+    ↓
+Commit
+    ↓
+Update Documentation
+    ↓
+Push
+```
+
+Implementation is only considered complete after the related documentation has been reviewed.
+
+---
 # Merge Feature Into Develop
 
 After the feature is completed:
@@ -124,6 +147,19 @@ develop
 Feature commits become part of develop history.
 
 No merge commit is required.
+
+---
+
+# Feature Branch Cleanup
+
+After a successful merge into develop:
+
+```bash
+git branch -d feature/my-feature
+git push origin --delete feature/my-feature
+```
+
+Feature branches should be removed after they are no longer needed to keep the repository clean.
 
 ---
 
@@ -223,6 +259,72 @@ v1.1.0 - Release Stabilization
 
 ---
 
+# Release Checklist
+
+Before creating a release:
+
+- [ ] Working tree is clean.
+- [ ] All planned modules are completed.
+- [ ] Documentation has been reviewed.
+- [ ] README reflects the current implementation.
+- [ ] Project Status has been updated.
+- [ ] Known Issues has been reviewed.
+- [ ] Manual regression testing has been completed.
+- [ ] Develop has been pushed.
+- [ ] Release notes have been prepared.
+
+---
+
+# Versioning Strategy
+
+The project follows Semantic Versioning (SemVer).
+
+Version numbers communicate the significance of a release rather than the amount of work completed.
+
+## Major Release (X.0.0)
+
+Represents a major evolution of the application architecture or platform.
+
+Examples:
+
+* Agentic Finance Platform
+* Production Platform
+
+---
+
+## Minor Release (1.X.0)
+
+Represents a completed architectural milestone.
+
+Examples:
+
+* Core Finance Application
+* Enterprise Foundation
+* Data Access Patterns
+* CQRS Architecture
+* AI Integration
+
+---
+
+## Patch Release (1.2.X)
+
+Represents maintenance work that does not introduce new architectural milestones.
+
+Examples:
+
+* Bug fixes
+* Documentation updates
+* Performance improvements
+* Small UI improvements
+* Internal refactoring
+
+Every release should include:
+
+* Updated documentation
+* Release notes
+* Git tag
+* GitHub Release
+---
 # Expected History
 
 ## Feature Development
@@ -367,7 +469,24 @@ unless intentionally rewriting history and fully understanding the consequences.
 v1.0.0 → Core Finance Application
 v1.1.0 → Release Stabilization
 v1.2.0 → Enterprise Foundation
-v1.5.0 → Data Access Patterns
-v1.8.0 → CQRS Architecture
-v2.0.0 → AI Integration
+v1.3.0 → Data Access Patterns
+v1.4.0 → CQRS Architecture
+v1.5.0 → AI Integration
+v2.0.0 → Agentic Finance Platform
+v3.0.0 → Production Platform
 ```
+
+---
+
+# Release Philosophy
+
+A release represents an architectural milestone rather than simply a collection of commits.
+
+Every release should:
+
+* Deliver a meaningful improvement.
+* Preserve application stability.
+* Update all relevant documentation.
+* Leave the repository in a releasable state.
+
+Releases should communicate the evolution of the project as clearly as the code itself.

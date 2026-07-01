@@ -32,9 +32,19 @@ Completed:
 * ✅ Global Query Filter
 
 This release establishes the enterprise foundation of the application and prepares the codebase for Repository Pattern, Unit Of Work, Validation, and CQRS. 
+
+Current Development
+
+* 🚧 Phase 3 — Data Access & Application Patterns
+
+Current Module:
+* 🚧 Module 14 — AutoMapper
+
+Next Module:
+* 🚧 Module 15 — Testing
+
 Next Phase: 
 * 🚧 Data Access Patterns (v1.5.0)
-
 ---
 
 ## Release History
@@ -72,6 +82,9 @@ This project is used to learn and practice:
 * Service Layer
 * Repository Pattern
 * Unit Of Work
+* Validation
+* AutoMapper
+* Testing
 * CQRS
 * MediatR
 * AI Integration
@@ -92,7 +105,7 @@ This project is used to learn and practice:
 
 ### 🔄️ In Progress / Current Focus
 
-* Data Access Patterns
+* Module 14 AutoMapper
 
 ### 💡 Planned
 
@@ -202,6 +215,7 @@ docs/
 ## 🌱 Development Principles
 
 * Focus on understanding software engineering deeply
+* Learn before abstracting.
 * Learn architecture incrementally
 * Avoid premature abstraction
 * Prioritize maintainability over complexity
@@ -242,7 +256,7 @@ Production Platform
 
 ## 🔮 Future Direction
 
-### v1.5.0 — Data Access Patterns
+### v1.3.0 — Data Access Patterns
 
 * Repository Pattern
 * Unit Of Work
@@ -250,7 +264,7 @@ Production Platform
 * AutoMapper
 * Testing
 
-### v1.8.0 — CQRS Architecture
+### v1.4.0 — CQRS Architecture
 
 * CQRS
 * MediatR

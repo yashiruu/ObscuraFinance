@@ -103,16 +103,17 @@ Responsibilities:
 
 ## 04.Application
 
-Contains business flow.
+Contains application business logic and use cases.
 
 Current structure:
 
 ```text
 Services
 DTOs
+Validators
 ```
 
-Future structure:
+Future structure (CQRS):
 
 ```text
 Features/
@@ -120,14 +121,17 @@ Features/
  ├── Queries
  ├── DTOs
  ├── Validators
- └── Mappings
+ ├── Mappings
+ └── Handlers
 ```
 
 Responsibilities:
 
 * Business rules
-* Use cases
 * Application workflows
+* Request validation
+* DTO mapping
+* Use case orchestration
 
 ---
 
@@ -239,9 +243,59 @@ Dependencies should always point inward.
 
 ---
 
+# Dependency Rules
+
+Dependencies must always point inward.
+
+Allowed:
+
+```text
+Application
+    ↓
+Domain
+```
+
+```text
+Infrastructure
+    ↓
+Application
+```
+
+```text
+WebApi
+    ↓
+Application
+```
+
+Avoid:
+
+```text
+Domain
+    ↓
+Infrastructure
+```
+
+```text
+Domain
+    ↓
+WebApi
+```
+
+```text
+Application
+    ↓
+WebApi
+```
+
+The Domain layer must remain independent of infrastructure, presentation, and delivery concerns.
+
+---
+
 # Request Flow Evolution
 
-## Current State
+The request flow evolves as the project adopts additional architectural patterns.
+
+## Phase 1 — Direct Data Access
 
 ```text
 08.Bsui
@@ -257,7 +311,7 @@ SQL Server
 
 ---
 
-## Service Layer Stage
+## Phase 2 — Service Layer
 
 ```text
 08.Bsui
@@ -266,7 +320,7 @@ SQL Server
     ↓ HTTP/API
 06.WebApi
     ↓
-Service
+Application Service
     ↓
 DbContext
     ↓
@@ -275,7 +329,7 @@ SQL Server
 
 ---
 
-## Repository Stage
+## Phase 3 — Repository Pattern (Current)
 
 ```text
 08.Bsui
@@ -284,18 +338,22 @@ SQL Server
     ↓ HTTP/API
 06.WebApi
     ↓
-Service
+Application Service
     ↓
 Repository
     ↓
+Unit Of Work
+    ↓
 DbContext
     ↓
 SQL Server
 ```
 
+This architecture separates business logic from data access while centralizing transaction management through the Unit Of Work pattern.
+
 ---
 
-## CQRS Stage
+## Phase 4 — CQRS (Planned)
 
 ```text
 08.Bsui
@@ -310,23 +368,25 @@ Handler
     ↓
 Repository
     ↓
+Unit Of Work
+    ↓
 DbContext
     ↓
 SQL Server
 ```
 
+CQRS separates read and write operations while preserving the existing data access layer.
+
 ---
 
 # Architecture Principles
 
-1. Principle 1 - Mirror enterprise structure.
-2. Principle 2 - Avoid premature complexity.
-3. Principle 3 - Learn architecture incrementally.
-4. Principle 4 - Refactor when understanding improves.
-5. Principle 5 :
-   - Prioritize understanding over patterns.
-   - A pattern should be introduced because it solves a problem or teaches an important concept.
-   - Never introduce a pattern solely because it is popular.
+1. Mirror enterprise structure.
+2. Avoid premature complexity.
+3. Learn architecture incrementally.
+4. Refactor when understanding improves.
+5. Introduce patterns only when they solve a real problem or teach an important concept.
+6. Keep documentation aligned with the implemented architecture.
 
 ---
 

@@ -140,6 +140,8 @@ Notes:
 * Global exception handling implemented through middleware.
 * Soft delete completed using EF Core global query filters.
 * Client applications updated to support standardized API responses.
+* Request validation standardized using FluentValidation.
+* Validation pipeline implemented across Category, Account, and Transaction.
 
 ---
 
@@ -150,7 +152,7 @@ Phase 1 ██████████ 100%
 
 Phase 2 ██████████ 100%
 
-Phase 3 ░░░░░░░░░░ 0%
+Phase 3 ████████░░ 80%
 
 Phase 4 ░░░░░░░░░░ 0%
 
@@ -166,13 +168,11 @@ Phase 7 ░░░░░░░░░░ 0%
 # Current Priority
 
 ```text
-Phase 3
-    ↓
-Data Access Patterns
-    ↓
-Repository Pattern
-    ↓
-Unit Of Work
+Module 14 — AutoMapper
+↓
+Module 15 — Testing
+↓
+Release v1.3.0
 ```
 
 ---
@@ -198,27 +198,26 @@ Delivered:
 # Next Major Milestone
 
 ```text
-v1.5.0
+v1.3.0
 Data Access Patterns
 ```
 
 Requirements:
 
-* Repository Pattern
-* Unit Of Work
-* Validation
 * AutoMapper
 * Testing
 
 Current Progress:
 
-🚧 Planning
+🚧 In Progress
 
 ---
 
-# Upcoming Focus
+# ✅ Completed Modules
 
 ## Module 11 — Repository Pattern
+
+Status: ✅ COMPLETED
 
 Objectives:
 
@@ -227,9 +226,9 @@ Objectives:
 * Prepare foundation for Unit Of Work
 * Learn generic repositories and constraints
 
----
-
 ## Module 12 — Unit Of Work
+
+Status: ✅ COMPLETED
 
 Objectives:
 
@@ -237,9 +236,9 @@ Objectives:
 * Manage transactions consistently
 * Centralize SaveChanges operations
 
----
-
 ## Module 13 — Validation
+
+Status: ✅ COMPLETED
 
 Objectives:
 
@@ -247,9 +246,28 @@ Objectives:
 * Improve API error handling
 * Standardize validation responses
 
----
+Completed:
+
+* FluentValidation
+* Category Validators
+* Account Validators
+* Transaction Validators
+* Validation Constraints
+* Validation Pipeline
+* Centralized Validation Responses
+
+Notes:
+
+* Three-layer validation adopted:
+* Request Validation
+* Business Validation
+* Database Constraints
+
+# 🔄️ Current Module
 
 ## Module 14 — AutoMapper
+
+Status: 🚧 Next
 
 Objectives:
 
@@ -257,9 +275,11 @@ Objectives:
 * Improve DTO maintainability
 * Prepare for CQRS architecture
 
----
+# 🏗️ Next Module
 
 ## Module 15 — Testing
+
+Status:📋 Planned
 
 Objectives:
 

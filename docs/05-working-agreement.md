@@ -36,6 +36,32 @@ Build Next Feature
 
 ---
 
+# Development Workflow
+
+The project follows an iterative development workflow.
+
+Rather than implementing architectural patterns immediately, each feature follows the same engineering cycle.
+
+```text
+Understand
+    ↓
+Discuss
+    ↓
+Implement
+    ↓
+Review
+    ↓
+Refactor
+    ↓
+Document
+```
+
+Understanding always comes before implementation.
+
+Documentation is considered part of the implementation rather than a separate activity.
+
+---
+
 # Commit Philosophy
 
 Commits are used as both:
@@ -133,8 +159,10 @@ Is this ready to commit?
 
 If yes:
 
-* State that the change is ready to commit
-* Suggest a Conventional Commit message
+* Verify the implementation has been tested.
+* Suggest a Conventional Commit message.
+* Review whether any documentation requires updating.
+* Confirm the working tree is clean before committing.
 
 ---
 
@@ -142,23 +170,61 @@ If yes:
 
 ## Always Suggest The Next Step
 
-After suggesting a commit:
+After preparing a commit:
 
-Always provide:
-
-```text id="y7j8pr"
-Next Step
-```
+Always identify the next learning objective.
 
 Example:
 
-```text id="fh5l2v"
-Ready To Commit:
-feat(transaction): add transaction summary endpoint
+```text
+Ready To Commit
 
-Next Step:
-Implement Dashboard V1 summary cards.
+feat(repository): introduce generic repository abstraction
+
+Next Step
+
+Implement Unit Of Work.
 ```
+
+Learning should continue incrementally after every completed milestone.
+
+---
+
+# Collaboration Rule 4
+
+## Keep Documentation Synchronized
+
+Documentation evolves together with the implementation.
+
+Whenever a significant architectural milestone is completed, review and update the relevant documentation.
+
+This typically includes:
+
+* README
+* Learning Roadmap
+* Project Status
+* Architecture Guide
+* Known Issues
+
+Documentation is treated as part of the implementation rather than an optional task.
+
+---
+
+# Collaboration Rule 5
+
+## Prefer Understanding Before Abstraction
+
+Architectural patterns should never be introduced simply because they are commonly used.
+
+Before implementing a new pattern:
+
+1. Understand the problem.
+2. Discuss the architectural trade-offs.
+3. Implement the solution.
+4. Review the implementation.
+5. Refactor when understanding improves.
+
+Learning why a pattern exists is more important than memorizing how to implement it.
 
 ---
 
@@ -215,3 +281,30 @@ Performance
 The project is primarily a learning platform.
 
 Therefore learning value is considered first unless a technical constraint requires otherwise.
+
+---
+
+# Definition of Done
+
+A module is considered complete when:
+
+* The implementation is finished.
+* Manual verification has been completed.
+* Related documentation has been reviewed and updated.
+* Project status reflects the latest progress.
+* A Conventional Commit message has been prepared.
+* The next learning objective has been identified.
+
+Completion is defined by both working software and accurate documentation.
+
+---
+
+# Documentation Philosophy
+
+Documentation is treated as a first-class artifact of the project.
+
+Architecture, roadmap, and project status should accurately reflect the current implementation.
+
+Outdated documentation should be corrected as part of normal development rather than postponed indefinitely.
+
+Every architectural milestone should leave the codebase and its documentation in a consistent state.
