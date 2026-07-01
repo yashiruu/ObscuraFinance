@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
-using Obscura.FinanceTracker.Application.Common.Responses;
-using System.ComponentModel.DataAnnotations;
+﻿using Obscura.FinanceTracker.Application.Common.Responses;
+using FluentValidation;
+using Obscura.FinanceTracker.Shared.Exceptions;
 
 namespace Obscura.FinanceTracker.WebApi.Middleware
 {
@@ -21,21 +21,34 @@ namespace Obscura.FinanceTracker.WebApi.Middleware
             {
                 await _next(context);
             }
-            catch (KeyNotFoundException ex)
-            {
-                context.Response.StatusCode = StatusCodes.Status404NotFound;
-                context.Response.ContentType = "application/json";
 
-                await context.Response.WriteAsJsonAsync(
-                    new
-                    {
-                        success = false,
-                        message = ex.Message
-                    });
-            }
+            #region Request Validation
             catch (ValidationException ex)
             {
                 context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                context.Response.ContentType = "application/json";
+
+                var errors = ex.Errors
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+
+                await context.Response.WriteAsJsonAsync(
+                    ApiResponse<object>.ErrorResponse("Validation Failed", errors));
+            }
+            #endregion
+
+            #region Business Validation
+            catch (BusinessException ex)
+            {
+                context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                context.Response.ContentType = "application/json";
+
+                await context.Response.WriteAsJsonAsync(
+                    ApiResponse<object>.ErrorResponse(ex.Message));
+            }
+            catch (KeyNotFoundException ex)
+            {
+                context.Response.StatusCode = StatusCodes.Status404NotFound;
                 context.Response.ContentType = "application/json";
 
                 await context.Response.WriteAsJsonAsync(
@@ -47,12 +60,10 @@ namespace Obscura.FinanceTracker.WebApi.Middleware
                 context.Response.ContentType = "application/json";
 
                 await context.Response.WriteAsJsonAsync(
-                    new
-                    {
-                        success = false,
-                        message = ex.Message
-                    });
+                    ApiResponse<object>.ErrorResponse(ex.Message));
             }
+            #endregion
+
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unhandled exception occurred.");
@@ -61,11 +72,7 @@ namespace Obscura.FinanceTracker.WebApi.Middleware
                 context.Response.ContentType = "application/json";
 
                 await context.Response.WriteAsJsonAsync(
-                    new
-                    {
-                        success = false,
-                        message = "Internal server error"
-                    });
+                    ApiResponse<object>.ErrorResponse("An unexpected error occurred."));
             }
         }
     }

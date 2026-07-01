@@ -1,22 +1,24 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using FluentValidation;
+using Microsoft.Extensions.Logging;
 using Obscura.FinanceTracker.Application.DTOs.Categories.Requests;
 using Obscura.FinanceTracker.Application.DTOs.Categories.Responses;
 using Obscura.FinanceTracker.Application.Interfaces;
 using Obscura.FinanceTracker.Domain.Entities;
 using Obscura.FinanceTracker.Domain.Enums;
-using System.ComponentModel.DataAnnotations;
-using Obscura.FinanceTracker.Application.Interfaces.Repositories;
+using Obscura.FinanceTracker.Shared.Exceptions;
 
 namespace Obscura.FinanceTracker.Infrastructure.Services
 {
     public class CategoryService : ICategoryService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IValidator<CategoryCreateRequest> _validator;
         private readonly ILogger<CategoryService> _logger;
 
-        public CategoryService(IUnitOfWork unitOfWork, ILogger<CategoryService> logger)
+        public CategoryService(IUnitOfWork unitOfWork, IValidator<CategoryCreateRequest> validator, ILogger<CategoryService> logger)
         {
             _unitOfWork = unitOfWork;
+            _validator = validator;
             _logger = logger;
         }
 
@@ -99,6 +101,8 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
 
         public async Task<CategoryResponse> CreateAsync(CategoryCreateRequest request, CancellationToken cancellationToken)
         {
+            await _validator.ValidateAndThrowAsync(request, cancellationToken);
+
             _logger.LogInformation("Creating category. CategoryName: {CategoryName}", request.Name);
 
             var exists = await _unitOfWork.Categories.ExistsAsync(c => c.Name == request.Name);
@@ -107,7 +111,7 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
             {
                 _logger.LogWarning("Category already exists. CategoryName: {CategoryName}", request.Name);
 
-                throw new ValidationException($"Category with '{request.Name}' already exists.");
+                throw new BusinessException($"Category with '{request.Name}' already exists.");
             }
 
             var category = new Category
@@ -150,7 +154,7 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
             {
                 _logger.LogWarning("Category already exists. CategoryName: {CategoryName}", request.Name);
 
-                throw new ValidationException($"Category with '{request.Name}' already exists.");
+                throw new BusinessException($"Category with '{request.Name}' already exists.");
             }
 
             category.Name = request.Name;

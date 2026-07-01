@@ -1,11 +1,13 @@
-﻿using Obscura.FinanceTracker.Application.Interfaces;
+﻿using FluentValidation;
+using Obscura.FinanceTracker.Application.Interfaces;
 using Obscura.FinanceTracker.Application.Interfaces.Repositories;
+using Obscura.FinanceTracker.Application.Validators.Category;
 using Obscura.FinanceTracker.Infrastructure.Persistence.Repositories;
 using Obscura.FinanceTracker.Infrastructure.Services;
 
 namespace Obscura.FinanceTracker.WebApi.Extensions
 {
-    public static class ServiceCollectionExtensions
+    public static class ServiceExtensions
     {
         // =============================================================================
         // APPLICATION SERVICES
@@ -34,6 +36,9 @@ namespace Obscura.FinanceTracker.WebApi.Extensions
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<IDashboardRepository, DashboardRepository>();
+
+            // FluentValidation
+            services.AddValidatorsFromAssemblyContaining<CategoryCreateRequestValidator>();
 
             return services;
         }

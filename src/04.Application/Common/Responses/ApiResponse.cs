@@ -12,10 +12,10 @@
         {
             return new ApiResponse<T>
             {
+                Timestamp = DateTime.UtcNow,
                 Success = true,
                 Message = message,
                 Data = data,
-                Timestamp = DateTime.UtcNow,
                 Errors = null
             };
         }
@@ -24,10 +24,10 @@
         {
             return new ApiResponse<T>
             {
+                Timestamp = DateTime.UtcNow,
                 Success = false,
                 Message = message,
                 Data = default,
-                Timestamp = DateTime.UtcNow,
                 Errors = errors
             };
         }
