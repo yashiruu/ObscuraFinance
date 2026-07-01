@@ -9,14 +9,20 @@ namespace Obscura.FinanceTracker.Application.Validators.Category
         public CategoryCreateRequestValidator() 
         {
             RuleFor(c => c.Name)
+                .Cascade(CascadeMode.Stop)
                 .NotEmpty()
-                .MaximumLength(CategoryConstants.NameMaxLength);
+                .WithMessage("Category name is required.")
+                .MaximumLength(CategoryConstraints.NameMaxLength)
+                .WithMessage($"Category name cannot exceed {CategoryConstraints.NameMaxLength} characters.");
+
 
             RuleFor(c => c.Description)
-                .MaximumLength(CategoryConstants.DescriptionMaxLength);
+                .MaximumLength(CategoryConstraints.DescriptionMaxLength)
+                .WithMessage($"Description cannot exceed {CategoryConstraints.DescriptionMaxLength} characters."); ;
 
             RuleFor(c => c.Type)
-                .IsInEnum();
+                .IsInEnum()
+                .WithMessage("Invalid category type."); ;
         }
     }
 }

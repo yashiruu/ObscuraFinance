@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using FluentValidation;
+using Microsoft.Extensions.Logging;
 using Obscura.FinanceTracker.Application.DTOs.Transactions.Requests;
 using Obscura.FinanceTracker.Application.DTOs.Transactions.Responses;
 using Obscura.FinanceTracker.Application.Interfaces;
@@ -9,11 +10,13 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
     public class TransactionService : ITransactionService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IValidator<TransactionCreateRequest> _validator;
         private readonly ILogger<TransactionService> _logger;
 
-        public TransactionService(IUnitOfWork unitOfWork, ILogger<TransactionService> logger)
+        public TransactionService(IUnitOfWork unitOfWork, IValidator<TransactionCreateRequest> validator, ILogger<TransactionService> logger)
         {
             _unitOfWork = unitOfWork;
+            _validator = validator;
             _logger = logger;
         }
 
@@ -76,6 +79,8 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
 
         public async Task<TransactionDetailResponse> CreateAsync(TransactionCreateRequest request, CancellationToken cancellationToken)
         {
+            await _validator.ValidateAndThrowAsync(request, cancellationToken);
+
             _logger.LogInformation("Creating transaction. TransactionName: {TransactionName}", request.Name);
 
             var account = await _unitOfWork.Accounts.GetByIdAsync(request.AccountId);

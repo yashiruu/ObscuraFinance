@@ -1,23 +1,24 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using FluentValidation;
 using Microsoft.Extensions.Logging;
 using Obscura.FinanceTracker.Application.Accounts.DTOs;
 using Obscura.FinanceTracker.Application.DTOs.Accounts.Requests;
 using Obscura.FinanceTracker.Application.DTOs.Accounts.Responses;
 using Obscura.FinanceTracker.Application.Interfaces;
 using Obscura.FinanceTracker.Domain.Entities;
-using Obscura.FinanceTracker.Infrastructure.Persistence;
-using System.ComponentModel.DataAnnotations;
+using Obscura.FinanceTracker.Shared.Exceptions;
 
 namespace Obscura.FinanceTracker.Infrastructure.Services
 {
     public class AccountService : IAccountService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IValidator<AccountCreateRequest> _validator;
         private readonly ILogger<AccountService> _logger;
 
-        public AccountService(IUnitOfWork unitOfWork, ILogger<AccountService> logger)
+        public AccountService(IUnitOfWork unitOfWork, IValidator<AccountCreateRequest> validator, ILogger<AccountService> logger)
         {
             _unitOfWork = unitOfWork;
+            _validator = validator;
             _logger = logger;
         }
 
@@ -68,6 +69,8 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
         }
         public async Task<AccountDetailResponse> CreateAsync(AccountCreateRequest request, CancellationToken cancellationToken)
         {
+            await _validator.ValidateAndThrowAsync(request, cancellationToken);
+
             _logger.LogInformation("Creating account. AccountName: {AccountName}", request.Name);
 
             var exists = await _unitOfWork.Accounts.ExistsAsync(a => a.Name == request.Name);
@@ -76,7 +79,7 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
             {
                 _logger.LogWarning("Account already exists. AccountName: {AccountName}", request.Name);
 
-                throw new ValidationException($"Account with '{request.Name}' already exists.");
+                throw new BusinessException($"Account with '{request.Name}' already exists.");
             }
 
             var account = new Account
@@ -118,7 +121,7 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
             {
                 _logger.LogWarning("Account already exists. AccountName: {AccountName}", request.Name);
 
-                throw new ValidationException($"Account with '{request.Name}' already exists.");
+                throw new BusinessException($"Account with '{request.Name}' already exists.");
             }
 
             var account = await _unitOfWork.Accounts.GetByIdAsync(id);
