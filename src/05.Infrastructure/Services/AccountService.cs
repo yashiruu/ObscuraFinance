@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using AutoMapper;
+using FluentValidation;
 using Microsoft.Extensions.Logging;
 using Obscura.FinanceTracker.Application.Accounts.DTOs;
 using Obscura.FinanceTracker.Application.DTOs.Accounts.Requests;
@@ -15,12 +16,14 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IValidator<AccountCreateRequest> _validator;
         private readonly ILogger<AccountService> _logger;
+        private readonly IMapper _mapper;
 
-        public AccountService(IUnitOfWork unitOfWork, IValidator<AccountCreateRequest> validator, ILogger<AccountService> logger)
+        public AccountService(IUnitOfWork unitOfWork, IValidator<AccountCreateRequest> validator, ILogger<AccountService> logger, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _validator = validator;
             _logger = logger;
+            _mapper = mapper;
         }
 
         public async Task<IEnumerable<AccountListResponse>> GetAllAsync(CancellationToken cancellationToken)
@@ -31,14 +34,7 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
 
             _logger.LogInformation("Retrieved {Count} accounts", accounts.Count);
 
-            return accounts.Select(account => new AccountListResponse
-            {
-                Id = account.Id,
-                Name= account.Name,
-                Type = account.Type,
-                CurrentBalance = account.CurrentBalance,
-                IsActive = account.IsActive
-            });
+            return _mapper.Map<IEnumerable<AccountListResponse>>(accounts);
         }
         public async Task<AccountDetailResponse> GetByIdAsync(Guid id, CancellationToken cancellationToken)
         {
@@ -55,18 +51,7 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
 
             _logger.LogInformation("Account retrieved successfully. AccountId: {AccountId}", id);
 
-            return new AccountDetailResponse
-            {
-                Id = account.Id,
-                Name = account.Name,
-                Description = account.Description,
-                CurrentBalance = account.CurrentBalance,
-                InitialBalance = account.InitialBalance,
-                Currency = account.Currency,
-                Type = account.Type,
-                IsActive = account.IsActive,
-                CreatedAt = account.CreatedAt
-            };
+            return _mapper.Map<AccountDetailResponse>(account);
         }
         public async Task<AccountDetailResponse> CreateAsync(AccountCreateRequest request, CancellationToken cancellationToken)
         {
@@ -83,16 +68,7 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
                 throw new BusinessException($"Account with '{request.Name}' already exists.");
             }
 
-            var account = new Account
-            {
-                Name = request.Name,
-                Description = request.Description,
-                InitialBalance = request.InitialBalance,
-                CurrentBalance = request.InitialBalance,
-                Currency = request.Currency,
-                Type = request.Type,
-                IsActive = true
-            };
+            var account = _mapper.Map<Account>(request);
 
             await _unitOfWork.Accounts.AddAsync(account);
 
@@ -100,17 +76,7 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
 
             _logger.LogInformation("Account created successfully. AccountId: {AccountId}", account.Id);
 
-            return new AccountDetailResponse
-            {
-                Id = account.Id,
-                Name = request.Name,
-                Description = request.Description,
-                InitialBalance = request.InitialBalance,
-                CurrentBalance = request.InitialBalance,
-                Currency = request.Currency,
-                Type = request.Type,
-                IsActive = true
-            };
+            return _mapper.Map<AccountDetailResponse>(account);
         }
         public async Task UpdateAsync(Guid id, AccountUpdateRequest request, CancellationToken cancellationToken)
         {

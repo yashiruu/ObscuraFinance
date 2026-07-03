@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using Obscura.FinanceTracker.Application.Interfaces.Repositories;
 using Obscura.FinanceTracker.Application.Interfaces.Services;
+using Obscura.FinanceTracker.Application.Mappings;
 using Obscura.FinanceTracker.Application.Validators.Account;
 using Obscura.FinanceTracker.Application.Validators.Category;
 using Obscura.FinanceTracker.Application.Validators.Transaction;
@@ -43,6 +44,9 @@ namespace Obscura.FinanceTracker.WebApi.Extensions
             services.AddValidatorsFromAssemblyContaining<CategoryCreateRequestValidator>();
             services.AddValidatorsFromAssemblyContaining<AccountCreateRequestValidator>();
             services.AddValidatorsFromAssemblyContaining<TransactionCreateRequestValidator>();
+
+            // AutoMapper
+            services.AddAutoMapper(cfg => { }, typeof(AccountProfile).Assembly);
 
             return services;
         }
