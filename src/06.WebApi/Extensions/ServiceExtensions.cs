@@ -47,6 +47,7 @@ namespace Obscura.FinanceTracker.WebApi.Extensions
 
             // AutoMapper
             services.AddAutoMapper(cfg => { }, typeof(AccountProfile).Assembly);
+            services.AddAutoMapper(cfg => { }, typeof(CategoryProfile).Assembly);
 
             return services;
         }

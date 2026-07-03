@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using AutoMapper;
+using FluentValidation;
 using Microsoft.Extensions.Logging;
 using Obscura.FinanceTracker.Application.DTOs.Categories.Requests;
 using Obscura.FinanceTracker.Application.DTOs.Categories.Responses;
@@ -15,12 +16,13 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IValidator<CategoryCreateRequest> _validator;
         private readonly ILogger<CategoryService> _logger;
-
-        public CategoryService(IUnitOfWork unitOfWork, IValidator<CategoryCreateRequest> validator, ILogger<CategoryService> logger)
+        private readonly IMapper _mapper;
+        public CategoryService(IUnitOfWork unitOfWork, IValidator<CategoryCreateRequest> validator, ILogger<CategoryService> logger, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _validator = validator;
             _logger = logger;
+            _mapper = mapper;
         }
 
         public async Task<IEnumerable<CategoryResponse>> GetAllAsync(CancellationToken cancellationToken)
@@ -31,13 +33,7 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
 
             _logger.LogInformation("Retrieved {Count} categories", categories.Count);
 
-            return categories.Select(category => new CategoryResponse
-            {
-                Id = category.Id,
-                Name = category.Name,
-                Description = category.Description,
-                Type = category.Type
-            });
+            return _mapper.Map<IEnumerable<CategoryResponse>>(categories);
         }
 
         public async Task<IEnumerable<CategoryResponse>> GetByTypeAsync(TransactionType type, CancellationToken cancellationToken)
@@ -48,13 +44,7 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
 
             _logger.LogInformation("Retrieved {Count} categories for type {CategoryType}", categories.Count, type);
 
-            return categories.Select(category => new CategoryResponse
-            {
-                Id = category.Id,
-                Name = category.Name,
-                Description = category.Description,
-                Type = category.Type
-            });
+            return _mapper.Map<IEnumerable<CategoryResponse>>(categories);
         }
 
         public async Task<IEnumerable<CategoryResponse>> GetDeletedAsync(CancellationToken cancellationToken)
@@ -67,13 +57,7 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
                 "Retrieved {Count} deleted categories",
                 categories.Count);
 
-            return categories.Select(category => new CategoryResponse
-            {
-                Id = category.Id,
-                Name = category.Name,
-                Description = category.Description,
-                Type = category.Type
-            });
+            return _mapper.Map<IEnumerable<CategoryResponse>>(categories);
         }
 
         public async Task<CategoryResponse> GetByIdAsync(Guid id, CancellationToken cancellationToken)
@@ -91,13 +75,7 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
 
             _logger.LogInformation("Category retrieved successfully. CategoryId: {CategoryId}", id);
 
-            return new CategoryResponse
-            {
-                Id = category.Id,
-                Name = category.Name,
-                Description = category.Description,
-                Type = category.Type
-            };
+            return _mapper.Map<CategoryResponse>(category);
         }
 
         public async Task<CategoryResponse> CreateAsync(CategoryCreateRequest request, CancellationToken cancellationToken)
@@ -115,25 +93,14 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
                 throw new BusinessException($"Category with '{request.Name}' already exists.");
             }
 
-            var category = new Category
-            {
-                Name = request.Name,
-                Description = request.Description,
-                Type = (TransactionType)request.Type
-            };
+            var category = _mapper.Map<Category>(request);
 
             await _unitOfWork.Categories.AddAsync(category);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             _logger.LogInformation("Category created successfully. CategoryId: {CategoryId}", category.Id);
 
-            return new CategoryResponse
-            {
-                Id = category.Id,
-                Name = category.Name,
-                Description = category.Description,
-                Type = category.Type
-            };
+            return _mapper.Map<CategoryResponse>(category);
         }
 
         public async Task UpdateAsync(Guid id, CategoryUpdateRequest request, CancellationToken cancellationToken)
