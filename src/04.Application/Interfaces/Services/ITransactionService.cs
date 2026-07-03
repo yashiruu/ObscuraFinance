@@ -1,7 +1,7 @@
 ﻿using Obscura.FinanceTracker.Application.DTOs.Transactions.Requests;
 using Obscura.FinanceTracker.Application.DTOs.Transactions.Responses;
 
-namespace Obscura.FinanceTracker.Application.Interfaces
+namespace Obscura.FinanceTracker.Application.Interfaces.Services
 {
     public interface ITransactionService
     {

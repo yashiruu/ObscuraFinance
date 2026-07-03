@@ -1,5 +1,4 @@
-﻿using Obscura.FinanceTracker.Application.Interfaces;
-using Obscura.FinanceTracker.Application.Interfaces.Repositories;
+﻿using Obscura.FinanceTracker.Application.Interfaces.Repositories;
 using Obscura.FinanceTracker.Domain.Entities;
 using Obscura.FinanceTracker.Infrastructure.Persistence.Repositories;
 

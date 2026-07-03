@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
-using Obscura.FinanceTracker.Application.Interfaces;
 using Obscura.FinanceTracker.Application.Interfaces.Repositories;
+using Obscura.FinanceTracker.Application.Interfaces.Services;
 using Obscura.FinanceTracker.Application.Validators.Account;
 using Obscura.FinanceTracker.Application.Validators.Category;
 using Obscura.FinanceTracker.Application.Validators.Transaction;

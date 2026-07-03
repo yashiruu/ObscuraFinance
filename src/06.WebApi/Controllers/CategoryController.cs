@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Obscura.FinanceTracker.Application.Common.Responses;
 using Obscura.FinanceTracker.Application.DTOs.Categories.Requests;
 using Obscura.FinanceTracker.Application.DTOs.Categories.Responses;
-using Obscura.FinanceTracker.Application.Interfaces;
+using Obscura.FinanceTracker.Application.Interfaces.Services;
 using Obscura.FinanceTracker.Domain.Enums;
 
 namespace Obscura.FinanceTracker.WebApi.Controllers

@@ -1,7 +1,6 @@
-﻿using Obscura.FinanceTracker.Application.Interfaces.Repositories;
-using Obscura.FinanceTracker.Domain.Entities;
+﻿using Obscura.FinanceTracker.Domain.Entities;
 
-namespace Obscura.FinanceTracker.Application.Interfaces
+namespace Obscura.FinanceTracker.Application.Interfaces.Repositories
 {
     public interface IUnitOfWork : IDisposable
     {

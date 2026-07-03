@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Obscura.FinanceTracker.Application.Interfaces;
+using Obscura.FinanceTracker.Application.Interfaces.Repositories;
 using Obscura.FinanceTracker.Infrastructure.Persistence;
 
 namespace Obscura.FinanceTracker.WebApi.Extensions

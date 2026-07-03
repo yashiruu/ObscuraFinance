@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Obscura.FinanceTracker.Application.Interfaces
+namespace Obscura.FinanceTracker.Application.Interfaces.Services
 {
     public interface IDashboardService
     {

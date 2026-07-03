@@ -2,7 +2,7 @@
 using Obscura.FinanceTracker.Application.DTOs.Accounts.Requests;
 using Obscura.FinanceTracker.Application.DTOs.Accounts.Responses;
 
-namespace Obscura.FinanceTracker.Application.Interfaces
+namespace Obscura.FinanceTracker.Application.Interfaces.Services
 {
     public interface IAccountService
     {

@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Obscura.FinanceTracker.Application.DTOs.Dashboard.Responses;
-using Obscura.FinanceTracker.Application.Interfaces;
 using Obscura.FinanceTracker.Application.Interfaces.Repositories;
+using Obscura.FinanceTracker.Application.Interfaces.Services;
 
 namespace Obscura.FinanceTracker.Infrastructure.Services
 {
