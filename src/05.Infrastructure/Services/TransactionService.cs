@@ -49,7 +49,7 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
                 "Retrieving transaction. TransactionId: {TransactionId}",
                 id);
 
-            var transaction = await _unitOfWork.Transactions.GetByIdAsync(id);
+            var transaction = await _unitOfWork.Transactions.GetByIdWithDetailAsync(id);
 
             if (transaction == null)
             {
