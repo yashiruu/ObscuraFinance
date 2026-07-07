@@ -12,14 +12,16 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
     public class TransactionService : ITransactionService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IValidator<TransactionCreateRequest> _validator;
+        private readonly IValidator<TransactionCreateRequest> _createValidator;
+        private readonly IValidator<TransactionUpdateRequest> _updateValidator;
         private readonly ILogger<TransactionService> _logger;
         private readonly IMapper _mapper;
 
-        public TransactionService(IUnitOfWork unitOfWork, IValidator<TransactionCreateRequest> validator, ILogger<TransactionService> logger, IMapper mapper)
+        public TransactionService(IUnitOfWork unitOfWork, IValidator<TransactionCreateRequest> createValidator, IValidator<TransactionUpdateRequest> updateValidator, ILogger<TransactionService> logger, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
-            _validator = validator;
+            _createValidator = createValidator;
+            _updateValidator = updateValidator;
             _logger = logger;
             _mapper = mapper;
         }
@@ -55,12 +57,12 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
 
         public async Task<TransactionDetailResponse> CreateAsync(TransactionCreateRequest request, CancellationToken cancellationToken)
         {
-            await _validator.ValidateAndThrowAsync(request, cancellationToken);
+            await _createValidator.ValidateAndThrowAsync(request, cancellationToken);
 
             _logger.LogInformation("Creating transaction. TransactionName: {TransactionName}", request.Name);
 
-            var accountExists = await _unitOfWork.Transactions.ExistsAsync(a => a.AccountId == request.AccountId);
-            var categoryExists = await _unitOfWork.Transactions.ExistsAsync(c => c.CategoryId == request.CategoryId);
+            var accountExists = await _unitOfWork.Transactions.ExistsAsync(a => a.AccountId != request.AccountId);
+            var categoryExists = await _unitOfWork.Transactions.ExistsAsync(c => c.CategoryId != request.CategoryId);
 
             if (!accountExists)
             {
@@ -88,6 +90,8 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
 
         public async Task UpdateAsync(Guid id, TransactionUpdateRequest request, CancellationToken cancellationToken)
         {
+            await _updateValidator.ValidateAndThrowAsync(request, cancellationToken);
+
             _logger.LogInformation("Updating transaction. TransactionId: {TransactionId}", id);
 
             var accountExists = await _unitOfWork.Transactions.ExistsAsync(a => a.AccountId == request.AccountId);

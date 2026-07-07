@@ -1,13 +1,17 @@
 ﻿using FluentValidation;
-using Obscura.FinanceTracker.Application.DTOs.Accounts.Requests;
+using Obscura.FinanceTracker.Application.Accounts.DTOs;
 using Obscura.FinanceTracker.Shared.Constants;
 
 namespace Obscura.FinanceTracker.Application.Validators.Account
 {
-    public class AccountCreateRequestValidator : AbstractValidator<AccountCreateRequest>
+    public class AccountUpdateRequestValidator : AbstractValidator<AccountUpdateRequest>
     {
-        public AccountCreateRequestValidator() 
+        public AccountUpdateRequestValidator() 
         {
+            RuleFor(x => x.Id)
+                .NotEmpty()
+                    .WithMessage("Account ID is required.");
+
             RuleFor(x => x.Name)
                 .Cascade(CascadeMode.Stop)
                 .NotEmpty()
@@ -17,7 +21,7 @@ namespace Obscura.FinanceTracker.Application.Validators.Account
 
             RuleFor(x => x.Description)
                 .MaximumLength(AccountConstraints.DescriptionMaxLength)
-                    .WithMessage($"Account description must not exceed {AccountConstraints.DescriptionMaxLength} characters.");
+                .WithMessage($"Account description must not exceed {AccountConstraints.DescriptionMaxLength} characters.");
 
             RuleFor(x => x.Currency)
                 .Cascade(CascadeMode.Stop)
@@ -28,14 +32,9 @@ namespace Obscura.FinanceTracker.Application.Validators.Account
                 .Matches("^[A-Z]{3}$")
                     .WithMessage("Currency must be a valid ISO 4217 currency code."); ;
 
-            RuleFor(x => x.InitialBalance)
-                .InclusiveBetween(AccountConstraints.MinimumInitialBalance, AccountConstraints.MaximumInitialBalance)
-                    .WithMessage($"Initial balance must be between {AccountConstraints.MinimumInitialBalance} and {AccountConstraints.MaximumInitialBalance}.");
-
             RuleFor(x => x.Type)
                 .IsInEnum()
                     .WithMessage("Invalid account type.");
         }
-
     }
 }

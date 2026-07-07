@@ -14,13 +14,15 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
     public class CategoryService : ICategoryService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IValidator<CategoryCreateRequest> _validator;
+        private readonly IValidator<CategoryCreateRequest> _createValidator;
+        private readonly IValidator<CategoryUpdateRequest> _updateValidator;
         private readonly ILogger<CategoryService> _logger;
         private readonly IMapper _mapper;
-        public CategoryService(IUnitOfWork unitOfWork, IValidator<CategoryCreateRequest> validator, ILogger<CategoryService> logger, IMapper mapper)
+        public CategoryService(IUnitOfWork unitOfWork, IValidator<CategoryCreateRequest> createValidator, IValidator<CategoryUpdateRequest> updateValidator, ILogger<CategoryService> logger, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
-            _validator = validator;
+            _createValidator = createValidator;
+            _updateValidator = updateValidator;
             _logger = logger;
             _mapper = mapper;
         }
@@ -53,9 +55,7 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
 
             var categories = await _unitOfWork.Categories.GetAllDeletedAsync();
 
-            _logger.LogInformation(
-                "Retrieved {Count} deleted categories",
-                categories.Count);
+            _logger.LogInformation("Retrieved {Count} deleted categories", categories.Count);
 
             return _mapper.Map<IEnumerable<CategoryResponse>>(categories);
         }
@@ -80,7 +80,7 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
 
         public async Task<CategoryResponse> CreateAsync(CategoryCreateRequest request, CancellationToken cancellationToken)
         {
-            await _validator.ValidateAndThrowAsync(request, cancellationToken);
+            await _createValidator.ValidateAndThrowAsync(request, cancellationToken);
 
             _logger.LogInformation("Creating category. CategoryName: {CategoryName}", request.Name);
 
@@ -105,6 +105,8 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
 
         public async Task UpdateAsync(Guid id, CategoryUpdateRequest request, CancellationToken cancellationToken)
         {
+            await _updateValidator.ValidateAndThrowAsync(request, cancellationToken);
+
             _logger.LogInformation("Updating category. CategoryId: {CategoryId}", id);
 
             var category = await _unitOfWork.Categories.GetByIdAsync(id);
@@ -151,9 +153,7 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
             _unitOfWork.Categories.Delete(category);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            _logger.LogInformation(
-                "Category deleted successfully. CategoryId: {CategoryId}",
-                id);
+            _logger.LogInformation("Category deleted successfully. CategoryId: {CategoryId}", id);
         }
 
         public async Task RestoreAsync(Guid id, CancellationToken cancellationToken)

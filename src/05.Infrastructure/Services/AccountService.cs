@@ -14,14 +14,16 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
     public class AccountService : IAccountService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IValidator<AccountCreateRequest> _validator;
+        private readonly IValidator<AccountCreateRequest> _createValidator;
+        private readonly IValidator<AccountUpdateRequest> _updateValidator;
         private readonly ILogger<AccountService> _logger;
         private readonly IMapper _mapper;
 
-        public AccountService(IUnitOfWork unitOfWork, IValidator<AccountCreateRequest> validator, ILogger<AccountService> logger, IMapper mapper)
+        public AccountService(IUnitOfWork unitOfWork, IValidator<AccountCreateRequest> createValidator, IValidator<AccountUpdateRequest> updateValidator, ILogger<AccountService> logger, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
-            _validator = validator;
+            _createValidator = createValidator;
+            _updateValidator = updateValidator;
             _logger = logger;
             _mapper = mapper;
         }
@@ -55,7 +57,7 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
         }
         public async Task<AccountDetailResponse> CreateAsync(AccountCreateRequest request, CancellationToken cancellationToken)
         {
-            await _validator.ValidateAndThrowAsync(request, cancellationToken);
+            await _createValidator.ValidateAndThrowAsync(request, cancellationToken);
 
             _logger.LogInformation("Creating account. AccountName: {AccountName}", request.Name);
 
@@ -71,7 +73,6 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
             var account = _mapper.Map<Account>(request);
 
             await _unitOfWork.Accounts.AddAsync(account);
-
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             _logger.LogInformation("Account created successfully. AccountId: {AccountId}", account.Id);
@@ -80,6 +81,8 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
         }
         public async Task UpdateAsync(Guid id, AccountUpdateRequest request, CancellationToken cancellationToken)
         {
+            await _updateValidator.ValidateAndThrowAsync(request, cancellationToken);
+
             _logger.LogInformation("Updating account. AccountId: {AccountId}", id);
 
             var exists = await _unitOfWork.Accounts.ExistsAsync(a => a.Id != id && a.Name == request.Name);

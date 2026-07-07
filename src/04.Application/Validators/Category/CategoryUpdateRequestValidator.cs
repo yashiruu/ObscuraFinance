@@ -4,10 +4,14 @@ using Obscura.FinanceTracker.Application.DTOs.Categories.Requests;
 
 namespace Obscura.FinanceTracker.Application.Validators.Category
 {
-    public class CategoryCreateRequestValidator : AbstractValidator<CategoryCreateRequest>
+    public class CategoryUpdateRequestValidator : AbstractValidator<CategoryUpdateRequest>
     {
-        public CategoryCreateRequestValidator() 
+        public CategoryUpdateRequestValidator() 
         {
+            RuleFor(c => c.Id)
+                .NotEmpty()
+                    .WithMessage("Category ID is required.");
+
             RuleFor(c => c.Name)
                 .Cascade(CascadeMode.Stop)
                 .NotEmpty()

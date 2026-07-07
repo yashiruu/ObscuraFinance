@@ -4,10 +4,14 @@ using Obscura.FinanceTracker.Shared.Constants;
 
 namespace Obscura.FinanceTracker.Application.Validators.Transaction
 {
-    public class TransactionCreateRequestValidator : AbstractValidator<TransactionCreateRequest>
+    public class TransactionUpdateRequestValidator : AbstractValidator<TransactionUpdateRequest>
     {
-        public TransactionCreateRequestValidator()
-        {
+        public TransactionUpdateRequestValidator()
+        { 
+            RuleFor(t => t.Id)
+                .NotEmpty()
+                    .WithMessage("Transaction ID is required.");
+
             RuleFor(x => x.Date)
                 .Cascade(CascadeMode.Stop)
                 .NotEmpty()
