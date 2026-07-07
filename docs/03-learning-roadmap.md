@@ -22,13 +22,15 @@ Completed
 
 ✔ Module 13 — Validation
 
+✔ Module 14 — AutoMapper
+
 Current
 
-🚧 Module 14 — AutoMapper
+🚧 Module 15 — Testing
 
 Next
 
-Module 15 — Testing
+Merge to Main and Create tag and release
 
 ---
 
@@ -477,7 +479,7 @@ The module is considered complete when:
 
 Status:
 
-🚧 Next
+✅ Completed
 
 Learning Objectives:
 
@@ -512,7 +514,7 @@ The module is considered complete when:
 
 Status:
 
-⏳ Planned
+🚧 Next
 
 Learning Objectives:
 

@@ -152,7 +152,7 @@ Phase 1 ██████████ 100%
 
 Phase 2 ██████████ 100%
 
-Phase 3 ████████░░ 80%
+Phase 3 █████████░ 90%
 
 Phase 4 ░░░░░░░░░░ 0%
 
@@ -168,8 +168,6 @@ Phase 7 ░░░░░░░░░░ 0%
 # Current Priority
 
 ```text
-Module 14 — AutoMapper
-↓
 Module 15 — Testing
 ↓
 Release v1.3.0
@@ -267,7 +265,7 @@ Notes:
 
 ## Module 14 — AutoMapper
 
-Status: 🚧 Next
+Status: ✅ COMPLETED
 
 Objectives:
 
@@ -279,7 +277,7 @@ Objectives:
 
 ## Module 15 — Testing
 
-Status:📋 Planned
+Status:🚧 Next
 
 Objectives:
 
