@@ -45,9 +45,7 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
 
         public async Task<TransactionDetailResponse> GetByIdAsync(Guid id, CancellationToken cancellationToken)
         {
-            _logger.LogInformation(
-                "Retrieving transaction. TransactionId: {TransactionId}",
-                id);
+            _logger.LogInformation("Retrieving transaction. TransactionId: {TransactionId}", id);
 
             var transaction = await _unitOfWork.Transactions.GetByIdWithDetailAsync(id);
 
@@ -68,9 +66,9 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
                 Amount = transaction.Amount,
                 Type = transaction.Type,
                 CategoryId = transaction.CategoryId,
-                CategoryName = transaction.Name,
+                CategoryName = transaction.Category!.Name,
                 AccountId = transaction.AccountId,
-                AccountName = transaction.Name,
+                AccountName = transaction.Account!.Name,
                 CreatedAt = transaction.CreatedAt,
                 CreatedBy = transaction.CreatedBy,
                 UpdatedAt = transaction.UpdatedAt,
@@ -84,21 +82,20 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
 
             _logger.LogInformation("Creating transaction. TransactionName: {TransactionName}", request.Name);
 
-            var account = await _unitOfWork.Accounts.GetByIdAsync(request.AccountId);
+            var accountExists = await _unitOfWork.Transactions.ExistsAsync(a => a.AccountId == request.AccountId);
+            var categoryExists = await _unitOfWork.Transactions.ExistsAsync(c => c.CategoryId == request.CategoryId);
 
-            var category = await _unitOfWork.Categories.GetByIdAsync(request.CategoryId);
-
-            if (account == null)
+            if (!accountExists)
             {
                 _logger.LogWarning("Account not found. AccountId: {AccountId}", request.AccountId);
 
                 throw new KeyNotFoundException($"Account with `{request.AccountId}` was not found");
             }
 
-            if (category == null)
+            if (!categoryExists)
             {
-                _logger.LogWarning( "Category not found. CategoryId: {CategoryId}", request.CategoryId);
-                
+                _logger.LogWarning("Category not found. CategoryId: {CategoryId}", request.CategoryId);
+
                 throw new KeyNotFoundException($"Category with `{request.CategoryId}` was not found");
             }
 
@@ -113,7 +110,6 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
             };
 
             await _unitOfWork.Transactions.AddAsync(transaction);
-
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             _logger.LogInformation("Transaction created successfully. TransactionId: {TransactionId}", transaction.Id);
@@ -126,9 +122,9 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
                 Amount = transaction.Amount,
                 Type = transaction.Type,
                 CategoryId = transaction.CategoryId,
-                CategoryName = category.Name,
+                CategoryName = transaction.Category!.Name,
                 AccountId = transaction.AccountId,
-                AccountName = account.Name,
+                AccountName = transaction.Account!.Name,
                 CreatedAt = transaction.CreatedAt,
                 CreatedBy = transaction.CreatedBy
             };
@@ -136,28 +132,21 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
 
         public async Task UpdateAsync(Guid id, TransactionUpdateRequest request, CancellationToken cancellationToken)
         {
-            _logger.LogInformation(
-                "Updating transaction. TransactionId: {TransactionId}",
-                id);
+            _logger.LogInformation("Updating transaction. TransactionId: {TransactionId}", id);
 
-            var accountExists = await _unitOfWork.Transactions.ExistsAsync(a => a.Id == id);
-
-            var categoryExists = await _unitOfWork.Transactions.ExistsAsync(c => c.Id == id);
+            var accountExists = await _unitOfWork.Transactions.ExistsAsync(a => a.AccountId == request.AccountId);
+            var categoryExists = await _unitOfWork.Transactions.ExistsAsync(c => c.CategoryId == request.CategoryId);
 
             if (!accountExists)
             {
-                _logger.LogWarning(
-                    "Account not found. AccountId: {AccountId}",
-                    request.AccountId);
+                _logger.LogWarning("Account not found. AccountId: {AccountId}", request.AccountId);
 
                 throw new KeyNotFoundException($"Account with `{request.AccountId}` was not found");
             }
 
             if (!categoryExists)
             {
-                _logger.LogWarning(
-                    "Category not found. CategoryId: {CategoryId}",
-                    request.CategoryId);
+                _logger.LogWarning("Category not found. CategoryId: {CategoryId}", request.CategoryId);
 
                 throw new KeyNotFoundException($"Category with `{request.CategoryId}` was not found");
             }
@@ -166,9 +155,7 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
 
             if (transaction == null)
             {
-                _logger.LogWarning(
-                    "Transaction not found. TransactionId: {TransactionId}",
-                    id);
+                _logger.LogWarning("Transaction not found. TransactionId: {TransactionId}", id);
 
                 throw new KeyNotFoundException($"Transaction with '{id}' was not found.");
             }
@@ -183,9 +170,7 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
             _unitOfWork.Transactions.Update(transaction);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            _logger.LogInformation(
-                "Transaction updated successfully. TransactionId: {TransactionId}",
-                id);
+            _logger.LogInformation("Transaction updated successfully. TransactionId: {TransactionId}", id);
         }
 
         public async Task DeleteAsync(Guid id, CancellationToken cancellationToken)
@@ -196,9 +181,7 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
 
             if (transaction == null)
             {
-                _logger.LogWarning(
-                    "Transaction not found. TransactionId: {TransactionId}",
-                    id);
+                _logger.LogWarning("Transaction not found. TransactionId: {TransactionId}", id);
 
                 throw new KeyNotFoundException($"Transaction with '{id}' was not found or has been deleted");
             }
@@ -206,24 +189,18 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
             _unitOfWork.Transactions.Delete(transaction);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            _logger.LogInformation(
-                "Transaction deleted successfully. TransactionId: {TransactionId}",
-                id);
+            _logger.LogInformation("Transaction deleted successfully. TransactionId: {TransactionId}", id);
         }
 
         public async Task RestoreAsync(Guid id, CancellationToken cancellationToken)
         {
-            _logger.LogInformation(
-                "Restoring transaction. TransactionId: {TransactionId}",
-                id);
+            _logger.LogInformation("Restoring transaction. TransactionId: {TransactionId}", id);
 
             var transaction = await _unitOfWork.Transactions.GetByIdIncludingDeletedAsync(id);
 
             if (transaction == null)
             {
-                _logger.LogWarning(
-                    "Transaction not found. TransactionId: {TransactionId}",
-                    id);
+                _logger.LogWarning("Transaction not found. TransactionId: {TransactionId}", id);
 
                 throw new KeyNotFoundException($"Transaction with '{id}' was not found or has been restored");
             }
@@ -233,9 +210,7 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
             _unitOfWork.Transactions.Update(transaction);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            _logger.LogInformation(
-                "Transaction restored successfully. TransactionId: {TransactionId}",
-                id);
+            _logger.LogInformation("Transaction restored successfully. TransactionId: {TransactionId}", id);
         }
     }
 }
