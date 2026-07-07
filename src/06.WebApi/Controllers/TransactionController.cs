@@ -20,16 +20,11 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<TransactionListResponse>>> GetAll(CancellationToken cancellationToken)
+        public async Task<ActionResult<IEnumerable<TransactionListResponse>>> GetAll(CancellationToken cancellationToken)
         {
             var transactions = await _transactionService.GetAllAsync(cancellationToken);
 
-            return Ok(new ApiResponse<IEnumerable<TransactionListResponse>>
-            {
-                Success = true,
-                Message = "Transactions retrieved successfully",
-                Data = transactions
-            });
+            return Ok(ApiResponse<IEnumerable<TransactionListResponse>>.SuccessResponse(transactions, "Transactions retrieved successfully"));
         }
 
         [HttpGet("{id:guid}")]
@@ -37,12 +32,7 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
         {
             var transaction = await _transactionService.GetByIdAsync(id, cancellationToken);
 
-            return Ok(new ApiResponse<TransactionDetailResponse>
-            {
-                Success = true,
-                Message = "Transaction retrieved successfully",
-                Data = transaction
-            });
+            return Ok(ApiResponse<TransactionDetailResponse>.SuccessResponse(transaction, "Transaction retrieved successfully"));
         }
 
         [HttpPost]
@@ -50,12 +40,7 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
         {
             var transaction = await _transactionService.CreateAsync(request, cancellationToken);
 
-            return CreatedAtAction(nameof(GetById), new { id = transaction.Id }, new ApiResponse<TransactionDetailResponse>
-            {
-                Success = true,
-                Message = "Transaction created successfully",
-                Data = transaction
-            });
+            return CreatedAtAction(nameof(GetById), new { id = transaction.Id }, ApiResponse<TransactionDetailResponse>.SuccessResponse(transaction, "Transaction created successfully"));
         }
 
         [HttpPut("{id:guid}")]
