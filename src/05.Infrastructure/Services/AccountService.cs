@@ -85,15 +85,6 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
 
             _logger.LogInformation("Updating account. AccountId: {AccountId}", id);
 
-            var exists = await _unitOfWork.Accounts.ExistsAsync(a => a.Id != id && a.Name == request.Name);
-
-            if (exists)
-            {
-                _logger.LogWarning("Account already exists. AccountName: {AccountName}", request.Name);
-
-                throw new BusinessException($"Account with '{request.Name}' already exists.");
-            }
-
             var account = await _unitOfWork.Accounts.GetByIdAsync(id);
 
             if (account == null)
@@ -101,6 +92,15 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
                 _logger.LogWarning("Account not found. AccountId: {AccountId}", id);
 
                 throw new KeyNotFoundException($"Account with '{id}' was not found.");
+            }
+
+            var exists = await _unitOfWork.Accounts.ExistsAsync(a => a.Id != id && a.Name == request.Name);
+
+            if (exists)
+            {
+                _logger.LogWarning("Account already exists. AccountName: {AccountName}", request.Name);
+
+                throw new BusinessException($"Account with '{request.Name}' already exists.");
             }
 
             account.Name = request.Name;
