@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using AutoMapper;
+using FluentValidation;
 using Microsoft.Extensions.Logging;
 using Obscura.FinanceTracker.Application.DTOs.Transactions.Requests;
 using Obscura.FinanceTracker.Application.DTOs.Transactions.Responses;
@@ -13,12 +14,14 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IValidator<TransactionCreateRequest> _validator;
         private readonly ILogger<TransactionService> _logger;
+        private readonly IMapper _mapper;
 
-        public TransactionService(IUnitOfWork unitOfWork, IValidator<TransactionCreateRequest> validator, ILogger<TransactionService> logger)
+        public TransactionService(IUnitOfWork unitOfWork, IValidator<TransactionCreateRequest> validator, ILogger<TransactionService> logger, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _validator = validator;
             _logger = logger;
+            _mapper = mapper;
         }
 
         public async Task<IEnumerable<TransactionListResponse>> GetAllAsync(CancellationToken cancellationToken)
@@ -29,18 +32,7 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
 
             _logger.LogInformation("Retrieved {Count} transactions", transactions.Count);
 
-            return transactions.Select(transaction => new TransactionListResponse
-            {
-                Id = transaction.Id,
-                Date = transaction.Date,
-                Name = transaction.Name,
-                Amount = transaction.Amount,
-                Type = transaction.Type,
-                CategoryId = transaction.CategoryId,
-                CategoryName = transaction.Category!.Name,
-                AccountId = transaction.AccountId,
-                AccountName = transaction.Account!.Name
-            });
+            return _mapper.Map<IEnumerable<TransactionListResponse>>(transactions);
         }
 
         public async Task<TransactionDetailResponse> GetByIdAsync(Guid id, CancellationToken cancellationToken)
@@ -58,22 +50,7 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
 
             _logger.LogInformation("Transaction retrieved successfully. TransactionId: {TransactionId}", id);
 
-            return new TransactionDetailResponse
-            {
-                Id = id,
-                Date = transaction.Date,
-                Name = transaction.Name,
-                Amount = transaction.Amount,
-                Type = transaction.Type,
-                CategoryId = transaction.CategoryId,
-                CategoryName = transaction.Category!.Name,
-                AccountId = transaction.AccountId,
-                AccountName = transaction.Account!.Name,
-                CreatedAt = transaction.CreatedAt,
-                CreatedBy = transaction.CreatedBy,
-                UpdatedAt = transaction.UpdatedAt,
-                UpdatedBy = transaction?.UpdatedBy
-            };
+            return _mapper.Map<TransactionDetailResponse>(transaction);
         }
 
         public async Task<TransactionDetailResponse> CreateAsync(TransactionCreateRequest request, CancellationToken cancellationToken)
@@ -99,35 +76,14 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
                 throw new KeyNotFoundException($"Category with `{request.CategoryId}` was not found");
             }
 
-            var transaction = new Transaction
-            {
-                Date = request.Date,
-                Name = request.Name,
-                Amount = request.Amount,
-                Type = request.Type,
-                CategoryId = request.CategoryId,
-                AccountId = request.AccountId
-            };
+            var transaction = _mapper.Map<Transaction>(request);
 
             await _unitOfWork.Transactions.AddAsync(transaction);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             _logger.LogInformation("Transaction created successfully. TransactionId: {TransactionId}", transaction.Id);
 
-            return new TransactionDetailResponse
-            {
-                Id = transaction.Id,
-                Date = transaction.Date,
-                Name = transaction.Name,
-                Amount = transaction.Amount,
-                Type = transaction.Type,
-                CategoryId = transaction.CategoryId,
-                CategoryName = transaction.Category!.Name,
-                AccountId = transaction.AccountId,
-                AccountName = transaction.Account!.Name,
-                CreatedAt = transaction.CreatedAt,
-                CreatedBy = transaction.CreatedBy
-            };
+            return _mapper.Map<TransactionDetailResponse>(transaction);
         }
 
         public async Task UpdateAsync(Guid id, TransactionUpdateRequest request, CancellationToken cancellationToken)
