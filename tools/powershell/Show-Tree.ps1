@@ -24,21 +24,6 @@
 
 .PARAMETER Output
     Save the generated tree to a file.
-
-.EXAMPLE
-    .\Show-Tree.ps1
-
-.EXAMPLE
-    .\Show-Tree.ps1 -IncludeFiles
-
-.EXAMPLE
-    .\Show-Tree.ps1 -Depth 2
-
-.EXAMPLE
-    .\Show-Tree.ps1 -Clipboard
-
-.EXAMPLE
-    .\Show-Tree.ps1 -IncludeFiles -Output tree.txt
 #>
 
 [CmdletBinding()]
@@ -62,15 +47,40 @@ param(
     [string]$Output
 )
 
-$Lines = [System.Collections.Generic.List[string]]::new()
+# ----------------------------------------------------------------------
+# Tree Model
+# ----------------------------------------------------------------------
 
-function Add-Line {
-    param([string]$Text)
+$Tree = [System.Collections.Generic.List[PSObject]]::new()
 
-    $script:Lines.Add($Text)
+function Add-TreeNode {
+
+    param(
+        [string]$Name,
+
+        [ValidateSet("Root", "Directory", "File")]
+        [string]$Type,
+
+        [string]$Indent,
+
+        [int]$Level
+    )
+
+    $script:Tree.Add(
+        [PSCustomObject]@{
+            Name   = $Name
+            Type   = $Type
+            Indent = $Indent
+            Level  = $Level
+        }
+    )
 }
 
-function Show-Node {
+# ----------------------------------------------------------------------
+# Scanner
+# ----------------------------------------------------------------------
+
+function Scan-Tree {
 
     param(
         [System.IO.DirectoryInfo]$Directory,
@@ -80,7 +90,11 @@ function Show-Node {
         [int]$Level = 1
     )
 
-    Add-Line "$Indent+-- $($Directory.Name)"
+    Add-TreeNode `
+        -Name $Directory.Name `
+        -Type Directory `
+        -Indent $Indent `
+        -Level $Level
 
     if ($Depth -ge 0 -and $Level -ge $Depth) {
         return
@@ -91,7 +105,10 @@ function Show-Node {
         Sort-Object Name |
         ForEach-Object {
 
-            Show-Node $_ "$Indent|   " ($Level + 1)
+            Scan-Tree `
+                -Directory $_ `
+                -Indent "$Indent|   " `
+                -Level ($Level + 1)
         }
 
     if ($IncludeFiles) {
@@ -100,10 +117,51 @@ function Show-Node {
             Sort-Object Name |
             ForEach-Object {
 
-                Add-Line "$Indent|   +-- $($_.Name)"
+                Add-TreeNode `
+                    -Name $_.Name `
+                    -Type File `
+                    -Indent "$Indent|   " `
+                    -Level ($Level + 1)
             }
     }
 }
+
+# ----------------------------------------------------------------------
+# Renderer
+# ----------------------------------------------------------------------
+
+function Render-Text {
+
+    param(
+        [System.Collections.Generic.List[PSObject]]$Tree
+    )
+
+    $Lines = [System.Collections.Generic.List[string]]::new()
+
+    foreach ($Node in $Tree) {
+
+        switch ($Node.Type) {
+
+            "Root" {
+                $Lines.Add($Node.Name)
+            }
+
+            "Directory" {
+                $Lines.Add("$($Node.Indent)+-- $($Node.Name)")
+            }
+
+            "File" {
+                $Lines.Add("$($Node.Indent)+-- $($Node.Name)")
+            }
+        }
+    }
+
+    return $Lines
+}
+
+# ----------------------------------------------------------------------
+# Validation
+# ----------------------------------------------------------------------
 
 if (-not (Test-Path $Path)) {
     throw "Directory '$Path' does not exist."
@@ -111,14 +169,22 @@ if (-not (Test-Path $Path)) {
 
 $Root = Get-Item $Path
 
-Add-Line $Root.Name
+# ----------------------------------------------------------------------
+# Scan
+# ----------------------------------------------------------------------
+
+Add-TreeNode `
+    -Name $Root.Name `
+    -Type Root `
+    -Indent "" `
+    -Level 0
 
 Get-ChildItem $Root.FullName -Directory |
     Where-Object { $_.Name -notin $Exclude } |
     Sort-Object Name |
     ForEach-Object {
 
-        Show-Node $_ "" 1
+        Scan-Tree $_ "" 1
     }
 
 if ($IncludeFiles) {
@@ -127,9 +193,23 @@ if ($IncludeFiles) {
         Sort-Object Name |
         ForEach-Object {
 
-            Add-Line "+-- $($_.Name)"
+            Add-TreeNode `
+                -Name $_.Name `
+                -Type File `
+                -Indent "" `
+                -Level 1
         }
 }
+
+# ----------------------------------------------------------------------
+# Render
+# ----------------------------------------------------------------------
+
+$Lines = Render-Text $Tree
+
+# ----------------------------------------------------------------------
+# Output
+# ----------------------------------------------------------------------
 
 if ($Output) {
 
