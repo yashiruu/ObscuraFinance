@@ -8,7 +8,7 @@ namespace Obscura.FinanceTracker.Infrastructure.Persistence
     {
         private readonly AppDbContext _context;
 
-        private IRepository<Account>? _accounts;
+        private IAccountRepository? _accounts;
         private ICategoryRepository? _categories;
         private ITransactionRepository? _transactions;
         
@@ -21,7 +21,7 @@ namespace Obscura.FinanceTracker.Infrastructure.Persistence
         // Each property initializes the repository on first access,
         // passing the shared _context instance into it.
         // This ensures all repositories share the same change tracker.
-        public IRepository<Account> Accounts => _accounts ??= new Repository<Account>(_context);
+        public IAccountRepository Accounts => _accounts ??= new AccountRepository(_context);
         public ICategoryRepository Categories => _categories ??= new CategoryRepository(_context);
         public ITransactionRepository Transactions => _transactions ??= new TransactionRepository(_context);
 

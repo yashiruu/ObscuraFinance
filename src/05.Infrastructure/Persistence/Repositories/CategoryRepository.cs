@@ -8,6 +8,7 @@ namespace Obscura.FinanceTracker.Infrastructure.Persistence.Repositories
     public class CategoryRepository : Repository<Category>, ICategoryRepository
     {
         public CategoryRepository(AppDbContext context) : base(context) { }
+
         public async Task<IReadOnlyList<Category>> GetAllByTypeAsync(TransactionType type)
         {
             return await _dbSet
@@ -22,6 +23,11 @@ namespace Obscura.FinanceTracker.Infrastructure.Persistence.Repositories
                 .IgnoreQueryFilters()
                 .Where(c => c.IsDeleted)
                 .ToListAsync();
+        }
+
+        public async Task<bool> IsNameTakenAsync(string name, Guid? excludeId = null)
+        {
+            return await _dbSet.AnyAsync(a => a.Name == name && (excludeId == null || a.Id != excludeId));
         }
     }
 }

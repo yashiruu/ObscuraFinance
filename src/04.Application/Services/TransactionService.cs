@@ -46,7 +46,6 @@ namespace Obscura.FinanceTracker.Application.Services
             if (transaction == null)
             {
                 _logger.LogWarning("Transaction not found. TransactionId: {TransactionId}", id);
-
                 throw new KeyNotFoundException($"Transaction with '{id}' was not found.");
             }
 
@@ -61,20 +60,18 @@ namespace Obscura.FinanceTracker.Application.Services
 
             _logger.LogInformation("Creating transaction. TransactionName: {TransactionName}", request.Name);
 
-            var accountExists = await _unitOfWork.Transactions.ExistsAsync(a => a.AccountId != request.AccountId);
-            var categoryExists = await _unitOfWork.Transactions.ExistsAsync(c => c.CategoryId != request.CategoryId);
+            var accountExists = await _unitOfWork.Accounts.ExistsAsync(a => a.Id == request.AccountId);
+            var categoryExists = await _unitOfWork.Categories.ExistsAsync(c => c.Id == request.CategoryId);
 
             if (!accountExists)
             {
                 _logger.LogWarning("Account not found. AccountId: {AccountId}", request.AccountId);
-
                 throw new KeyNotFoundException($"Account with `{request.AccountId}` was not found");
             }
 
             if (!categoryExists)
             {
                 _logger.LogWarning("Category not found. CategoryId: {CategoryId}", request.CategoryId);
-
                 throw new KeyNotFoundException($"Category with `{request.CategoryId}` was not found");
             }
 
@@ -94,30 +91,27 @@ namespace Obscura.FinanceTracker.Application.Services
 
             _logger.LogInformation("Updating transaction. TransactionId: {TransactionId}", id);
 
-            var accountExists = await _unitOfWork.Transactions.ExistsAsync(a => a.AccountId == request.AccountId);
-            var categoryExists = await _unitOfWork.Transactions.ExistsAsync(c => c.CategoryId == request.CategoryId);
+            var transaction = await _unitOfWork.Transactions.GetByIdAsync(id);
+
+            if (transaction == null)
+            {
+                _logger.LogWarning("Transaction not found. TransactionId: {TransactionId}", id);
+                throw new KeyNotFoundException($"Transaction with '{id}' was not found.");
+            }
+
+            var accountExists = await _unitOfWork.Accounts.ExistsAsync(a => a.Id == request.AccountId);
+            var categoryExists = await _unitOfWork.Categories.ExistsAsync(c => c.Id == request.CategoryId);
 
             if (!accountExists)
             {
                 _logger.LogWarning("Account not found. AccountId: {AccountId}", request.AccountId);
-
                 throw new KeyNotFoundException($"Account with `{request.AccountId}` was not found");
             }
 
             if (!categoryExists)
             {
                 _logger.LogWarning("Category not found. CategoryId: {CategoryId}", request.CategoryId);
-
                 throw new KeyNotFoundException($"Category with `{request.CategoryId}` was not found");
-            }
-
-            var transaction = await _unitOfWork.Transactions.GetByIdAsync(id);
-
-            if (transaction == null)
-            {
-                _logger.LogWarning("Transaction not found. TransactionId: {TransactionId}", id);
-
-                throw new KeyNotFoundException($"Transaction with '{id}' was not found.");
             }
 
             transaction.Date = request.Date;
@@ -142,7 +136,6 @@ namespace Obscura.FinanceTracker.Application.Services
             if (transaction == null)
             {
                 _logger.LogWarning("Transaction not found. TransactionId: {TransactionId}", id);
-
                 throw new KeyNotFoundException($"Transaction with '{id}' was not found or has been deleted");
             }
 
@@ -161,7 +154,6 @@ namespace Obscura.FinanceTracker.Application.Services
             if (transaction == null)
             {
                 _logger.LogWarning("Transaction not found. TransactionId: {TransactionId}", id);
-
                 throw new KeyNotFoundException($"Transaction with '{id}' was not found or has been restored");
             }
 

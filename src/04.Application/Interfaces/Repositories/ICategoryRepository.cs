@@ -7,5 +7,6 @@ namespace Obscura.FinanceTracker.Application.Interfaces.Repositories
     {
         Task<IReadOnlyList<Category>> GetAllByTypeAsync(TransactionType type);
         Task<IReadOnlyList<Category>> GetAllDeletedAsync();
+        Task<bool> IsNameTakenAsync(string name, Guid? excludeId = null);
     }
 }
