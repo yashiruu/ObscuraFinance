@@ -3,7 +3,7 @@ using Obscura.FinanceTracker.Application.DTOs.Dashboard.Responses;
 using Obscura.FinanceTracker.Application.Interfaces.Repositories;
 using Obscura.FinanceTracker.Application.Interfaces.Services;
 
-namespace Obscura.FinanceTracker.Infrastructure.Services
+namespace Obscura.FinanceTracker.Application.Services
 {
     public class DashboardService : IDashboardService
     {

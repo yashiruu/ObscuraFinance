@@ -2,11 +2,11 @@
 using Obscura.FinanceTracker.Application.Interfaces.Repositories;
 using Obscura.FinanceTracker.Application.Interfaces.Services;
 using Obscura.FinanceTracker.Application.Mappings;
+using Obscura.FinanceTracker.Application.Services;
 using Obscura.FinanceTracker.Application.Validators.Account;
 using Obscura.FinanceTracker.Application.Validators.Category;
 using Obscura.FinanceTracker.Application.Validators.Transaction;
 using Obscura.FinanceTracker.Infrastructure.Persistence.Repositories;
-using Obscura.FinanceTracker.Infrastructure.Services;
 
 namespace Obscura.FinanceTracker.WebApi.Extensions
 {

@@ -7,7 +7,7 @@ using Obscura.FinanceTracker.Application.Interfaces.Repositories;
 using Obscura.FinanceTracker.Application.Interfaces.Services;
 using Obscura.FinanceTracker.Domain.Entities;
 
-namespace Obscura.FinanceTracker.Infrastructure.Services
+namespace Obscura.FinanceTracker.Application.Services
 {
     public class TransactionService : ITransactionService
     {

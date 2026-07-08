@@ -9,7 +9,7 @@ using Obscura.FinanceTracker.Application.Interfaces.Services;
 using Obscura.FinanceTracker.Domain.Entities;
 using Obscura.FinanceTracker.Shared.Exceptions;
 
-namespace Obscura.FinanceTracker.Infrastructure.Services
+namespace Obscura.FinanceTracker.Application.Services
 {
     public class AccountService : IAccountService
     {
@@ -47,7 +47,6 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
             if (account == null)
             {
                 _logger.LogWarning("Account not found. AccountId: {AccountId}", id);
-
                 throw new KeyNotFoundException($"Account with '{id}' was not found.");
             }
 
@@ -61,12 +60,11 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
 
             _logger.LogInformation("Creating account. AccountName: {AccountName}", request.Name);
 
-            var exists = await _unitOfWork.Accounts.ExistsAsync(a => a.Name == request.Name);
+            var exists = await _unitOfWork.Accounts.IsNameTakenAsync(request.Name);
 
             if (exists)
             {
-                _logger.LogWarning("Account already exists. AccountName: {AccountName}", request.Name);
-
+                _logger.LogWarning("Account's name already exists. AccountName: {AccountName}", request.Name);
                 throw new BusinessException($"Account with '{request.Name}' already exists.");
             }
 
@@ -90,16 +88,14 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
             if (account == null)
             {
                 _logger.LogWarning("Account not found. AccountId: {AccountId}", id);
-
                 throw new KeyNotFoundException($"Account with '{id}' was not found.");
             }
 
-            var exists = await _unitOfWork.Accounts.ExistsAsync(a => a.Id != id && a.Name == request.Name);
+            var takenName = await _unitOfWork.Accounts.IsNameTakenAsync(request.Name, excludeId: id);
 
-            if (exists)
+            if (takenName)
             {
                 _logger.LogWarning("Account already exists. AccountName: {AccountName}", request.Name);
-
                 throw new BusinessException($"Account with '{request.Name}' already exists.");
             }
 
@@ -122,7 +118,6 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
             if (account == null)
             {
                 _logger.LogWarning("Account not found. AccountId: {AccountId}", id);
-
                 throw new KeyNotFoundException($"Account with '{id}' was not found");
             }
 
@@ -140,8 +135,15 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
             if (account == null)
             {
                 _logger.LogWarning("Account not found. AccountId: {AccountId}", id);
-
                 throw new KeyNotFoundException($"Account with '{id}' was not found");
+            }
+
+            var takenName = await _unitOfWork.Accounts.IsNameTakenAsync(account.Name, excludeId: id);
+
+            if (takenName)
+            {
+                _logger.LogWarning("Account's name already exists. AccountName: {AccountName}", account.Name);
+                throw new BusinessException($"Account with '{account.Name}' already exists.");
             }
 
             account.IsDeleted = false;

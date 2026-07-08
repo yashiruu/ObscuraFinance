@@ -9,7 +9,7 @@ using Obscura.FinanceTracker.Domain.Entities;
 using Obscura.FinanceTracker.Domain.Enums;
 using Obscura.FinanceTracker.Shared.Exceptions;
 
-namespace Obscura.FinanceTracker.Infrastructure.Services
+namespace Obscura.FinanceTracker.Application.Services
 {
     public class CategoryService : ICategoryService
     {
@@ -18,6 +18,7 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
         private readonly IValidator<CategoryUpdateRequest> _updateValidator;
         private readonly ILogger<CategoryService> _logger;
         private readonly IMapper _mapper;
+
         public CategoryService(IUnitOfWork unitOfWork, IValidator<CategoryCreateRequest> createValidator, IValidator<CategoryUpdateRequest> updateValidator, ILogger<CategoryService> logger, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
@@ -69,7 +70,6 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
             if (category == null)
             {
                 _logger.LogWarning("Category not found. CategoryId: {CategoryId}", id);
-
                 throw new KeyNotFoundException($"Category with '{id}' was not found.");
             }
 
@@ -84,12 +84,11 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
 
             _logger.LogInformation("Creating category. CategoryName: {CategoryName}", request.Name);
 
-            var exists = await _unitOfWork.Categories.ExistsAsync(c => c.Name == request.Name);
+            var takenName = await _unitOfWork.Categories.IsNameTakenAsync(request.Name);
 
-            if (exists)
+            if (takenName)
             {
-                _logger.LogWarning("Category already exists. CategoryName: {CategoryName}", request.Name);
-
+                _logger.LogWarning("Category's name already exists. CategoryName: {CategoryName}", request.Name);
                 throw new BusinessException($"Category with '{request.Name}' already exists.");
             }
 
@@ -114,39 +113,36 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
             if (category == null) 
             {
                 _logger.LogWarning("Category not found. CategoryId: {CategoryId}", id);
-
                 throw new KeyNotFoundException($"Category with '{id}' was not found.");
             }
 
-            var exists = await _unitOfWork.Categories.ExistsAsync(c => c.Id == id);
+            var takenName = await _unitOfWork.Categories.IsNameTakenAsync(request.Name, excludeId: id);
 
-            if (exists)
+            if (takenName)
             {
-                _logger.LogWarning("Category already exists. CategoryName: {CategoryName}", request.Name);
-
+                _logger.LogWarning("Category's name already exists. CategoryName: {CategoryName}", request.Name);
                 throw new BusinessException($"Category with '{request.Name}' already exists.");
             }
 
             category.Name = request.Name;
             category.Description = request.Description;
-            category.Type = (TransactionType)request.Type;
+            category.Type = request.Type;
 
             _unitOfWork.Categories.Update(category);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             _logger.LogInformation("Category updated successfully. CategoryId: {CategoryId}", id);
-        }
+        }   
 
         public async Task DeleteAsync(Guid id, CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Deleting category. CategoryId: {CategoryId}", id);
+            _logger.LogInformation("Soft deleting category. CategoryId: {CategoryId}", id);
 
             var category = await _unitOfWork.Categories.GetByIdAsync(id);
 
             if (category == null)
             {
                 _logger.LogWarning("Category not found. CategoryId: {CategoryId}", id);
-
                 throw new KeyNotFoundException($"Category with '{id}' was not found");
             }
 
@@ -165,13 +161,20 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
             if (category == null)
             {
                 _logger.LogWarning("Category not found. CategoryId: {CategoryId}", id);
-
                 throw new KeyNotFoundException($"Category with '{id}' was not found");
+            }
+
+            var takenName = await _unitOfWork.Categories.IsNameTakenAsync(category.Name, excludeId: id);
+
+            if (takenName)
+            {
+                _logger.LogWarning("Category's name already exists. CategoryName: {CategoryName}", category.Name);
+                throw new BusinessException($"Category with '{category.Name}' already exists.");
             }
 
             category.IsDeleted = false;
 
-            _unitOfWork.Categories.Delete(category);
+            _unitOfWork.Categories.Update(category);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             _logger.LogInformation("Category restored successfully. CategoryId: {CategoryId}", id);
