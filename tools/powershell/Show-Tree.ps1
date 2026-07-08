@@ -1,22 +1,29 @@
 <#
 .SYNOPSIS
-    Display project directory structure.
+    Display a project directory tree.
 
 .DESCRIPTION
-    Prints a tree view of a directory and optionally includes files.
-    Common build folders such as bin and obj can be excluded.
+    Displays the directory structure of a project and optionally includes files.
+    Common build folders (bin, obj, etc.) can be excluded.
 
 .PARAMETER Path
-    Root directory.
+    Root directory to scan.
 
 .PARAMETER Exclude
-    Folder names to ignore.
+    Directory names to exclude.
 
 .PARAMETER IncludeFiles
     Include files in the output.
 
+.PARAMETER Depth
+    Maximum directory depth.
+    Use -1 for unlimited depth.
+
+.PARAMETER Clipboard
+    Copy the generated tree to the Windows clipboard.
+
 .PARAMETER Output
-    Save the result to a file.
+    Save the generated tree to a file.
 
 .EXAMPLE
     .\Show-Tree.ps1
@@ -25,10 +32,13 @@
     .\Show-Tree.ps1 -IncludeFiles
 
 .EXAMPLE
-    .\Show-Tree.ps1 -Output tree.txt
+    .\Show-Tree.ps1 -Depth 2
 
 .EXAMPLE
-    .\Show-Tree.ps1 -IncludeFiles -Output docs\structure.txt
+    .\Show-Tree.ps1 -Clipboard
+
+.EXAMPLE
+    .\Show-Tree.ps1 -IncludeFiles -Output tree.txt
 #>
 
 [CmdletBinding()]
@@ -45,6 +55,10 @@ param(
 
     [switch]$IncludeFiles,
 
+    [int]$Depth = -1,
+
+    [switch]$Clipboard,
+
     [string]$Output
 )
 
@@ -60,17 +74,24 @@ function Show-Node {
 
     param(
         [System.IO.DirectoryInfo]$Directory,
-        [string]$Indent = ""
+
+        [string]$Indent = "",
+
+        [int]$Level = 1
     )
 
     Add-Line "$Indent+-- $($Directory.Name)"
+
+    if ($Depth -ge 0 -and $Level -ge $Depth) {
+        return
+    }
 
     Get-ChildItem $Directory.FullName -Directory |
         Where-Object { $_.Name -notin $Exclude } |
         Sort-Object Name |
         ForEach-Object {
 
-            Show-Node $_ "$Indent|   "
+            Show-Node $_ "$Indent|   " ($Level + 1)
         }
 
     if ($IncludeFiles) {
@@ -97,7 +118,7 @@ Get-ChildItem $Root.FullName -Directory |
     Sort-Object Name |
     ForEach-Object {
 
-        Show-Node $_
+        Show-Node $_ "" 1
     }
 
 if ($IncludeFiles) {
@@ -115,6 +136,15 @@ if ($Output) {
     $Lines | Set-Content -Path $Output -Encoding UTF8
 
     Write-Host "Tree exported to '$Output'."
+
+    return
+}
+
+if ($Clipboard) {
+
+    $Lines -join "`r`n" | Set-Clipboard
+
+    Write-Host "Tree copied to clipboard."
 
     return
 }
