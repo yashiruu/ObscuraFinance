@@ -1,5 +1,4 @@
 ﻿using Obscura.FinanceTracker.Domain.Enums;
-using System.ComponentModel.DataAnnotations;
 
 namespace Obscura.FinanceTracker.Application.DTOs.Accounts.Requests
 {

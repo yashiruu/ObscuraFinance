@@ -8,10 +8,6 @@ namespace Obscura.FinanceTracker.Application.Validators.Account
     {
         public AccountUpdateRequestValidator() 
         {
-            RuleFor(x => x.Id)
-                .NotEmpty()
-                    .WithMessage("Account ID is required.");
-
             RuleFor(x => x.Name)
                 .Cascade(CascadeMode.Stop)
                 .NotEmpty()

@@ -8,10 +8,6 @@ namespace Obscura.FinanceTracker.Application.Validators.Transaction
     {
         public TransactionUpdateRequestValidator()
         { 
-            RuleFor(t => t.Id)
-                .NotEmpty()
-                    .WithMessage("Transaction ID is required.");
-
             RuleFor(x => x.Date)
                 .Cascade(CascadeMode.Stop)
                 .NotEmpty()

@@ -8,10 +8,6 @@ namespace Obscura.FinanceTracker.Application.Validators.Category
     {
         public CategoryUpdateRequestValidator() 
         {
-            RuleFor(c => c.Id)
-                .NotEmpty()
-                    .WithMessage("Category ID is required.");
-
             RuleFor(c => c.Name)
                 .Cascade(CascadeMode.Stop)
                 .NotEmpty()
