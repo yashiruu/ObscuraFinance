@@ -7,13 +7,22 @@
     Common build folders (bin, obj, etc.) can be excluded.
 
 .PARAMETER Path
-    Root directory to scan.
+    Root directory to scan. Accepts pipeline input, so multiple paths can be
+    scanned in one call, e.g. "src","tests" | .\Show-Tree.ps1
 
 .PARAMETER Exclude
     Directory names to exclude.
 
 .PARAMETER IncludeFiles
     Include files in the output.
+
+.PARAMETER IncludeExtensions
+    When used together with -IncludeFiles, only files matching these
+    extensions are shown (e.g. -IncludeExtensions cs,csproj,json).
+    If omitted, all files are included.
+
+.PARAMETER Force
+    Include hidden and system files/directories in the output.
 
 .PARAMETER Depth
     Maximum directory depth.
@@ -24,11 +33,29 @@
 
 .PARAMETER Output
     Save the generated tree to a file.
+    If only a filename is given (no folder), the file is saved into an
+    "export" folder next to the script itself; that folder is created
+    automatically if it doesn't exist yet. If a folder path is included,
+    it is used as-is (and also created automatically if missing).
+
+.PARAMETER AsMarkdown
+    Wrap the generated tree in a fenced ```text code block, ready to paste
+    into a README or other Markdown document.
+
+.PARAMETER Stats
+    Append a summary line with the total folder and file count.
+
+.EXAMPLE
+    .\Show-Tree.ps1 -IncludeFiles -IncludeExtensions cs,csproj -Stats
+
+.EXAMPLE
+    .\Show-Tree.ps1 -IncludeFiles -AsMarkdown -Output docs\structure.md
 #>
 
 [CmdletBinding()]
 param(
-    [string]$Path = ".",
+    [Parameter(ValueFromPipeline = $true)]
+    [string[]]$Path = ".",
 
     [string[]]$Exclude = @(
         "bin",
@@ -40,193 +67,247 @@ param(
 
     [switch]$IncludeFiles,
 
+    [string[]]$IncludeExtensions,
+
+    [switch]$Force,
+
+    [ValidateScript({
+        if ($_ -lt -1) { throw "Depth must be -1 (unlimited) or a non-negative integer." }
+        $true
+    })]
     [int]$Depth = -1,
 
     [switch]$Clipboard,
 
-    [string]$Output
+    [string]$Output,
+
+    [switch]$AsMarkdown,
+
+    [switch]$Stats
 )
 
-# ----------------------------------------------------------------------
-# Tree Model
-# ----------------------------------------------------------------------
+begin {
 
-$Tree = [System.Collections.Generic.List[PSObject]]::new()
+    # ----------------------------------------------------------------------
+    # Tree Model
+    # ----------------------------------------------------------------------
 
-function Add-TreeNode {
+    function New-TreeNode {
 
-    param(
-        [string]$Name,
+        param(
+            [string]$Name,
 
-        [ValidateSet("Root", "Directory", "File")]
-        [string]$Type,
+            [ValidateSet("Root", "Directory", "File")]
+            [string]$Type,
 
-        [string]$Indent,
+            [string]$Prefix,
 
-        [int]$Level
-    )
+            [int]$Level
+        )
 
-    $script:Tree.Add(
         [PSCustomObject]@{
             Name   = $Name
             Type   = $Type
-            Indent = $Indent
+            Prefix = $Prefix
             Level  = $Level
         }
-    )
-}
-
-# ----------------------------------------------------------------------
-# Scanner
-# ----------------------------------------------------------------------
-
-function Scan-Tree {
-
-    param(
-        [System.IO.DirectoryInfo]$Directory,
-
-        [string]$Indent = "",
-
-        [int]$Level = 1
-    )
-
-    Add-TreeNode `
-        -Name $Directory.Name `
-        -Type Directory `
-        -Indent $Indent `
-        -Level $Level
-
-    if ($Depth -ge 0 -and $Level -ge $Depth) {
-        return
     }
 
-    Get-ChildItem $Directory.FullName -Directory |
-        Where-Object { $_.Name -notin $Exclude } |
-        Sort-Object Name |
-        ForEach-Object {
+    # ----------------------------------------------------------------------
+    # Scanner
+    # ----------------------------------------------------------------------
 
-            Scan-Tree `
-                -Directory $_ `
-                -Indent "$Indent|   " `
-                -Level ($Level + 1)
+    # $DirectoryCount / $FileCount are reset per invocation (per Path) in process{}
+    function Get-DirectoryTree {
+
+        param(
+            [System.IO.DirectoryInfo]$Directory,
+
+            [string]$IndentPrefix = "",
+
+            [int]$Level = 1
+        )
+
+        $Nodes = [System.Collections.Generic.List[PSObject]]::new()
+
+        $ForceParam = @{}
+        if ($Force) { $ForceParam["Force"] = $true }
+
+        # Box-drawing characters (defined via [char] cast for Windows PowerShell
+        # 5.1 compatibility, since `u{XXXX} escapes require PowerShell 6+)
+        $CharVertical  = [char]0x2502   # │
+        $CharTee       = [char]0x251C   # ├
+        $CharCorner    = [char]0x2514   # └
+        $CharHorizontal = [char]0x2500  # ─
+
+        $ChildDirectories = @(
+            Get-ChildItem $Directory.FullName -Directory -ErrorAction SilentlyContinue @ForceParam |
+                Where-Object { $_.Name -notin $Exclude } |
+                Sort-Object Name
+        )
+
+        $ChildFiles = @()
+
+        if ($IncludeFiles) {
+
+            $ChildFiles = @(
+                Get-ChildItem $Directory.FullName -File -ErrorAction SilentlyContinue @ForceParam |
+                    Where-Object {
+                        -not $IncludeExtensions -or
+                        ($_.Extension.TrimStart(".") -in $IncludeExtensions)
+                    } |
+                    Sort-Object Name
+            )
         }
 
-    if ($IncludeFiles) {
+        $AtDepthLimit = ($Depth -ge 0 -and $Level -gt $Depth)
 
-        Get-ChildItem $Directory.FullName -File |
-            Sort-Object Name |
-            ForEach-Object {
+        if ($AtDepthLimit) {
+            return $Nodes
+        }
 
-                Add-TreeNode `
-                    -Name $_.Name `
-                    -Type File `
-                    -Indent "$Indent|   " `
-                    -Level ($Level + 1)
+        $TotalChildren = $ChildDirectories.Count + $ChildFiles.Count
+        $Index = 0
+
+        foreach ($ChildDir in $ChildDirectories) {
+
+            $Index++
+            $IsLast = ($Index -eq $TotalChildren)
+            $Branch = if ($IsLast) { "$CharCorner$CharHorizontal$CharHorizontal " } else { "$CharTee$CharHorizontal$CharHorizontal " }
+            $ChildPrefix = if ($IsLast) { "$IndentPrefix    " } else { "$IndentPrefix$CharVertical   " }
+
+            $Nodes.Add((New-TreeNode -Name $ChildDir.Name -Type Directory -Prefix "$IndentPrefix$Branch" -Level $Level))
+            $script:DirectoryCount++
+
+            foreach ($ChildNode in (Get-DirectoryTree -Directory $ChildDir -IndentPrefix $ChildPrefix -Level ($Level + 1))) {
+                $Nodes.Add($ChildNode)
             }
+        }
+
+        foreach ($ChildFile in $ChildFiles) {
+
+            $Index++
+            $IsLast = ($Index -eq $TotalChildren)
+            $Branch = if ($IsLast) { "$CharCorner$CharHorizontal$CharHorizontal " } else { "$CharTee$CharHorizontal$CharHorizontal " }
+
+            $Nodes.Add((New-TreeNode -Name $ChildFile.Name -Type File -Prefix "$IndentPrefix$Branch" -Level $Level))
+            $script:FileCount++
+        }
+
+        return $Nodes
     }
-}
 
-# ----------------------------------------------------------------------
-# Renderer
-# ----------------------------------------------------------------------
+    # ----------------------------------------------------------------------
+    # Renderer
+    # ----------------------------------------------------------------------
 
-function Render-Text {
+    function ConvertTo-TreeText {
 
-    param(
-        [System.Collections.Generic.List[PSObject]]$Tree
-    )
+        param(
+            [System.Collections.Generic.List[PSObject]]$Tree
+        )
 
-    $Lines = [System.Collections.Generic.List[string]]::new()
+        $Lines = [System.Collections.Generic.List[string]]::new()
 
-    foreach ($Node in $Tree) {
+        foreach ($Node in $Tree) {
 
-        switch ($Node.Type) {
-
-            "Root" {
+            if ($Node.Type -eq "Root") {
                 $Lines.Add($Node.Name)
             }
-
-            "Directory" {
-                $Lines.Add("$($Node.Indent)+-- $($Node.Name)")
-            }
-
-            "File" {
-                $Lines.Add("$($Node.Indent)+-- $($Node.Name)")
+            else {
+                $Lines.Add("$($Node.Prefix)$($Node.Name)")
             }
         }
-    }
 
-    return $Lines
+        return $Lines
+    }
 }
 
-# ----------------------------------------------------------------------
-# Validation
-# ----------------------------------------------------------------------
+process {
 
-if (-not (Test-Path $Path)) {
-    throw "Directory '$Path' does not exist."
-}
+    foreach ($SinglePath in $Path) {
 
-$Root = Get-Item $Path
+        # ----------------------------------------------------------------------
+        # Validation
+        # ----------------------------------------------------------------------
 
-# ----------------------------------------------------------------------
-# Scan
-# ----------------------------------------------------------------------
-
-Add-TreeNode `
-    -Name $Root.Name `
-    -Type Root `
-    -Indent "" `
-    -Level 0
-
-Get-ChildItem $Root.FullName -Directory |
-    Where-Object { $_.Name -notin $Exclude } |
-    Sort-Object Name |
-    ForEach-Object {
-
-        Scan-Tree $_ "" 1
-    }
-
-if ($IncludeFiles) {
-
-    Get-ChildItem $Root.FullName -File |
-        Sort-Object Name |
-        ForEach-Object {
-
-            Add-TreeNode `
-                -Name $_.Name `
-                -Type File `
-                -Indent "" `
-                -Level 1
+        if (-not (Test-Path $SinglePath)) {
+            Write-Error "Directory '$SinglePath' does not exist."
+            continue
         }
+
+        $Root = Get-Item $SinglePath
+
+        if (-not $Root.PSIsContainer) {
+            Write-Error "'$SinglePath' is not a directory."
+            continue
+        }
+
+        # ----------------------------------------------------------------------
+        # Scan
+        # ----------------------------------------------------------------------
+
+        $script:DirectoryCount = 0
+        $script:FileCount = 0
+
+        $Tree = [System.Collections.Generic.List[PSObject]]::new()
+        $Tree.Add((New-TreeNode -Name $Root.Name -Type Root -Prefix "" -Level 0))
+
+        foreach ($ChildNode in (Get-DirectoryTree -Directory $Root -IndentPrefix "" -Level 1)) {
+            $Tree.Add($ChildNode)
+        }
+
+        # ----------------------------------------------------------------------
+        # Render
+        # ----------------------------------------------------------------------
+
+        $Lines = [System.Collections.Generic.List[string]]::new([string[]](ConvertTo-TreeText $Tree))
+
+        if ($Stats) {
+            $Lines.Add("")
+            $Lines.Add("$($script:DirectoryCount) directories, $($script:FileCount) files")
+        }
+
+        if ($AsMarkdown) {
+            $Lines.Insert(0, '```text')
+            $Lines.Add('```')
+        }
+
+        # ----------------------------------------------------------------------
+        # Output
+        # ----------------------------------------------------------------------
+
+        if ($Output) {
+
+            $HasDirectoryComponent = [bool]([System.IO.Path]::GetDirectoryName($Output))
+
+            if ($HasDirectoryComponent) {
+                # User supplied a path (relative or absolute) — respect it as-is.
+                $ResolvedOutput = $Output
+            }
+            else {
+                # User supplied only a filename — default to an "export" folder
+                # next to the script itself.
+                $ExportRoot = Join-Path $PSScriptRoot "export"
+                $ResolvedOutput = Join-Path $ExportRoot $Output
+            }
+
+            $OutputDirectory = [System.IO.Path]::GetDirectoryName($ResolvedOutput)
+
+            if ($OutputDirectory -and -not (Test-Path $OutputDirectory)) {
+                New-Item -ItemType Directory -Path $OutputDirectory -Force | Out-Null
+            }
+
+            $Lines | Set-Content -Path $ResolvedOutput -Encoding UTF8
+            Write-Host "Tree exported to '$ResolvedOutput'."
+        }
+        elseif ($Clipboard) {
+
+            $Lines -join "`r`n" | Set-Clipboard
+            Write-Host "Tree copied to clipboard."
+        }
+        else {
+            $Lines
+        }
+    }
 }
-
-# ----------------------------------------------------------------------
-# Render
-# ----------------------------------------------------------------------
-
-$Lines = Render-Text $Tree
-
-# ----------------------------------------------------------------------
-# Output
-# ----------------------------------------------------------------------
-
-if ($Output) {
-
-    $Lines | Set-Content -Path $Output -Encoding UTF8
-
-    Write-Host "Tree exported to '$Output'."
-
-    return
-}
-
-if ($Clipboard) {
-
-    $Lines -join "`r`n" | Set-Clipboard
-
-    Write-Host "Tree copied to clipboard."
-
-    return
-}
-
-$Lines
