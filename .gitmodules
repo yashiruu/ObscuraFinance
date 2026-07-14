@@ -1,0 +1,3 @@
+[submodule "tools/ObscuraTree"]
+	path = tools/ObscuraTree
+	url = https://github.com/yashiruu/ObscuraTree
