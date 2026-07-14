@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.5.11716.220 stable
+VisualStudioVersion = 18.5.11716.220
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{54202B5E-9742-41FF-9A73-097A3887D3FA}"
 EndProject
@@ -20,6 +20,12 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "07.Client", "src\07.Client\07.Client.csproj", "{0F635F5A-AD67-45E7-98B1-08539913BC40}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "08.Bsui", "src\08.Bsui\08.Bsui.csproj", "{EA83CE3B-62CB-4051-93CC-CA6CE2A5937A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{EA2ABDB5-319B-42CC-B008-7513FE07D7DA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObscuraFinance.Application.UnitTests", "tests\ObscuraFinance.Application.UnitTests\ObscuraFinance.Application.UnitTests.csproj", "{3429568A-750F-4F6A-B7D1-83E8CA135C9A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObscuraFinance.Application.IntegrationTests", "ObscuraFinance.Application.IntegrationTests\ObscuraFinance.Application.IntegrationTests.csproj", "{EF86834F-1D28-4797-9AF6-E464945E4D2F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -59,6 +65,14 @@ Global
 		{EA83CE3B-62CB-4051-93CC-CA6CE2A5937A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EA83CE3B-62CB-4051-93CC-CA6CE2A5937A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EA83CE3B-62CB-4051-93CC-CA6CE2A5937A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3429568A-750F-4F6A-B7D1-83E8CA135C9A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3429568A-750F-4F6A-B7D1-83E8CA135C9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3429568A-750F-4F6A-B7D1-83E8CA135C9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3429568A-750F-4F6A-B7D1-83E8CA135C9A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EF86834F-1D28-4797-9AF6-E464945E4D2F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EF86834F-1D28-4797-9AF6-E464945E4D2F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EF86834F-1D28-4797-9AF6-E464945E4D2F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EF86834F-1D28-4797-9AF6-E464945E4D2F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -72,5 +86,10 @@ Global
 		{8B7CC3EF-984F-46C4-9CD6-9B78F9B32C10} = {54202B5E-9742-41FF-9A73-097A3887D3FA}
 		{0F635F5A-AD67-45E7-98B1-08539913BC40} = {54202B5E-9742-41FF-9A73-097A3887D3FA}
 		{EA83CE3B-62CB-4051-93CC-CA6CE2A5937A} = {54202B5E-9742-41FF-9A73-097A3887D3FA}
+		{3429568A-750F-4F6A-B7D1-83E8CA135C9A} = {EA2ABDB5-319B-42CC-B008-7513FE07D7DA}
+		{EF86834F-1D28-4797-9AF6-E464945E4D2F} = {EA2ABDB5-319B-42CC-B008-7513FE07D7DA}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0C89B716-4D9C-4917-84F5-8316D8F04C7D}
 	EndGlobalSection
 EndGlobal
