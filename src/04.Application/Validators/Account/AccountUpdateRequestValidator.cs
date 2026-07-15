@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using Obscura.FinanceTracker.Application.Accounts.DTOs;
+using Obscura.FinanceTracker.Application.DTOs.Accounts.Requests;
 using Obscura.FinanceTracker.Shared.Constants;
 
 namespace Obscura.FinanceTracker.Application.Validators.Account
