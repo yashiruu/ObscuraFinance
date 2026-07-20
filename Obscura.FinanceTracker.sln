@@ -25,8 +25,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{EA2ABDB5
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObscuraFinance.Application.UnitTests", "tests\ObscuraFinance.Application.UnitTests\ObscuraFinance.Application.UnitTests.csproj", "{3429568A-750F-4F6A-B7D1-83E8CA135C9A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObscuraFinance.Application.IntegrationTests", "ObscuraFinance.Application.IntegrationTests\ObscuraFinance.Application.IntegrationTests.csproj", "{EF86834F-1D28-4797-9AF6-E464945E4D2F}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
