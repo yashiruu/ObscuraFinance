@@ -3,7 +3,7 @@ using Moq;
 
 namespace ObscuraFinance.Application.UnitTests.Mocks
 {
-    public class LoggerMockFactory
+    public static class LoggerMockFactory
     {
         public static Mock<ILogger<T>> Create<T>()
         {

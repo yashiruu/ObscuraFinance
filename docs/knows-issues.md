@@ -121,6 +121,53 @@ Planned verification includes:
 
 ---
 
+---
+
+# AI-Assisted Test Authoring — Review Status
+
+Status:
+
+⚠️ Pending Self-Review
+
+Context:
+
+The unit test suite for Module 15 (AccountServiceTest and subsequent service
+tests) was authored with AI assistance (Claude) through a guided, concept-first
+process. The developer actively participated in reasoning through each test's
+Arrange/Act/Assert structure and understands the underlying testing concepts
+(Mock/Base/Builder roles, orchestration verification, exception-testing pattern).
+However, the majority of the actual test code was written by the AI based on
+that shared understanding, not typed independently by the developer line-by-line.
+
+Required Follow-Up:
+
+1. **Self-Review Pass**
+   Once time permits, revisit each test file written during this phase and
+   verify the developer can explain every Arrange/Act/Assert line without
+   referring back to the AI conversation — not just recognize it as correct.
+
+2. **Re-Validate Against Business Logic Changes**
+   Whenever `AccountService`, `CategoryService`, `TransactionService`, or
+   `DashboardService` business logic is modified going forward, the
+   corresponding AI-authored tests must be re-reviewed — not assumed to
+   still be accurate. AI-authored tests reflect the business logic AS IT
+   EXISTED at the time of writing; they do not automatically track future
+   changes.
+
+3. **Coverage Gap Check**
+   Test scenarios not yet covered (or covered thinly) should be identified
+   and extended once the developer is comfortable designing test cases
+   independently, rather than only extending patterns already demonstrated
+   by the AI.
+
+Priority:
+
+Medium — does not block Module 15 progress, but must be completed before
+these tests are treated as a reliable regression safety net for future
+refactoring (e.g. before AO-004 fixes are implemented).
+
+---
+
 # Functional Verification
 
 ## Category Management

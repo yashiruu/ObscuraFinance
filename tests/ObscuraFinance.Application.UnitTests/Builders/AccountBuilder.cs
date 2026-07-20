@@ -19,6 +19,8 @@ namespace ObscuraFinance.Application.UnitTests.Builders
                 Currency = "IDR",
                 Type = AccountType.Bank,
                 IsActive = true,
+                CreatedAt = DateTime.UtcNow,
+                CreatedBy = Guid.Empty,
             };
         }
 
@@ -57,7 +59,7 @@ namespace ObscuraFinance.Application.UnitTests.Builders
             return this;
         }
 
-        public AccountBuilder WithCurrency(String currency)
+        public AccountBuilder WithCurrency(string currency)
         {
             _account.Currency = currency;
             return this;
@@ -77,7 +79,7 @@ namespace ObscuraFinance.Application.UnitTests.Builders
 
         public AccountBuilder AsDeleted()
         {
-            _account.IsActive = true;
+            _account.IsDeleted = true;
             _account.DeletedAt = DateTime.UtcNow;
             return this;
         }
