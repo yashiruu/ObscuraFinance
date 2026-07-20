@@ -422,6 +422,62 @@ a maintainability/readability improvement opportunity.
 
 ---
 
+## AO-006
+
+### Integration Testing (Deferred)
+
+Status:
+
+Open
+
+Target Release:
+
+Deferred — no target release yet, revisit after CQRS (Phase 4) and Authentication/Authorization
+
+Description:
+
+Module 15 — Testing originally scoped Unit Testing, Integration Testing, and
+Validation Testing. Unit Testing (Service Layer) and Validation Testing
+(FluentValidation validators) are complete. Integration Testing is
+intentionally deferred.
+
+Reason for Deferral:
+
+The project timeline has extended beyond the original plan. Current priority
+is completing Clean Architecture foundation and CQRS (Phase 4), and the
+application does not yet have Authentication/Authorization implemented —
+both considered more architecturally urgent than Integration Testing at
+this stage.
+
+Learning Goal (for when revisited):
+
+When Integration Testing is picked up, the goal is to learn and compare
+three test database strategies rather than settling on just one
+immediately:
+
+1. **EF Core InMemory provider** — fastest to set up, but does not validate
+   real SQL Server behavior (constraints, cascade delete, query filter
+   translation may differ).
+2. **SQLite in-memory** — closer to real relational SQL behavior than EF
+   Core InMemory, still not 100% SQL Server-accurate.
+3. **Testcontainers (real SQL Server via Docker)** — most accurate,
+   real SQL Server per test run, but requires Docker and container
+   lifecycle setup as its own learning step.
+
+Additional infrastructure needed when this is picked up:
+
+* `WebApplicationFactory<Program>` / `CustomWebApplicationFactory` for
+  in-memory app hosting during tests
+* Test data seeding/cleanup strategy for test isolation
+* `HttpClient` test helpers for endpoint-level assertions
+
+Priority:
+
+Low — does not block CQRS or Authentication/Authorization work. Revisit
+once those higher-priority architectural milestones are stable.
+
+---
+
 #### Gap 1 — CancellationToken Not Propagated to Queries
 
 All three services accept `CancellationToken` on every method, but only forward it to
