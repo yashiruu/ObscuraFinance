@@ -360,6 +360,68 @@ rather than patched per-service.
 
 ---
 
+## AO-005
+
+### Testing Infrastructure Duplication Review (Deferred)
+
+Status:
+
+Open
+
+Target Release:
+
+Post CQRS (Phase 4)
+
+Description:
+
+After completing unit test suites for `AccountService`, `CategoryService`,
+`TransactionService`, and `DashboardService`, a recurring structural pattern
+was noticed across `AccountServiceTestBase`, `CategoryServiceTestBase`, and
+`TransactionServiceTestBase` — each follows a near-identical constructor
+shape (repository mock creation, `IUnitOfWork` wiring, validator mocks,
+logger mock, service instantiation), differing only by entity-specific
+types.
+
+This may indicate an opportunity to extract shared setup logic, but a
+proper review has been intentionally deferred rather than acted on
+immediately.
+
+Reason for Deferral:
+
+Per Collaboration Rule 5 (Prefer Understanding Before Abstraction), testing
+concepts (Mock, Base, Builder roles, orchestration verification) are still
+being internalized. Refactoring test infrastructure before fully
+understanding why each piece exists risks abstracting away useful
+explicitness, or hiding setup that should remain visible per-test.
+
+The review is deferred until after CQRS (Phase 4) is implemented, at which
+point:
+
+1. Testing concepts will be more solidified through repeated practice.
+2. CQRS/MediatR introduction may itself reshape how services are structured
+   and tested (Commands/Queries/Handlers), which could change what counts
+   as "duplication worth removing" versus what naturally differs per
+   feature.
+
+Review Checklist (for when this is revisited):
+
+* Compare `*ServiceTestBase` constructors side by side — identify which
+  lines are structurally identical (candidate for extraction) versus which
+  differ only by entity-specific type (expected, not true duplication).
+* Check whether repeated Arrange patterns exist across test files
+  themselves (e.g. "entity not found" setup), which may warrant private
+  helper methods within a test class rather than base-class changes.
+* Re-evaluate whether validator mocks would benefit from a default
+  "assume valid" setup to reduce boilerplate in non-validation-focused
+  tests (previously noted as an open design question).
+
+Priority:
+
+Low — does not block current test coverage or Module 15 completion. Purely
+a maintainability/readability improvement opportunity.
+
+---
+
 #### Gap 1 — CancellationToken Not Propagated to Queries
 
 All three services accept `CancellationToken` on every method, but only forward it to
