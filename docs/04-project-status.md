@@ -206,9 +206,15 @@ Phase 7 ░░░░░░░░░░ 0%
 # Current Priority
 
 ```text
-Module 16 — CQRS
+Module 16 — Pagination
 ↓
-Module 17 — MediatR
+Module 17 — Authentication (Identity/JWT)
+↓
+Module 18 — CQRS
+↓
+Module 19 — MediatR + Authorization Policy Enforcement
+↓
+Module 20 — Caching
 ```
 
 ---
@@ -244,8 +250,12 @@ CQRS Architecture
 
 Objectives:
 
+* Pagination
+* Authentication (Identity/JWT)
 * CQRS
 * MediatR
+* Authorization Policy Enforcement
+* Caching
 * Command / Query Separation
 * Request Handlers
 * Pipeline Behaviors
@@ -389,7 +399,7 @@ Notes:
 
 # Next Module
 
-## Module 16 — CQRS
+## Module 16 — Pagination
 
 Status:
 
@@ -397,7 +407,8 @@ Status:
 
 Objectives:
 
-* Separate commands from queries.
-* Introduce request handlers.
-* Reduce service responsibilities.
-* Prepare the application for MediatR integration.
+* Introduce reusable PagedRequest/PagedResult models.
+* Apply pagination to GetAllAsync across Account, Category, Transaction.
+* Prepare data access layer for query-heavy CQRS Query handlers.
+
+---

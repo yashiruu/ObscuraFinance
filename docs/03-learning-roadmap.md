@@ -32,7 +32,13 @@ Current
 
 Next
 
-🚧 Module 17 — MediatR
+⏳ Module 17 — Authentication (Identity/JWT)
+
+⏳ Module 18 — CQRS
+
+⏳ Module 19 — MediatR + Authorization Policy Enforcement
+
+⏳ Module 20 — Caching
 
 ---
 
@@ -589,7 +595,9 @@ The application now has a stable enterprise data access layer and is ready to ev
 
 ## Goal
 
-Learn modern enterprise application architecture.
+Complete cross-cutting application concerns (pagination, authentication,
+authorization, caching) and learn modern enterprise application architecture
+through CQRS and MediatR.
 
 ## Status
 
@@ -597,37 +605,102 @@ Learn modern enterprise application architecture.
 
 ## Why This Phase
 
-Once the application has a stable data access layer, responsibilities can be separated between commands and queries.
-
-CQRS is intentionally postponed until this stage because introducing it earlier would increase complexity without sufficient architectural benefit.
+Before introducing CQRS, three cross-cutting concerns are addressed first —
+Pagination and Authentication are infrastructure-level concerns independent
+of CQRS, so implementing them first avoids rework. Authorization enforcement
+and Caching, however, are best implemented as Pipeline Behaviors / Query
+Decorators, which only become natural once Commands, Queries, and MediatR
+are in place — so those two are sequenced after CQRS/MediatR rather than
+before.
 
 ```text
-Repository
+Pagination
     ↓
-Unit Of Work
-    ↓
-Validation
-    ↓
-AutoMapper
-    ↓
-Testing
+Authentication (Identity/JWT)
     ↓
 CQRS
     ↓
-MediatR
+MediatR + Authorization Policy Enforcement
+    ↓
+Caching
 ```
 
-At this point, the project shifts from layered CRUD architecture toward modern enterprise application architecture.
-
-The goal is to improve scalability, maintainability, and separation of responsibilities while preserving existing business behavior.
+At this point, the project shifts from layered CRUD architecture toward
+modern enterprise application architecture. The goal is to improve
+scalability, security, performance, and separation of responsibilities
+while preserving existing business behavior.
 
 ---
 
-## Module 16 — CQRS
+## Module 16 — Pagination
 
 Status:
 
 🚧 Current
+
+Learning Objectives:
+
+* Query Projection
+* Skip/Take Patterns
+* Total Count Strategies
+* Paged Response Design
+
+Topics:
+
+```text
+PagedRequest
+PagedResult<T>
+Skip() / Take()
+Total Count Query
+```
+
+### Exit Criteria
+
+The module is considered complete when:
+
+- A reusable `PagedRequest` / `PagedResult<T>` model exists in `03.Shared`.
+- `GetAllAsync` endpoints across Account, Category, and Transaction support pagination.
+- Existing non-paged consumers (if any) are updated or intentionally deprecated.
+
+---
+
+## Module 17 — Authentication (Identity/JWT)
+
+Status:
+
+⏳ Next
+
+Learning Objectives:
+
+* Identity Fundamentals
+* Token-Based Authentication
+* Login / Registration Flow
+* Securing API Endpoints
+
+Topics:
+
+```text
+ASP.NET Core Identity
+JWT Issuance & Validation
+[Authorize] Attribute
+Refresh Tokens (optional)
+```
+
+### Exit Criteria
+
+The module is considered complete when:
+
+- Users can register and log in.
+- API endpoints require a valid token by default.
+- Client application handles token storage and attachment to requests.
+
+---
+
+## Module 18 — CQRS
+
+Status:
+
+⏳ Planned
 
 Learning Objectives:
 
@@ -636,16 +709,77 @@ Learning Objectives:
 
 ---
 
-## Module 17 — MediatR
+## Module 19 — MediatR + Authorization Policy Enforcement
 
 Status:
 
-⏳ Next
+⏳ Planned
 
 Learning Objectives:
 
 * Mediator Pattern
 * Decoupled Architecture
+* Pipeline Behaviors
+* Policy-Based Authorization
+
+Topics:
+
+```text
+IRequest / IRequestHandler
+Pipeline Behavior
+Authorization Behavior
+Policy-Based Authorization
+```
+
+Why Combined:
+
+Authorization enforcement fits naturally as a Pipeline Behavior alongside
+the existing Validation Pipeline concept — introducing it in the same
+module as MediatR avoids building a temporary authorization mechanism in
+the service layer that would need to be rebuilt after CQRS.
+
+### Exit Criteria
+
+The module is considered complete when:
+
+- Controllers dispatch Commands/Queries through MediatR instead of calling services directly.
+- An Authorization Pipeline Behavior enforces policies before a handler executes.
+- Existing API behavior remains functionally unchanged.
+
+---
+
+## Module 20 — Caching
+
+Status:
+
+⏳ Planned
+
+Learning Objectives:
+
+* Cache-Aside Pattern
+* Query-Side Caching
+* Cache Invalidation Strategy
+
+Topics:
+
+```text
+IMemoryCache / Distributed Cache
+Caching Pipeline Behavior (Query-side)
+Cache Invalidation on Command Execution
+```
+
+Why After CQRS/MediatR:
+
+Caching is naturally a Query-side concern. Implementing it before Commands
+and Queries are separated risks mixing cache logic into services that also
+handle writes, leading to unclear invalidation triggers.
+
+### Exit Criteria
+
+The module is considered complete when:
+
+- Read-heavy Queries (e.g. Dashboard, GetAll) are cached via a Pipeline Behavior.
+- Cache entries are invalidated correctly on related Command execution.
 
 ---
 
@@ -653,7 +787,7 @@ Learning Objectives:
 
 ```text
 v1.4.0
-CQRS Based Finance Tracker
+Secure, Paginated, CQRS-Based Finance Tracker
 ```
 
 ---

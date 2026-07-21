@@ -157,16 +157,29 @@ Operate
 │ Theme                                                       │
 │ Scale                                                       │
 │                                                             │
-│ Module 16 — CQRS                                            │
+│ Module 16 — Pagination                                      │
+│ • PagedRequest / PagedResult<T>                              │
+│ • Skip/Take Query Pattern                                   │
+│                                                             │
+│ Module 17 — Authentication                                  │
+│ • ASP.NET Core Identity                                     │
+│ • JWT Issuance & Validation                                 │
+│                                                             │
+│ Module 18 — CQRS                                            │
 │ • Commands                                                  │
 │ • Queries                                                   │
 │ • Handlers                                                  │
 │                                                             │
-│ Module 17 — MediatR                                         │
+│ Module 19 — MediatR + Authorization                         │
 │ • Request                                                   │
 │ • Handler                                                   │
-│ • Notification                                              │
 │ • Pipeline Behavior                                         │
+│ • Policy-Based Authorization                                │
+│                                                             │
+│ Module 20 — Caching                                         │
+│ • Cache-Aside Pattern                                       │
+│ • Caching Pipeline Behavior                                 │
+│ • Cache Invalidation                                        │
 └──────────────────────┬──────────────────────────────────────┘
                        │
                        ▼
@@ -179,27 +192,27 @@ Operate
 │ Theme                                                       │
 │ Intelligence                                                │
 │                                                             │
-│ Module 18 — AI Service Abstraction                          │
+│ Module 21 — AI Service Abstraction                          │
 │ • IAIService                                                │
 │ • OpenAI Provider                                           │
 │ • Ollama Provider                                           │
 │                                                             │
-│ Module 19 — AI Playground                                   │
+│ Module 22 — AI Playground                                   │
 │ • Prompt Playground                                         │
 │ • Chat Interface                                            │
 │ • Provider Switching                                        │
 │                                                             │
-│ Module 20 — Finance Assistant                               │
+│ Module 23 — Finance Assistant                               │
 │ • Ask Finance Questions                                     │
 │ • Conversation History                                      │
 │ • AI Responses                                              │
 │                                                             │
-│ Module 21 — Context Engineering                             │
+│ Module 24 — Context Engineering                             │
 │ • Read Finance Data                                         │
 │ • Build Context                                             │
 │ • Prompt Construction                                       │
 │                                                             │
-│ Module 22 — Finance Insights Engine                         │
+│ Module 25 — Finance Insights Engine                         │
 │ • Spending Analysis                                         │
 │ • Budget Suggestions                                        │
 │ • Monthly Reflection                                        │
@@ -215,23 +228,23 @@ Operate
 │ Theme                                                       │
 │ Autonomy                                                    │
 │                                                             │
-│ Module 23 — Tool Calling                                    │
+│ Module 26 — Tool Calling                                    │
 │ • QueryTransactionsTool                                     │
 │ • QueryAccountsTool                                         │
 │ • QueryCategoriesTool                                       │
 │ • QueryDashboardTool                                        │
 │                                                             │
-│ Module 24 — Agent Workflow                                  │
+│ Module 27 — Agent Workflow                                  │
 │ • Planning                                                  │
 │ • Tool Selection                                            │
 │ • Tool Execution                                            │
 │ • Response Synthesis                                        │
 │                                                             │
-│ Module 25 — Finance Agent                                   │
+│ Module 28 — Finance Agent                                   │
 │ • Natural Language Analysis                                 │
 │ • Financial Reasoning                                       │
 │                                                             │
-│ Module 26 — Multi-Step Analysis                             │
+│ Module 29 — Multi-Step Analysis                             │
 │ • Cross-Month Comparison                                    │
 │ • Trend Analysis                                            │
 │ • Insight Generation                                        │
@@ -247,24 +260,24 @@ Operate
 │ Theme                                                       │
 │ Operate                                                     │
 │                                                             │
-│ Module 27 — Docker                                          │
+│ Module 30 — Docker                                          │
 │ • Dockerfile                                                │
 │ • Multi-Stage Build                                         │
 │                                                             │
-│ Module 28 — Docker Compose                                  │
+│ Module 31 — Docker Compose                                  │
 │ • Application                                               │
 │ • SQL Server                                                │
 │                                                             │
-│ Module 29 — CI/CD                                           │
+│ Module 32 — CI/CD                                           │
 │ • Build Pipeline                                            │
 │ • Test Pipeline                                             │
 │ • Deployment Pipeline                                       │
 │                                                             │
-│ Module 30 — Monitoring                                      │
+│ Module 33 — Monitoring                                      │
 │ • Logging Dashboard                                         │
 │ • Health Check                                              │
 │                                                             │
-│ Module 31 — Secrets Management                              │
+│ Module 34 — Secrets Management                              │
 │ • Environment Variables                                     │
 │ • Secret Storage                                            │
 └─────────────────────────────────────────────────────────────┘

@@ -36,16 +36,16 @@ This release establishes a stable data access and application layer, backed by a
 
 Current Development
 
-* 🚧 Phase 4 — CQRS Architecture
+* 🚧 Phase 4 — CQRS Architecture (extended scope)
 
 Current Module:
-* 🚧 Module 16 — CQRS
+* 🚧 Module 16 — Pagination
 
-Next Module:
-* ⏳ Module 17 — MediatR
-
-Next Phase:
-* ⏳ AI Integration (v1.5.0)
+Next Modules:
+* ⏳ Module 17 — Authentication (Identity/JWT)
+* ⏳ Module 18 — CQRS
+* ⏳ Module 19 — MediatR + Authorization Policy Enforcement
+* ⏳ Module 20 — Caching
 
 ---
 
