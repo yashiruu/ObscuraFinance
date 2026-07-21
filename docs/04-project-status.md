@@ -123,6 +123,8 @@ Modules:
 * Global Exception Middleware
 * Response Standardization
 * Global Query Filter
+* OpenAPI/Swagger Documentation Setup
+* API Controller Metadata ([ProducesResponseType])
 
 Goal:
 
@@ -142,6 +144,8 @@ Notes:
 * Client applications updated to support standardized API responses.
 * Request validation standardized using FluentValidation.
 * Validation pipeline implemented across Category, Account, and Transaction.
+* API controllers are fully documented with XML comments and enterprise-level OpenAPI specifications.
+* CancellationToken propagation has been implemented across all endpoints.
 
 ---
 
