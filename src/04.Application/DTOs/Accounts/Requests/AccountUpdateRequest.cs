@@ -1,6 +1,6 @@
 ﻿using Obscura.FinanceTracker.Domain.Enums;
 
-namespace Obscura.FinanceTracker.Application.Accounts.DTOs
+namespace Obscura.FinanceTracker.Application.DTOs.Accounts.Requests
 {
     public class AccountUpdateRequest
     {

@@ -1,5 +1,4 @@
-﻿using Obscura.FinanceTracker.Application.Accounts.DTOs;
-using Obscura.FinanceTracker.Application.DTOs.Accounts.Requests;
+﻿using Obscura.FinanceTracker.Application.DTOs.Accounts.Requests;
 using Obscura.FinanceTracker.Application.DTOs.Accounts.Responses;
 
 namespace Obscura.FinanceTracker.Application.Interfaces.Services

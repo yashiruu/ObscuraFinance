@@ -121,6 +121,53 @@ Planned verification includes:
 
 ---
 
+---
+
+# AI-Assisted Test Authoring — Review Status
+
+Status:
+
+⚠️ Pending Self-Review
+
+Context:
+
+The unit test suite for Module 15 (AccountServiceTest and subsequent service
+tests) was authored with AI assistance (Claude) through a guided, concept-first
+process. The developer actively participated in reasoning through each test's
+Arrange/Act/Assert structure and understands the underlying testing concepts
+(Mock/Base/Builder roles, orchestration verification, exception-testing pattern).
+However, the majority of the actual test code was written by the AI based on
+that shared understanding, not typed independently by the developer line-by-line.
+
+Required Follow-Up:
+
+1. **Self-Review Pass**
+   Once time permits, revisit each test file written during this phase and
+   verify the developer can explain every Arrange/Act/Assert line without
+   referring back to the AI conversation — not just recognize it as correct.
+
+2. **Re-Validate Against Business Logic Changes**
+   Whenever `AccountService`, `CategoryService`, `TransactionService`, or
+   `DashboardService` business logic is modified going forward, the
+   corresponding AI-authored tests must be re-reviewed — not assumed to
+   still be accurate. AI-authored tests reflect the business logic AS IT
+   EXISTED at the time of writing; they do not automatically track future
+   changes.
+
+3. **Coverage Gap Check**
+   Test scenarios not yet covered (or covered thinly) should be identified
+   and extended once the developer is comfortable designing test cases
+   independently, rather than only extending patterns already demonstrated
+   by the AI.
+
+Priority:
+
+Medium — does not block Module 15 progress, but must be completed before
+these tests are treated as a reliable regression safety net for future
+refactoring (e.g. before AO-004 fixes are implemented).
+
+---
+
 # Functional Verification
 
 ## Category Management
@@ -310,6 +357,124 @@ A cross-service review of `AccountService`, `CategoryService`, and `TransactionS
 identified three recurring gaps that follow the same pattern across all three services.
 Documented together because the fix should be designed once and applied consistently,
 rather than patched per-service.
+
+---
+
+## AO-005
+
+### Testing Infrastructure Duplication Review (Deferred)
+
+Status:
+
+Open
+
+Target Release:
+
+Post CQRS (Phase 4)
+
+Description:
+
+After completing unit test suites for `AccountService`, `CategoryService`,
+`TransactionService`, and `DashboardService`, a recurring structural pattern
+was noticed across `AccountServiceTestBase`, `CategoryServiceTestBase`, and
+`TransactionServiceTestBase` — each follows a near-identical constructor
+shape (repository mock creation, `IUnitOfWork` wiring, validator mocks,
+logger mock, service instantiation), differing only by entity-specific
+types.
+
+This may indicate an opportunity to extract shared setup logic, but a
+proper review has been intentionally deferred rather than acted on
+immediately.
+
+Reason for Deferral:
+
+Per Collaboration Rule 5 (Prefer Understanding Before Abstraction), testing
+concepts (Mock, Base, Builder roles, orchestration verification) are still
+being internalized. Refactoring test infrastructure before fully
+understanding why each piece exists risks abstracting away useful
+explicitness, or hiding setup that should remain visible per-test.
+
+The review is deferred until after CQRS (Phase 4) is implemented, at which
+point:
+
+1. Testing concepts will be more solidified through repeated practice.
+2. CQRS/MediatR introduction may itself reshape how services are structured
+   and tested (Commands/Queries/Handlers), which could change what counts
+   as "duplication worth removing" versus what naturally differs per
+   feature.
+
+Review Checklist (for when this is revisited):
+
+* Compare `*ServiceTestBase` constructors side by side — identify which
+  lines are structurally identical (candidate for extraction) versus which
+  differ only by entity-specific type (expected, not true duplication).
+* Check whether repeated Arrange patterns exist across test files
+  themselves (e.g. "entity not found" setup), which may warrant private
+  helper methods within a test class rather than base-class changes.
+* Re-evaluate whether validator mocks would benefit from a default
+  "assume valid" setup to reduce boilerplate in non-validation-focused
+  tests (previously noted as an open design question).
+
+Priority:
+
+Low — does not block current test coverage or Module 15 completion. Purely
+a maintainability/readability improvement opportunity.
+
+---
+
+## AO-006
+
+### Integration Testing (Deferred)
+
+Status:
+
+Open
+
+Target Release:
+
+Deferred — no target release yet, revisit after CQRS (Phase 4) and Authentication/Authorization
+
+Description:
+
+Module 15 — Testing originally scoped Unit Testing, Integration Testing, and
+Validation Testing. Unit Testing (Service Layer) and Validation Testing
+(FluentValidation validators) are complete. Integration Testing is
+intentionally deferred.
+
+Reason for Deferral:
+
+The project timeline has extended beyond the original plan. Current priority
+is completing Clean Architecture foundation and CQRS (Phase 4), and the
+application does not yet have Authentication/Authorization implemented —
+both considered more architecturally urgent than Integration Testing at
+this stage.
+
+Learning Goal (for when revisited):
+
+When Integration Testing is picked up, the goal is to learn and compare
+three test database strategies rather than settling on just one
+immediately:
+
+1. **EF Core InMemory provider** — fastest to set up, but does not validate
+   real SQL Server behavior (constraints, cascade delete, query filter
+   translation may differ).
+2. **SQLite in-memory** — closer to real relational SQL behavior than EF
+   Core InMemory, still not 100% SQL Server-accurate.
+3. **Testcontainers (real SQL Server via Docker)** — most accurate,
+   real SQL Server per test run, but requires Docker and container
+   lifecycle setup as its own learning step.
+
+Additional infrastructure needed when this is picked up:
+
+* `WebApplicationFactory<Program>` / `CustomWebApplicationFactory` for
+  in-memory app hosting during tests
+* Test data seeding/cleanup strategy for test isolation
+* `HttpClient` test helpers for endpoint-level assertions
+
+Priority:
+
+Low — does not block CQRS or Authentication/Authorization work. Revisit
+once those higher-priority architectural milestones are stable.
 
 ---
 

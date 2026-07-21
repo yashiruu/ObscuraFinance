@@ -228,6 +228,90 @@ Learning why a pattern exists is more important than memorizing how to implement
 
 ---
 
+# Collaboration Rule 6
+
+## Unit Test Naming Convention
+
+All unit test method names must follow a fixed, predictable pattern so that
+test intent is clear from the name alone, without needing to read the test
+body.
+
+### Pattern
+
+```text
+{MethodName}_Should_{ExpectedResult}_When_{Condition}[_AO{NNN}]
+```
+
+### Pattern Breakdown
+
+| Part | Rule | Example |
+|------|------|---------|
+| `MethodName` | The exact service method under test, case-sensitive | `CreateAsync`, `UpdateAsync` |
+| `Should` | Fixed connector word, always literal `"Should"` | — |
+| `ExpectedResult` | The expected outcome, written as a short active phrase. For exceptions, use `Throw{ExceptionType}` | `CreateAccount`, `ThrowBusinessException`, `ReturnEmptyList` |
+| `When` | Fixed connector word, always literal `"When"` | — |
+| `Condition` | The scenario or trigger that produces the expected result | `ValidRequest`, `NameAlreadyExists`, `AccountDoesNotExist` |
+| `_AO{NNN}` *(optional)* | Suffix used ONLY for gap-exposing tests that intentionally assert current (not ideal) behavior. References the Architectural Observation number in `known-issues.md` | `_AO004` |
+
+---
+
+### Additional Rules
+
+**Rule 1 — One scenario, one test.**
+
+Do not combine multiple conditions into a single `[Theory]` unless the
+variations are genuinely the same kind of check (e.g. empty-field validation
+across multiple fields in a validator test).
+
+---
+
+**Rule 2 — `ExpectedResult` must always be positive and declarative, never negative.**
+
+Write:
+
+```text
+Should_ThrowKeyNotFoundException
+```
+
+Not:
+
+```text
+Should_NotSucceed
+```
+
+This ensures the test's intent is immediately clear from its name alone.
+
+---
+
+**Rule 3 — The `_AO{NNN}` suffix is mandatory for gap-exposing tests.**
+
+Without this suffix, there is no way to distinguish a test that verifies
+ideal behavior from a test that documents a known bug, based on the file
+name alone.
+
+---
+
+**Rule 4 — Test order within a file follows the interface's method order, not the order in which tests were written.**
+
+Example, based on `IAccountService.cs`:
+
+```text
+CreateAsync
+    ↓
+GetByIdAsync
+    ↓
+GetAllAsync
+    ↓
+UpdateAsync
+    ↓
+DeleteAsync
+```
+
+This keeps the test file easy to compare directly against the original
+interface.
+
+---
+
 # Architecture Principles
 
 ## Principle 1
