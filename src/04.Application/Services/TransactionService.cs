@@ -6,6 +6,7 @@ using Obscura.FinanceTracker.Application.DTOs.Transactions.Responses;
 using Obscura.FinanceTracker.Application.Interfaces.Repositories;
 using Obscura.FinanceTracker.Application.Interfaces.Services;
 using Obscura.FinanceTracker.Domain.Entities;
+using Obscura.FinanceTracker.Shared.Exceptions;
 
 namespace Obscura.FinanceTracker.Application.Services
 {
@@ -46,7 +47,7 @@ namespace Obscura.FinanceTracker.Application.Services
             if (transaction == null)
             {
                 _logger.LogWarning("Transaction not found. TransactionId: {TransactionId}", id);
-                throw new KeyNotFoundException($"Transaction with '{id}' was not found.");
+                throw NotFoundException.For<Transaction>(id);
             }
 
             _logger.LogInformation("Transaction retrieved successfully. TransactionId: {TransactionId}", id);
@@ -66,13 +67,13 @@ namespace Obscura.FinanceTracker.Application.Services
             if (!accountExists)
             {
                 _logger.LogWarning("Account not found. AccountId: {AccountId}", request.AccountId);
-                throw new KeyNotFoundException($"Account with `{request.AccountId}` was not found");
+                throw NotFoundException.For<Account>(request.AccountId);
             }
 
             if (!categoryExists)
             {
                 _logger.LogWarning("Category not found. CategoryId: {CategoryId}", request.CategoryId);
-                throw new KeyNotFoundException($"Category with `{request.CategoryId}` was not found");
+                throw NotFoundException.For<Category>(request.CategoryId);
             }
 
             var transaction = _mapper.Map<Transaction>(request);
@@ -96,7 +97,7 @@ namespace Obscura.FinanceTracker.Application.Services
             if (transaction == null)
             {
                 _logger.LogWarning("Transaction not found. TransactionId: {TransactionId}", id);
-                throw new KeyNotFoundException($"Transaction with '{id}' was not found.");
+                throw NotFoundException.For<Transaction>(id);
             }
 
             var accountExists = await _unitOfWork.Accounts.ExistsAsync(a => a.Id == request.AccountId);
@@ -105,13 +106,13 @@ namespace Obscura.FinanceTracker.Application.Services
             if (!accountExists)
             {
                 _logger.LogWarning("Account not found. AccountId: {AccountId}", request.AccountId);
-                throw new KeyNotFoundException($"Account with `{request.AccountId}` was not found");
+                throw NotFoundException.For<Account>(request.AccountId);
             }
 
             if (!categoryExists)
             {
                 _logger.LogWarning("Category not found. CategoryId: {CategoryId}", request.CategoryId);
-                throw new KeyNotFoundException($"Category with `{request.CategoryId}` was not found");
+                throw NotFoundException.For<Category>(request.CategoryId);
             }
 
             transaction.Date = request.Date;
@@ -136,7 +137,7 @@ namespace Obscura.FinanceTracker.Application.Services
             if (transaction == null)
             {
                 _logger.LogWarning("Transaction not found. TransactionId: {TransactionId}", id);
-                throw new KeyNotFoundException($"Transaction with '{id}' was not found or has been deleted");
+                throw NotFoundException.For<Transaction>(id);
             }
 
             _unitOfWork.Transactions.Delete(transaction);
@@ -154,7 +155,7 @@ namespace Obscura.FinanceTracker.Application.Services
             if (transaction == null)
             {
                 _logger.LogWarning("Transaction not found. TransactionId: {TransactionId}", id);
-                throw new KeyNotFoundException($"Transaction with '{id}' was not found or has been restored");
+                throw NotFoundException.For<Transaction>(id);
             }
 
             transaction.IsDeleted = false;

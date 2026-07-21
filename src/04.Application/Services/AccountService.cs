@@ -46,7 +46,7 @@ namespace Obscura.FinanceTracker.Application.Services
             if (account == null)
             {
                 _logger.LogWarning("Account not found. AccountId: {AccountId}", id);
-                throw new KeyNotFoundException($"Account with '{id}' was not found.");
+                throw NotFoundException.For<Account>(id);
             }
 
             _logger.LogInformation("Account retrieved successfully. AccountId: {AccountId}", id);
@@ -87,7 +87,7 @@ namespace Obscura.FinanceTracker.Application.Services
             if (account == null)
             {
                 _logger.LogWarning("Account not found. AccountId: {AccountId}", id);
-                throw new KeyNotFoundException($"Account with '{id}' was not found.");
+                throw NotFoundException.For<Account>(id);
             }
 
             var takenName = await _unitOfWork.Accounts.IsNameTakenAsync(request.Name, excludeId: id);
@@ -117,7 +117,7 @@ namespace Obscura.FinanceTracker.Application.Services
             if (account == null)
             {
                 _logger.LogWarning("Account not found. AccountId: {AccountId}", id);
-                throw new KeyNotFoundException($"Account with '{id}' was not found");
+                throw NotFoundException.For<Account>(id);
             }
 
             _unitOfWork.Accounts.Delete(account);
@@ -134,7 +134,7 @@ namespace Obscura.FinanceTracker.Application.Services
             if (account == null)
             {
                 _logger.LogWarning("Account not found. AccountId: {AccountId}", id);
-                throw new KeyNotFoundException($"Account with '{id}' was not found");
+                throw NotFoundException.For<Account>(id);
             }
 
             var takenName = await _unitOfWork.Accounts.IsNameTakenAsync(account.Name, excludeId: id);

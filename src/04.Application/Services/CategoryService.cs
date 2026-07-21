@@ -70,7 +70,7 @@ namespace Obscura.FinanceTracker.Application.Services
             if (category == null)
             {
                 _logger.LogWarning("Category not found. CategoryId: {CategoryId}", id);
-                throw new KeyNotFoundException($"Category with '{id}' was not found.");
+                throw NotFoundException.For<Category>(id);
             }
 
             _logger.LogInformation("Category retrieved successfully. CategoryId: {CategoryId}", id);
@@ -113,7 +113,7 @@ namespace Obscura.FinanceTracker.Application.Services
             if (category == null) 
             {
                 _logger.LogWarning("Category not found. CategoryId: {CategoryId}", id);
-                throw new KeyNotFoundException($"Category with '{id}' was not found.");
+                throw NotFoundException.For<Category>(id);
             }
 
             var takenName = await _unitOfWork.Categories.IsNameTakenAsync(request.Name, excludeId: id);
@@ -143,7 +143,7 @@ namespace Obscura.FinanceTracker.Application.Services
             if (category == null)
             {
                 _logger.LogWarning("Category not found. CategoryId: {CategoryId}", id);
-                throw new KeyNotFoundException($"Category with '{id}' was not found");
+                throw NotFoundException.For<Category>(id);
             }
 
             _unitOfWork.Categories.Delete(category);
@@ -161,7 +161,7 @@ namespace Obscura.FinanceTracker.Application.Services
             if (category == null)
             {
                 _logger.LogWarning("Category not found. CategoryId: {CategoryId}", id);
-                throw new KeyNotFoundException($"Category with '{id}' was not found");
+                throw NotFoundException.For<Category>(id);
             }
 
             var takenName = await _unitOfWork.Categories.IsNameTakenAsync(category.Name, excludeId: id);
