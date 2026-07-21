@@ -1,3 +1,4 @@
+```
 Learning Evolution
 
 Build
@@ -140,9 +141,10 @@ Operate
 │ • Projection                                                │
 │                                                             │
 │ Module 15 — Testing                                         │
-│ • Unit Testing                                              │
-│ • Integration Testing                                       │
-│ • Validation Testing                                        │
+| • Unit Testing                                              |
+| • Testing Infrastructure                                    |
+| • Service Testing                                           |
+| • Validator Testing                                         │
 └──────────────────────┬──────────────────────────────────────┘
                        │
                        ▼
@@ -266,3 +268,4 @@ Operate
 │ • Environment Variables                                     │
 │ • Secret Storage                                            │
 └─────────────────────────────────────────────────────────────┘
+```

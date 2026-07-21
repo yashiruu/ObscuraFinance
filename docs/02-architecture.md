@@ -351,6 +351,8 @@ SQL Server
 
 This architecture separates business logic from data access while centralizing transaction management through the Unit Of Work pattern.
 
+Validation, AutoMapper, and automated unit testing complete the architectural foundation before introducing CQRS. By the end of Phase 3, the application is prepared for large-scale refactoring with significantly lower regression risk.
+
 ---
 
 ## Phase 4 — CQRS (Planned)
@@ -400,6 +402,12 @@ Service Layer
 Repository Pattern
     ↓
 Unit Of Work
+    ↓
+Validation
+    ↓
+AutoMapper
+    ↓
+Testing
     ↓
 CQRS
     ↓

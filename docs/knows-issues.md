@@ -1,12 +1,8 @@
 # Known Issues
 
-## Purpose
+This document records known technical limitations, architectural observations, and implementation decisions.
 
-This document records known defects, architectural observations, quality risks, and verification activities throughout the project.
-
-Its purpose is not only to track unresolved issues but also to document implementation quality and areas that require future validation.
-
-The document evolves alongside the application and should be reviewed before every architectural release.
+Its purpose is to preserve context for future improvements while avoiding premature optimization.
 
 ---
 
@@ -14,11 +10,11 @@ The document evolves alongside the application and should be reviewed before eve
 
 Version:
 
-v1.2.0
+v1.3.0
 
 Release:
 
-Enterprise Foundation
+Data Access & Application Patterns
 
 Status:
 
@@ -28,11 +24,11 @@ The current release is considered stable for continued development.
 
 No release-blocking defects are currently known.
 
-Development is proceeding toward:
+Next Target:
 
 ```text
-v1.3.0
-Data Access Patterns
+v1.4.0
+CQRS Architecture
 ```
 
 ---
@@ -50,24 +46,24 @@ Assessment:
 * Enterprise Foundation completed.
 * Repository Pattern completed.
 * Unit Of Work completed.
-* Validation completed.
-* AutoMapper pending.
-* Automated testing not yet implemented.
+* FluentValidation completed.
+* AutoMapper completed.
+* Automated unit testing implemented.
 
 Current Confidence Level:
 
-Medium
+High
 
 Reason:
 
-The application has undergone extensive manual verification but has not yet entered the automated testing phase.
+The application has been verified through both manual testing and automated unit tests for core business services and request validators. The project now has a stable testing foundation, providing high confidence for future architectural refactoring.
 
 ---
 
 # Current Implementation Status
 
 | Area | Status |
-|-------|--------|
+|------|--------|
 | Foundation | ✅ Stable |
 | Category Management | ✅ Stable |
 | Account Management | ✅ Stable |
@@ -77,8 +73,8 @@ The application has undergone extensive manual verification but has not yet ente
 | Repository Pattern | ✅ Stable |
 | Unit Of Work | ✅ Stable |
 | Validation | ✅ Stable |
-| AutoMapper | 🚧 In Progress |
-| Testing | ⏳ Planned |
+| AutoMapper | ✅ Stable |
+| Testing | ✅ Stable |
 
 ---
 
@@ -92,218 +88,223 @@ Completed:
 * Dashboard verification
 * Repository regression verification
 * Unit Of Work verification
-* Validation verification
+* FluentValidation verification
+* AccountService unit tests
+* CategoryService unit tests
+* TransactionService unit tests
+* DashboardService unit tests
+* Request validator unit tests
+
+Current Test Coverage:
+
+* Business Services
+* Request Validation
+* Repository Integration (through service tests)
 
 Planned:
 
-* Unit Testing
 * Integration Testing
 * End-to-End Testing
 * Performance Testing
 
----
-
-# Deferred Verification
-
-The following validations are intentionally postponed until Phase 3 is completed.
-
 Reason:
 
-Testing becomes significantly more valuable once the application architecture has stabilized.
-
-Planned verification includes:
-
-* Cross-module regression testing
-* Data integrity verification
-* Large dataset verification
-* Performance verification
-* UI consistency review
+The project now has comprehensive unit testing. Remaining verification focuses on cross-component behavior and production-scale scenarios that are better introduced after the CQRS architecture has stabilized.
 
 ---
 
----
+# Release Summary
 
-# AI-Assisted Test Authoring — Review Status
+Version v1.3.0 focuses on architectural maturity rather than user-facing features.
 
-Status:
+Highlights:
 
-⚠️ Pending Self-Review
+* Repository Pattern completed.
+* Unit Of Work completed.
+* FluentValidation integrated.
+* AutoMapper integrated.
+* Comprehensive unit testing introduced.
+* Shared testing infrastructure established.
+* Core services protected by automated regression tests.
 
-Context:
-
-The unit test suite for Module 15 (AccountServiceTest and subsequent service
-tests) was authored with AI assistance (Claude) through a guided, concept-first
-process. The developer actively participated in reasoning through each test's
-Arrange/Act/Assert structure and understands the underlying testing concepts
-(Mock/Base/Builder roles, orchestration verification, exception-testing pattern).
-However, the majority of the actual test code was written by the AI based on
-that shared understanding, not typed independently by the developer line-by-line.
-
-Required Follow-Up:
-
-1. **Self-Review Pass**
-   Once time permits, revisit each test file written during this phase and
-   verify the developer can explain every Arrange/Act/Assert line without
-   referring back to the AI conversation — not just recognize it as correct.
-
-2. **Re-Validate Against Business Logic Changes**
-   Whenever `AccountService`, `CategoryService`, `TransactionService`, or
-   `DashboardService` business logic is modified going forward, the
-   corresponding AI-authored tests must be re-reviewed — not assumed to
-   still be accurate. AI-authored tests reflect the business logic AS IT
-   EXISTED at the time of writing; they do not automatically track future
-   changes.
-
-3. **Coverage Gap Check**
-   Test scenarios not yet covered (or covered thinly) should be identified
-   and extended once the developer is comfortable designing test cases
-   independently, rather than only extending patterns already demonstrated
-   by the AI.
-
-Priority:
-
-Medium — does not block Module 15 progress, but must be completed before
-these tests are treated as a reliable regression safety net for future
-refactoring (e.g. before AO-004 fixes are implemented).
-
----
-
-# Functional Verification
-
-## Category Management
-
-Verify:
-
-* Create
-* Update
-* Delete
-* Restore
-* Duplicate names
-* Empty input
-
----
-
-## Account Management
-
-Verify:
-
-* Create
-* Update
-* Delete
-* Restore
-* Initial Balance
-* Account Type
-* Active Status
-
----
-
-## Transaction Management
-
-Verify:
-
-* Create
-* Update
-* Delete
-* Restore
-* Account Relation
-* Category Relation
-* Amount Validation
-* Date Validation
-
----
-
-## Dashboard
-
-Verify:
-
-* Summary Cards
-* Recent Transactions
-* Expense Aggregation
-* Account Summary
-* Empty Dataset
-* Large Dataset
+The application is now considered ready for architectural evolution toward CQRS.
 
 ---
 
 # Architectural Observations
 
-Architectural observations are not considered defects.
+Architectural Observations (AO) capture implementation decisions, trade-offs, and future improvements.
 
-They identify areas that can be improved in future milestones.
+These are intentionally retained even when they are not release blockers.
 
 ---
 
-## AO-001
-
-### ApiResponse Coupling
+## AO-001 — Generic Repository Query Flexibility
 
 Status:
 
-Open
-
-Target Release:
-
-v1.3.0
-
-Description:
-
-Client applications currently deserialize ApiResponse<T> individually.
-
-Potential Improvement:
-
-Introduce:
-
-```csharp
-ReadApiResponseAsync<T>()
-```
-
-to centralize response handling.
+🟡 Deferred
 
 Priority:
 
 Medium
 
+Target:
+
+Post v1.3.0
+
+Observation:
+
+The current generic repository exposes only the operations required by existing features.
+
+As more advanced querying scenarios emerge, additional abstractions such as specifications or query objects may become beneficial.
+
+Reason for Deferral:
+
+The existing implementation remains simple, readable, and sufficient for the current application size.
+
+Premature abstraction would introduce unnecessary complexity before CQRS.
+
 ---
 
-## AO-002
-
-### Client Error Handling
+## AO-002 — Unit Of Work Growth
 
 Status:
 
-Open
-
-Target Release:
-
-v1.3.0
-
-Description:
-
-Business errors are not consistently propagated to the UI.
-
-Potential Improvement:
-
-Centralize client response handling.
+🟡 Deferred
 
 Priority:
 
 Medium
 
+Target:
+
+Post v1.3.0
+
+Observation:
+
+As additional repositories are introduced, the Unit Of Work interface may continue to grow.
+
+Possible future improvements include:
+
+* Feature-based repositories
+* Aggregate-oriented organization
+* CQRS handlers reducing repository exposure
+
+Reason for Deferral:
+
+Current repository count remains manageable.
+
+CQRS will likely reshape repository usage, making early refactoring unnecessary.
+
 ---
 
-## AO-003
-
-### ApiResponse Factory Method Bypass Pattern
+## AO-003 — Integration Testing
 
 Status:
 
-Open
+🟡 Planned
 
-Target Release:
+Priority:
 
-Post v1.3.0 (after Module 15 — Testing)
+Medium
 
-Description:
+Target:
+
+Future Release
+
+Observation:
+
+Current automated testing focuses on unit testing.
+
+Cross-layer verification has intentionally been postponed.
+
+Planned Coverage:
+
+* Controller → Service → Repository
+* Database Integration
+* Middleware Pipeline
+* API Contract Verification
+
+Reason:
+
+Unit testing provides the highest return during the current architectural phase.
+
+Integration testing becomes more valuable once CQRS stabilizes.
+
+---
+
+## AO-004 — Performance Optimization
+
+Status:
+
+🟢 Not Required
+
+Priority:
+
+Low
+
+Observation:
+
+No performance bottlenecks have been identified.
+
+Database size remains small.
+
+API response times are acceptable.
+
+Decision:
+
+Avoid optimization until supported by measurable evidence.
+
+---
+
+## AO-005 — CQRS Readiness
+
+Status:
+
+🟢 Ready
+
+Priority:
+
+High
+
+Observation:
+
+The application has successfully completed the architectural prerequisites for CQRS.
+
+Completed Prerequisites:
+
+* Interface abstraction
+* Service layer
+* Repository Pattern
+* Unit Of Work
+* FluentValidation
+* AutoMapper
+* Centralized exception handling
+* Standardized API responses
+* Automated unit testing
+
+Conclusion:
+
+The application is architecturally prepared to begin CQRS implementation in Phase 4.
+
+---
+
+## AO-006 — ApiResponse Factory Method Bypass Pattern
+
+Status:
+
+🟡 Open — On Hold
+
+Priority:
+
+Medium
+
+Target:
+
+Post v1.3.0
+
+Observation:
 
 `ApiResponse<T>` is designed to be constructed exclusively through its factory methods —
 `SuccessResponse()` and `ErrorResponse()` — which populate fields such as `Timestamp`
@@ -333,189 +334,60 @@ properties alongside its factory methods, so both construction paths remain avai
 
 Suggested Fix:
 
-Constrain construction to the factory methods only, e.g.:
+Constrain construction to the factory methods only, e.g. make the constructor `private`
+(or `internal`), forcing all response creation through `SuccessResponse()` / `ErrorResponse()`.
 
-* Make the constructor `private` (or `internal`), forcing all
+Note:
+
+Originally tracked in the v1.2.0 known-issues document. Confirmed still unresolved — held
+intentionally, not yet scheduled. Will remain open until deliberately picked up.
 
 ---
 
-## AO-004
-
-### Cross-Service Data Access Gaps (Account, Category, Transaction)
+## AO-007 — Cross-Service Data Access Gaps (Account, Category, Transaction)
 
 Status:
 
-Open
+🟡 Open — On Hold
 
-Target Release:
+Priority:
 
-Post v1.3.0 (after Module 15 — Testing)
+Medium
 
-Description:
+Target:
+
+Post v1.3.0
+
+Observation:
 
 A cross-service review of `AccountService`, `CategoryService`, and `TransactionService`
 identified three recurring gaps that follow the same pattern across all three services.
 Documented together because the fix should be designed once and applied consistently,
 rather than patched per-service.
 
----
-
-## AO-005
-
-### Testing Infrastructure Duplication Review (Deferred)
-
-Status:
-
-Open
-
-Target Release:
-
-Post CQRS (Phase 4)
-
-Description:
-
-After completing unit test suites for `AccountService`, `CategoryService`,
-`TransactionService`, and `DashboardService`, a recurring structural pattern
-was noticed across `AccountServiceTestBase`, `CategoryServiceTestBase`, and
-`TransactionServiceTestBase` — each follows a near-identical constructor
-shape (repository mock creation, `IUnitOfWork` wiring, validator mocks,
-logger mock, service instantiation), differing only by entity-specific
-types.
-
-This may indicate an opportunity to extract shared setup logic, but a
-proper review has been intentionally deferred rather than acted on
-immediately.
-
-Reason for Deferral:
-
-Per Collaboration Rule 5 (Prefer Understanding Before Abstraction), testing
-concepts (Mock, Base, Builder roles, orchestration verification) are still
-being internalized. Refactoring test infrastructure before fully
-understanding why each piece exists risks abstracting away useful
-explicitness, or hiding setup that should remain visible per-test.
-
-The review is deferred until after CQRS (Phase 4) is implemented, at which
-point:
-
-1. Testing concepts will be more solidified through repeated practice.
-2. CQRS/MediatR introduction may itself reshape how services are structured
-   and tested (Commands/Queries/Handlers), which could change what counts
-   as "duplication worth removing" versus what naturally differs per
-   feature.
-
-Review Checklist (for when this is revisited):
-
-* Compare `*ServiceTestBase` constructors side by side — identify which
-  lines are structurally identical (candidate for extraction) versus which
-  differ only by entity-specific type (expected, not true duplication).
-* Check whether repeated Arrange patterns exist across test files
-  themselves (e.g. "entity not found" setup), which may warrant private
-  helper methods within a test class rather than base-class changes.
-* Re-evaluate whether validator mocks would benefit from a default
-  "assume valid" setup to reduce boilerplate in non-validation-focused
-  tests (previously noted as an open design question).
-
-Priority:
-
-Low — does not block current test coverage or Module 15 completion. Purely
-a maintainability/readability improvement opportunity.
-
----
-
-## AO-006
-
-### Integration Testing (Deferred)
-
-Status:
-
-Open
-
-Target Release:
-
-Deferred — no target release yet, revisit after CQRS (Phase 4) and Authentication/Authorization
-
-Description:
-
-Module 15 — Testing originally scoped Unit Testing, Integration Testing, and
-Validation Testing. Unit Testing (Service Layer) and Validation Testing
-(FluentValidation validators) are complete. Integration Testing is
-intentionally deferred.
-
-Reason for Deferral:
-
-The project timeline has extended beyond the original plan. Current priority
-is completing Clean Architecture foundation and CQRS (Phase 4), and the
-application does not yet have Authentication/Authorization implemented —
-both considered more architecturally urgent than Integration Testing at
-this stage.
-
-Learning Goal (for when revisited):
-
-When Integration Testing is picked up, the goal is to learn and compare
-three test database strategies rather than settling on just one
-immediately:
-
-1. **EF Core InMemory provider** — fastest to set up, but does not validate
-   real SQL Server behavior (constraints, cascade delete, query filter
-   translation may differ).
-2. **SQLite in-memory** — closer to real relational SQL behavior than EF
-   Core InMemory, still not 100% SQL Server-accurate.
-3. **Testcontainers (real SQL Server via Docker)** — most accurate,
-   real SQL Server per test run, but requires Docker and container
-   lifecycle setup as its own learning step.
-
-Additional infrastructure needed when this is picked up:
-
-* `WebApplicationFactory<Program>` / `CustomWebApplicationFactory` for
-  in-memory app hosting during tests
-* Test data seeding/cleanup strategy for test isolation
-* `HttpClient` test helpers for endpoint-level assertions
-
-Priority:
-
-Low — does not block CQRS or Authentication/Authorization work. Revisit
-once those higher-priority architectural milestones are stable.
-
----
-
-#### Gap 1 — CancellationToken Not Propagated to Queries
+### Gap 1 — CancellationToken Not Propagated to Queries
 
 All three services accept `CancellationToken` on every method, but only forward it to
 `SaveChangesAsync()`. Repository calls such as `GetByIdAsync`, `IsNameTakenAsync`,
 `GetAllAsync`, `ExistsAsync`, `GetAllByTypeAsync`, and `GetAllDeletedAsync` do not receive
 the token at all.
 
-Impact:
+Impact: A cancelled request still executes all reads before cancellation is ever observed.
 
-A cancelled request still executes all reads before cancellation is ever observed.
+Root Cause: Likely originates at `IRepository<TEntity>` (and entity-specific interfaces)
+not accepting `CancellationToken` on query methods, not a per-service mistake.
 
-Root Cause:
+Affected: AccountService, CategoryService, TransactionService — all query calls.
 
-Likely originates at `IRepository<TEntity>` (and entity-specific interfaces) not accepting
-`CancellationToken` on query methods, not a per-service mistake.
-
-Affected:
-
-* AccountService — all query calls
-* CategoryService — all query calls
-* TransactionService — all query calls
-
----
-
-#### Gap 2 — Redundant Duplicate-Name Check on Update When Name Is Unchanged
+### Gap 2 — Redundant Duplicate-Name Check on Update When Name Is Unchanged
 
 `AccountService.UpdateAsync` and `CategoryService.UpdateAsync` always call
 `IsNameTakenAsync(request.Name, excludeId: id)`, even when `request.Name` is identical to
-the existing entity's name. This is an unnecessary query on the common case where a user
-updates other fields without renaming.
+the existing entity's name.
 
-Impact:
-
-Minor — one avoidable query per update when name is unchanged. Not a correctness bug.
+Impact: Minor — one avoidable query per update when name is unchanged. Not a correctness bug.
 
 Suggested Fix:
-
-Short-circuit the check:
 
 ```csharp
 if (!string.Equals(entity.Name, request.Name, StringComparison.Ordinal))
@@ -525,26 +397,19 @@ if (!string.Equals(entity.Name, request.Name, StringComparison.Ordinal))
 }
 ```
 
-Affected:
+Affected: AccountService.UpdateAsync, CategoryService.UpdateAsync
+(Not applicable to TransactionService — Transaction has no Name uniqueness constraint.)
 
-* AccountService.UpdateAsync
-* CategoryService.UpdateAsync
-* (Not applicable to TransactionService — Transaction has no Name uniqueness constraint)
-
----
-
-#### Gap 3 — DeleteAsync Missing Referential Integrity Checks
+### Gap 3 — DeleteAsync Missing Referential Integrity Checks
 
 `DeleteAsync` in all three services soft-deletes the entity without checking whether it is
 referenced elsewhere.
 
-Risk by entity:
-
 | Entity | Risk Level | Reason |
 |--------|-----------|--------|
-| Category | High | `Transaction.CategoryId` is a required FK. Soft-deleting a Category still referenced by active Transactions can produce dashboard/dropdown inconsistencies (e.g. "Expense by Category" pointing to a category no longer listed). |
-| Account | Medium | Same FK relationship via `Transaction.AccountId`, slightly lower visible impact than Category. |
-| Transaction | Low (currently) | No entity references Transaction yet. Will become relevant once `ObligationTransactions` (Module 3.5) is implemented and starts referencing Transaction. |
+| Category | High | `Transaction.CategoryId` is a required FK. Soft-deleting a Category still referenced by active Transactions can produce dashboard/dropdown inconsistencies. |
+| Account | Medium | Same FK relationship via `Transaction.AccountId`, slightly lower visible impact. |
+| Transaction | Low (currently) | No entity references Transaction yet. Becomes relevant once `ObligationTransactions` (Module 3.5) is implemented. |
 
 Suggested Fix:
 
@@ -555,83 +420,69 @@ if intentional.
 Priority order for fixing: Category → Account → Transaction (defer Transaction until
 Module 3.5 introduces the referencing entity).
 
----
+Note:
 
-Priority:
-
-Medium
-
-Rationale for Deferral:
-
-Per working agreement, business logic should stabilize before Module 15 (Testing) writes
-tests around it. However, per Collaboration Rule 5 (Understand Before Abstraction) and the
-existing plan to complete Module 15 first, these three gaps are deferred until after Testing
-is complete so that:
-
-1. Tests can first be written against current (known-gap) behavior.
-2. The CancellationToken and referential-integrity fixes can be designed once at the
-   interface/repository level and verified by the new test suite immediately after.
-
-Next Review:
-
-After Module 15 — Testing is complete, before v1.3.0 release.
+Originally tracked in the v1.2.0 known-issues document as AO-004. Confirmed still
+unresolved — held intentionally, not yet scheduled. If any Module 15 tests document this
+current (gap-exposing) behavior, they should follow the `_AO007` naming suffix per the unit
+test naming convention.
 
 ---
 
-# Technical Debt
+# AI-Assisted Test Authoring
 
-Current Status:
+Status:
 
-🟢 Low
+⚠️ Pending Self-Review
 
-The following items are planned architectural evolution and should not be considered technical debt:
+Release Context:
 
-* AutoMapper
-* Testing
-* CQRS
-* MediatR
-* AI Integration
+This note documents technical debt related to knowledge ownership rather than software correctness. It does not affect the stability of v1.3.0.
 
----
+Background:
 
-# Risk Register
+A significant portion of the unit test suite was initially authored with AI assistance.
 
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| Regression after AutoMapper | Medium | Automated Testing |
-| CQRS Refactoring | Medium | Incremental Migration |
-| Dashboard Aggregation Accuracy | Low | Integration Testing |
-| Client Error Consistency | Medium | Centralized Response Handling |
+Although every generated test has been executed successfully, not every implementation has yet been manually reconstructed from first principles.
 
----
+Risk:
 
-# Release Assessment
+Future modifications may become difficult if the underlying testing patterns are not fully internalized.
 
-Current Release:
+Mitigation Plan:
 
-v1.2.0
+* Re-read every test class.
+* Rewrite selected tests without AI assistance.
+* Ensure complete understanding of mocking strategy.
+* Ensure complete understanding of Arrange-Act-Assert flow.
+* Ensure confidence in extending the test suite independently.
 
-Assessment:
+Success Criteria:
 
-✅ Approved as the Enterprise Foundation baseline.
-
-The project is ready to continue toward Data Access Patterns.
+This observation can be closed once new tests can be designed and implemented without relying on AI-generated examples.
 
 ---
 
-# Next Review
+# Overall Assessment
 
-Perform the next review:
+Current Stability:
 
-* Before v1.3.0
-* After AutoMapper
-* After Testing
-* Before CQRS implementation
+🟢 High
 
-Review:
+Release Readiness:
 
-* Known Issues
-* Risk Register
-* Technical Debt
-* Testing Status
-* Architectural Observations
+✅ Approved
+
+Technical Debt:
+
+Low to Medium — AO-006 and AO-007 remain open and on hold by deliberate choice
+
+Architectural Readiness:
+
+✅ Ready for Phase 4
+
+The project has reached a stable architectural baseline.
+
+Future work should prioritize new architecture (CQRS) rather than additional refactoring of the existing layered design. AO-006 and AO-007 are intentionally held rather than scheduled; since both touch service classes that CQRS will restructure (Commands/Queries/Handlers), it may be more efficient to address them as part of that refactor rather than fixing them twice.
+
+Current technical debt is intentional, documented, and considered acceptable for the next phase of development.

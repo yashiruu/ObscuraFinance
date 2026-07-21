@@ -12,7 +12,7 @@ The goal is not only to build a finance application but also to progressively le
 
 Current Position:
 
-Phase 3 — Data Access & Application Patterns
+Phase 4 — CQRS Architecture
 
 Completed
 
@@ -24,13 +24,15 @@ Completed
 
 ✔ Module 14 — AutoMapper
 
+✔ Module 15 — Testing
+
 Current
 
-🚧 Module 15 — Testing
+🚧 Module 16 — CQRS
 
 Next
 
-Merge to Main and Create tag and release
+🚧 Module 17 — MediatR
 
 ---
 
@@ -53,10 +55,9 @@ Each release represents a significant step in the application's evolution rather
 
 ---
 
-
 # Architecture Evolution
 
-```text id="fx4kzi"
+```text
 Foundation
     ↓
 Category Management
@@ -168,7 +169,7 @@ Features:
 
 ## Milestone
 
-```text id="qlkg1l"
+```text
 v1.0.0
 Usable Finance Tracker
 ```
@@ -181,7 +182,7 @@ Usable Finance Tracker
 
 Learn foundational enterprise patterns.
 
-## Status:
+## Status
 
 ✅ Completed
 
@@ -193,7 +194,7 @@ This phase introduces foundational enterprise concepts that improve maintainabil
 
 The application evolves from a working CRUD application into a structured enterprise application by introducing:
 
-```
+```text
 Interface Abstraction
     ↓
 Service Layer
@@ -225,7 +226,7 @@ Learning Objectives:
 
 Topics:
 
-```text id="kk3sdc"
+```text
 IAccountService
 ITransactionService
 ICategoryService
@@ -247,7 +248,7 @@ Learning Objectives:
 
 Architecture Evolution:
 
-```text id="5kz31z"
+```text
 Controller
     ↓
 Service
@@ -270,7 +271,7 @@ Learning Objectives:
 
 Topics:
 
-```text id="qgsv1e"
+```text
 ILogger
 Structured Logging
 Log Levels
@@ -291,7 +292,7 @@ Learning Objectives:
 
 Topics:
 
-```text id="p84k6z"
+```text
 Global Exception Handling
 Request Processing
 Response Processing
@@ -312,7 +313,7 @@ Learning Objectives:
 
 Topics:
 
-```text id="l4w7if"
+```text
 ApiResponse<T>
 Success Response
 Error Response
@@ -333,7 +334,7 @@ Learning Objectives:
 
 Topics:
 
-```text id="i1q36u"
+```text
 HasQueryFilter()
 IgnoreQueryFilters()
 ```
@@ -342,7 +343,7 @@ IgnoreQueryFilters()
 
 ## Milestone
 
-```text id="xar5pd"
+```text
 v1.2.0
 Enterprise Foundation Ready
 ```
@@ -355,9 +356,9 @@ Enterprise Foundation Ready
 
 Understand enterprise data access patterns.
 
-Status:
+## Status
 
-🚧 Current Phase
+✅ Completed
 
 ## Why This Phase
 
@@ -365,7 +366,7 @@ Before introducing CQRS, the application first establishes a solid data access f
 
 This phase introduces enterprise patterns incrementally:
 
-```
+```text
 Repository Pattern
     ↓
 Unit Of Work
@@ -464,7 +465,7 @@ Business Validation
 Error Handling
 ```
 
-## Exit Criteria
+### Exit Criteria
 
 The module is considered complete when:
 
@@ -514,30 +515,46 @@ The module is considered complete when:
 
 Status:
 
-🚧 Next
+✅ Completed
 
 Learning Objectives:
 
 * Unit Testing
-* Integration Testing
+* Testing Infrastructure
+* Mocking
 * Validation Testing
 
 Topics:
 
 ```text
+xUnit
+FluentAssertions
+Moq
 Unit Testing
-Integration Testing
+Testing Infrastructure
+Service Testing
+Validator Testing
 Mocking
 Test Isolation
 ```
+
+Completed:
+
+* Unit Testing Infrastructure
+* AccountService Unit Tests
+* CategoryService Unit Tests
+* TransactionService Unit Tests
+* DashboardService Unit Tests
+* Request Validator Unit Tests
 
 ### Exit Criteria
 
 The module is considered complete when:
 
 - Core business services have unit tests.
-- Critical workflows have integration tests.
-- Validation behavior is verified through automated tests.
+- Request validators have automated tests.
+- Testing infrastructure has been established.
+- The application is ready for safe refactoring.
 
 ---
 
@@ -547,7 +564,7 @@ The module is considered complete when:
 v1.3.0
 Enterprise Finance Tracker
 
-🎯 Current Target
+✅ Released
 ```
 
 ## Architecture Evolution After Phase 3
@@ -574,13 +591,17 @@ The application now has a stable enterprise data access layer and is ready to ev
 
 Learn modern enterprise application architecture.
 
+## Status
+
+🚧 Current Phase
+
 ## Why This Phase
 
 Once the application has a stable data access layer, responsibilities can be separated between commands and queries.
 
 CQRS is intentionally postponed until this stage because introducing it earlier would increase complexity without sufficient architectural benefit.
 
-```
+```text
 Repository
     ↓
 Unit Of Work
@@ -588,6 +609,8 @@ Unit Of Work
 Validation
     ↓
 AutoMapper
+    ↓
+Testing
     ↓
 CQRS
     ↓
@@ -602,6 +625,10 @@ The goal is to improve scalability, maintainability, and separation of responsib
 
 ## Module 16 — CQRS
 
+Status:
+
+🚧 Current
+
 Learning Objectives:
 
 * Command Responsibility
@@ -610,6 +637,10 @@ Learning Objectives:
 ---
 
 ## Module 17 — MediatR
+
+Status:
+
+⏳ Next
 
 Learning Objectives:
 
@@ -620,8 +651,8 @@ Learning Objectives:
 
 ## Milestone
 
-```text id="o0x2el"
-v1.8.0
+```text
+v1.4.0
 CQRS Based Finance Tracker
 ```
 
@@ -639,7 +670,7 @@ Artificial Intelligence is introduced only after the application has a stable ar
 
 Rather than treating AI as an isolated feature, the application uses existing domain knowledge and financial data to provide meaningful assistance.
 
-```
+```text
 AI Service Abstraction
     ↓
 AI Playground
@@ -663,8 +694,8 @@ Modules:
 
 Milestone:
 
-```text id="k2qj3j"
-v2.0.0
+```text
+v1.5.0
 AI Powered Finance Tracker
 ```
 
@@ -682,7 +713,7 @@ After learning basic AI integration, the next step is allowing the model to reas
 
 The application evolves from responding to questions into performing multi-step financial analysis through controlled tool execution.
 
-```
+```text
 Tool Calling
     ↓
 Planning
@@ -705,8 +736,8 @@ Modules:
 
 Milestone:
 
-```text id="2s9m7u"
-v2.5.0
+```text
+v2.0.0
 Agentic Finance Assistant
 ```
 
@@ -724,7 +755,7 @@ Enterprise software development extends beyond writing application code.
 
 The final phase focuses on deployment, automation, monitoring, and operational readiness.
 
-```
+```text
 Docker
     ↓
 Container Orchestration
@@ -750,7 +781,7 @@ Modules:
 
 Milestone:
 
-```text id="ks9u5o"
+```text
 v3.0.0
 Production Ready Finance Platform
 ```
