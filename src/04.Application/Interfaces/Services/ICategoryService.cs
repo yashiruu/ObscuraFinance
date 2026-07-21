@@ -2,7 +2,7 @@
 using Obscura.FinanceTracker.Application.DTOs.Categories.Responses;
 using Obscura.FinanceTracker.Domain.Enums;
 
-namespace Obscura.FinanceTracker.Application.Interfaces
+namespace Obscura.FinanceTracker.Application.Interfaces.Services
 {
     public interface ICategoryService
     {

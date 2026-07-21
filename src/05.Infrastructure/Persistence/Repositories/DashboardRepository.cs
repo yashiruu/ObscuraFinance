@@ -1,27 +1,20 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Obscura.FinanceTracker.Application.DTOs.Dashboard.Responses;
-using Obscura.FinanceTracker.Application.Interfaces;
+using Obscura.FinanceTracker.Application.Interfaces.Repositories;
 using Obscura.FinanceTracker.Domain.Enums;
-using Obscura.FinanceTracker.Infrastructure.Persistence;
 
-namespace Obscura.FinanceTracker.Infrastructure.Services
+namespace Obscura.FinanceTracker.Infrastructure.Persistence.Repositories
 {
-    public class DashboardService : IDashboardService
+    public class DashboardRepository : IDashboardRepository
     {
         private readonly AppDbContext _context;
-        private readonly ILogger<DashboardService> _logger;
 
-        public DashboardService(AppDbContext context, ILogger<DashboardService> logger)
+        public DashboardRepository(AppDbContext context)
         {
             _context = context;
-            _logger = logger;
         }
-
-        public async Task<DashboardSummaryResponse> GetDashboardSummaryAsync(CancellationToken cancellationToken)
+        public async Task<DashboardSummaryResponse> GetDashboardSummaryAsync()
         {
-            _logger.LogInformation("Retrieving dashboard summary");
-
             // Query for Summary Card
             var totalIncome = await _context.Transactions
                 .Where(t => t.Type == TransactionType.Income && !t.IsDeleted)
@@ -82,12 +75,6 @@ namespace Obscura.FinanceTracker.Infrastructure.Services
                     Balance = a.CurrentBalance
                 })
                 .ToListAsync();
-
-            _logger.LogInformation(
-                "Dashboard summary retrieved successfully. Income: {TotalIncome}, Expense: {TotalExpense}, Transactions: {TotalTransaction}",
-                totalIncome,
-                totalExpense,
-                totalTransaction);
 
             return new DashboardSummaryResponse
             {

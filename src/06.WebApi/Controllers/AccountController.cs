@@ -1,14 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Obscura.FinanceTracker.Application.Accounts.DTOs;
+﻿using Asp.Versioning;
+using Microsoft.AspNetCore.Mvc;
 using Obscura.FinanceTracker.Application.Common.Responses;
 using Obscura.FinanceTracker.Application.DTOs.Accounts.Requests;
 using Obscura.FinanceTracker.Application.DTOs.Accounts.Responses;
-using Obscura.FinanceTracker.Application.Interfaces;
+using Obscura.FinanceTracker.Application.Interfaces.Services;
 
 namespace Obscura.FinanceTracker.WebApi.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     public class AccountController : ControllerBase
     {
         private readonly IAccountService _accountService;
@@ -23,12 +24,7 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
         {
             var accounts = await _accountService.GetAllAsync(cancellationToken);
 
-            return Ok(new ApiResponse<IEnumerable<AccountListResponse>>
-            {
-                Success = true,
-                Message = "Accounts retrieved successfully",
-                Data = accounts
-            });
+            return Ok(ApiResponse<IEnumerable<AccountListResponse>>.SuccessResponse(accounts, "Accounts retrieved successfully"));
         }
 
         [HttpGet("{id:guid}")]
@@ -36,12 +32,7 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
         {
             var account = await _accountService.GetByIdAsync(id, cancellationToken);
 
-            return Ok(new ApiResponse<AccountDetailResponse>
-            {
-                Success = true,
-                Message = "Account retrieved successfully",
-                Data = account
-            });
+            return Ok(ApiResponse<AccountDetailResponse>.SuccessResponse(account, "Account retrieved successfully"));
         }
 
         [HttpPost]
@@ -49,12 +40,7 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
         {
             var account = await _accountService.CreateAsync(request, cancellationToken);
 
-            return CreatedAtAction(nameof(GetById), new { id = account.Id }, new ApiResponse<AccountDetailResponse>
-            {
-                Success = true,
-                Message = "Account created successfully",
-                Data = account
-            });
+            return CreatedAtAction(nameof(GetById), new { id = account.Id }, ApiResponse<AccountDetailResponse>.SuccessResponse(account, "Account created successfully"));
         }
 
         [HttpPut("{id:guid}")]

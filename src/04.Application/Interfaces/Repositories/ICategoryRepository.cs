@@ -1,0 +1,12 @@
+﻿using Obscura.FinanceTracker.Domain.Entities;
+using Obscura.FinanceTracker.Domain.Enums;
+
+namespace Obscura.FinanceTracker.Application.Interfaces.Repositories
+{
+    public interface ICategoryRepository : IRepository<Category>
+    {
+        Task<IReadOnlyList<Category>> GetAllByTypeAsync(TransactionType type);
+        Task<IReadOnlyList<Category>> GetAllDeletedAsync();
+        Task<bool> IsNameTakenAsync(string name, Guid? excludeId = null);
+    }
+}

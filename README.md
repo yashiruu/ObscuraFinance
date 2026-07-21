@@ -2,8 +2,8 @@
 
 Personal Finance Tracker built with ASP.NET Core, Blazor, EF Core, and SQL Server as a long-term learning project focused on enterprise software engineering.
 
-![Version](https://img.shields.io/badge/Version-v1.2.0-blue)
-![Release](https://img.shields.io/badge/Release-v1.2.0-success)
+![Version](https://img.shields.io/badge/Version-v1.3.0-blue)
+![Release](https://img.shields.io/badge/Release-v1.3.0-success)
 
 ![Architecture](https://img.shields.io/badge/Architecture-Clean_Architecture-success)
 ![Learning](https://img.shields.io/badge/Learning-Enterprise_.NET-blue)
@@ -20,31 +20,43 @@ Personal Finance Tracker built with ASP.NET Core, Blazor, EF Core, and SQL Serve
 
 ## Latest Release
 
-**v1.2.0 — Enterprise Foundation**
+**v1.3.0 — Data Access & Application Patterns**
 
 Completed:
 
-* ✅ Interface Layer 
-* ✅ Service Layer 
-* ✅ Structured Logging 
-* ✅ Global Exception Middleware 
-* ✅ Response Standardization 
-* ✅ Global Query Filter
+* ✅ Repository Pattern
+* ✅ Unit Of Work
+* ✅ FluentValidation
+* ✅ AutoMapper
+* ✅ Testing Infrastructure (xUnit, FluentAssertions, Moq)
+* ✅ AccountService, CategoryService, TransactionService, DashboardService Unit Tests
+* ✅ Request Validator Unit Tests
 
-This release establishes the enterprise foundation of the application and prepares the codebase for Repository Pattern, Unit Of Work, Validation, and CQRS. 
-Next Phase: 
-* 🚧 Data Access Patterns (v1.5.0)
+This release establishes a stable data access and application layer, backed by a comprehensive automated unit test suite, and prepares the codebase for CQRS.
+
+Current Development
+
+* 🚧 Phase 4 — CQRS Architecture
+
+Current Module:
+* 🚧 Module 16 — CQRS
+
+Next Module:
+* ⏳ Module 17 — MediatR
+
+Next Phase:
+* ⏳ AI Integration (v1.5.0)
 
 ---
 
 ## Release History
 
-| Version | Status   | Description            |
-| ------- | -------- | ---------------------- |
-| v1.2.0  | Latest   | Enterprise Foundation |
-| v1.1.0  | Previous | Release Stabilization  |
-| v1.0.0  | Previous | Usable Finance Tracker |
-
+| Version | Status   | Description                        |
+| ------- | -------- | ----------------------------------- |
+| v1.3.0  | Latest   | Data Access & Application Patterns |
+| v1.2.0  | Previous | Enterprise Foundation               |
+| v1.1.0  | Previous | Release Stabilization               |
+| v1.0.0  | Previous | Usable Finance Tracker              |
 
 ---
 
@@ -72,6 +84,9 @@ This project is used to learn and practice:
 * Service Layer
 * Repository Pattern
 * Unit Of Work
+* Validation
+* AutoMapper
+* Testing
 * CQRS
 * MediatR
 * AI Integration
@@ -83,20 +98,21 @@ This project is used to learn and practice:
 
 ### 🏁 Completed
 
-* Foundation 
-* Category Management 
-* Account Management 
-* Transaction Management 
-* Dashboard V1 
+* Foundation
+* Category Management
+* Account Management
+* Transaction Management
+* Dashboard V1
 * Enterprise Foundation
+* Data Access & Application Patterns (Repository Pattern, Unit Of Work, Validation, AutoMapper, Testing)
 
 ### 🔄️ In Progress / Current Focus
 
-* Data Access Patterns
+* Module 16 — CQRS
 
 ### 💡 Planned
 
-* CQRS Architecture
+* Module 17 — MediatR
 * AI Integration
 * Agentic AI
 * DevOps & Deployment
@@ -105,31 +121,33 @@ This project is used to learn and practice:
 
 ## ✨ Features
 
-| Feature                | Status |
-| ---------------------- | ------ |
-| Category Management    | ✅    |
-| Account Management     | ✅    |
-| Transaction Management | ✅    |
-| Dashboard V1           | ✅    |
-| Enterprise Foundation  | ✅    |
-| Data Access Patterns   | 🚧    |
-| CQRS                   | ⏳    |
-| AI Integration         | ⏳    |
+| Feature                 | Status |
+| ------------------------ | ------ |
+| Category Management      | ✅    |
+| Account Management       | ✅    |
+| Transaction Management   | ✅    |
+| Dashboard V1              | ✅    |
+| Enterprise Foundation     | ✅    |
+| Data Access Patterns      | ✅    |
+| Automated Unit Testing    | ✅    |
+| CQRS                      | 🚧    |
+| AI Integration            | ⏳    |
 
 ---
 
 ## 🛠 Tech Stack
 
 | Area           | Technology                    |
-| -------------- | ----------------------------- |
+| -------------- | ------------------------------ |
 | Backend        | ASP.NET Core Web API          |
 | Frontend       | Blazor Server                 |
 | ORM            | Entity Framework Core 8       |
 | Database       | SQL Server                    |
 | Architecture   | Simplified Clean Architecture |
+| Testing        | xUnit, Moq, FluentAssertions  |
 | SDK            | .NET 8 LTS                    |
 | IDE            | Visual Studio 2022            |
-| Source Control | Git                           |
+| Source Control | Git                            |
 
 ---
 
@@ -163,21 +181,24 @@ src/
  ├── 06.WebApi          → API endpoints
  ├── 07.Client          → API communication
  └── 08.Bsui            → User interface
+
+tests/
+ └── ObscuraFinance.Application.UnitTest
 ```
 
 ---
 
 ## 🗺 Roadmap
 
-| Phase                              | Status      |
-| ---------------------------------- | ----------- |
-| Phase 1 — Core Finance Application | ✅ Completed |
-| Phase 2 — Enterprise Foundation    | ✅ Completed |
-| Phase 3 — Data Access Patterns     | 🚧 Current   |
-| Phase 4 — CQRS Architecture        | ⏳ Planned   |
-| Phase 5 — AI Integration           | ⏳ Planned   |
-| Phase 6 — Agentic AI               | ⏳ Planned   |
-| Phase 7 — DevOps & Deployment      | ⏳ Planned   |
+| Phase                                       | Status      |
+| -------------------------------------------- | ----------- |
+| Phase 1 — Core Finance Application           | ✅ Completed |
+| Phase 2 — Enterprise Foundation              | ✅ Completed |
+| Phase 3 — Data Access & Application Patterns | ✅ Completed |
+| Phase 4 — CQRS Architecture                  | 🚧 Current   |
+| Phase 5 — AI Integration                     | ⏳ Planned   |
+| Phase 6 — Agentic AI                         | ⏳ Planned   |
+| Phase 7 — DevOps & Deployment                | ⏳ Planned   |
 
 ---
 
@@ -202,6 +223,7 @@ docs/
 ## 🌱 Development Principles
 
 * Focus on understanding software engineering deeply
+* Learn before abstracting.
 * Learn architecture incrementally
 * Avoid premature abstraction
 * Prioritize maintainability over complexity
@@ -229,6 +251,8 @@ Finance Tracker
     ↓
 Enterprise Patterns
     ↓
+Data Access Patterns
+    ↓
 CQRS
     ↓
 AI Integration
@@ -242,29 +266,28 @@ Production Platform
 
 ## 🔮 Future Direction
 
-### v1.5.0 — Data Access Patterns
+### v1.4.0 — CQRS Architecture
+
+* CQRS (Commands / Queries)
+* MediatR
+* Request Handlers
+* Pipeline Behaviors
+
+### v1.5.0 — AI Integration
+
+* AI Service Abstraction
+* AI Playground
+* Finance Assistant
+* Context Injection
+* Finance Insights Engine
+
+### Recently Completed — v1.3.0 Data Access & Application Patterns
 
 * Repository Pattern
 * Unit Of Work
-* Validation
+* FluentValidation
 * AutoMapper
-* Testing
-
-### v1.8.0 — CQRS Architecture
-
-* CQRS
-* MediatR
-
-Optionally add:
-
-### Recently Completed — v1.2.0 Enterprise Foundation
-
-* Interface Abstraction
-* Service Layer
-* Structured Logging
-* Global Exception Middleware
-* Standardized API Responses
-* Global Query Filters
+* Automated Unit Testing (Services + Validators)
 
 ---
 

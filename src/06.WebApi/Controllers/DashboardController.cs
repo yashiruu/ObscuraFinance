@@ -1,12 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Asp.Versioning;
+using Microsoft.AspNetCore.Mvc;
 using Obscura.FinanceTracker.Application.Common.Responses;
 using Obscura.FinanceTracker.Application.DTOs.Dashboard.Responses;
-using Obscura.FinanceTracker.Application.Interfaces;
+using Obscura.FinanceTracker.Application.Interfaces.Services;
 
 namespace Obscura.FinanceTracker.WebApi.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     public class DashboardController : ControllerBase
     {
         private readonly IDashboardService _dashboardService;

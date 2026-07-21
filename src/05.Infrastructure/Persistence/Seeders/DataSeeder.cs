@@ -1,4 +1,6 @@
-﻿namespace Obscura.FinanceTracker.Infrastructure.Persistence.Seeders;
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace Obscura.FinanceTracker.Infrastructure.Persistence.Seeders;
 
 public static class DataSeeder
 {
@@ -18,11 +20,11 @@ public static class DataSeeder
 
     private static async Task ResetDataAsync(AppDbContext dbContext)
     {
-        dbContext.Transactions.RemoveRange(dbContext.Transactions);
+        dbContext.Transactions.RemoveRange(dbContext.Transactions.IgnoreQueryFilters());
 
-        dbContext.Accounts.RemoveRange(dbContext.Accounts);
+        dbContext.Accounts.RemoveRange(dbContext.Accounts.IgnoreQueryFilters());
 
-        dbContext.Categories.RemoveRange(dbContext.Categories);
+        dbContext.Categories.RemoveRange(dbContext.Categories.IgnoreQueryFilters());
 
         await dbContext.SaveChangesAsync();
     }
