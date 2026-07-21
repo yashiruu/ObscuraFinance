@@ -1,10 +1,15 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+	<Project Sdk="Microsoft.NET.Sdk.Web">
 
 	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>
 
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
+
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+		<!--Comment this to show warnings for missing XML comments in the code. This is useful for generating API documentation.-->
+		<NoWarn>$(NoWarn);1591</NoWarn>
 
 		<RootNamespace>Obscura.FinanceTracker.WebApi</RootNamespace>
 		<AssemblyName>Obscura.FinanceTracker.WebApi</AssemblyName>
