@@ -22,23 +22,19 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
         /// <summary>
         /// Initializes a new instance of the <see cref="DashboardController"/> class.
         /// </summary>
-        /// <param name="dashboardService">The dashboard service.</param>
         public DashboardController(IDashboardService dashboardService)
         {
             _dashboardService = dashboardService;
         }
 
         /// <summary>
-        /// Retrieves the financial dashboard summary, including total balances, recent transactions, and expense statistics.
+        /// Retrieves the financial dashboard summary: total balances, recent transactions, and expense statistics.
         /// </summary>
-        /// <param name="cancellationToken">The cancellation token to observe while waiting for the task to complete.</param>
-        /// <returns>An API response containing the dashboard summary data.</returns>
+        /// <param name="cancellationToken">The cancellation token.</param>
         /// <response code="200">Returns the dashboard summary successfully.</response>
-        /// <response code="401">If the user is not authenticated or authorized.</response>
         /// <response code="500">If an unexpected internal server error occurs.</response>
         [HttpGet("summary")]
         [ProducesResponseType(typeof(ApiResponse<DashboardSummaryResponse>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<DashboardSummaryResponse>> GetDashboardSummary(CancellationToken cancellationToken)
         {
