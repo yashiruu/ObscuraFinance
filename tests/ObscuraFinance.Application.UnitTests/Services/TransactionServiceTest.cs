@@ -10,6 +10,8 @@ using Obscura.FinanceTracker.Application.Interfaces.Repositories;
 using Obscura.FinanceTracker.Application.Services;
 using Obscura.FinanceTracker.Domain.Entities;
 using Obscura.FinanceTracker.Domain.Enums;
+using Obscura.FinanceTracker.Shared.Exceptions;
+using Obscura.FinanceTracker.Shared.Models;
 using ObscuraFinance.Application.UnitTests.Base;
 using System.Linq.Expressions;
 
@@ -29,22 +31,26 @@ namespace ObscuraFinance.Application.UnitTests.Services
         public async Task GetAllAsync_Should_ReturnMappedList_When_TransactionsExist()
         {
             // Arrange
+            var request = new PagedRequest { PageNumber = 1, PageSize = 10 };
             var transactions = new List<Transaction> { new Transaction { Id = Guid.NewGuid(), Name = "Lunch" } };
             var expectedResponse = new List<TransactionListResponse> { new TransactionListResponse { Name = "Lunch" } };
+            var totalCount = 1;
 
             // Assuming TransactionService uses GetAllWithDetailAsync or GetAllAsync. We mock both just in case, 
             // but typical pattern uses GetWithDetails for Lists.
-            _transactionRepositoryMock.Setup(repo => repo.GetAllWithDetailAsync()).ReturnsAsync(transactions);
-            _transactionRepositoryMock.Setup(repo => repo.GetAllAsync()).ReturnsAsync(transactions);
+            //_transactionRepositoryMock.Setup(repo => repo.GetAllWithDetailAsync()).ReturnsAsync(transactions);
+            _transactionRepositoryMock.Setup(repo => repo.GetAllAsync(request.PageNumber, request.PageSize, It.IsAny<CancellationToken>()))
+                .ReturnsAsync((transactions, totalCount));
 
             _mapperMock.Setup(m => m.Map<IEnumerable<TransactionListResponse>>(transactions)).Returns(expectedResponse);
 
             // Act
-            var result = await _transactionService.GetAllAsync(CancellationToken.None);
+            var result = await _transactionService.GetAllAsync(request, CancellationToken.None);
 
             // Assert
             result.Should().NotBeNull();
-            result.Should().BeEquivalentTo(expectedResponse);
+            result.Items.Should().BeEquivalentTo(expectedResponse);
+            result.TotalCount.Should().Be(totalCount);
         }
 
         #endregion
@@ -91,8 +97,8 @@ namespace ObscuraFinance.Application.UnitTests.Services
             var act = async () => await _transactionService.GetByIdAsync(transactionId, CancellationToken.None);
 
             // Assert
-            await act.Should().ThrowAsync<KeyNotFoundException>()
-                .WithMessage($"*Transaction with '{transactionId}' was not found*");
+            await act.Should().ThrowAsync<NotFoundException>()
+                .WithMessage($"*{transactionId}*");
         }
 
         #endregion
@@ -149,8 +155,8 @@ namespace ObscuraFinance.Application.UnitTests.Services
             var act = () => _transactionService.CreateAsync(request, CancellationToken.None);
 
             // Assert
-            await act.Should().ThrowAsync<KeyNotFoundException>()
-                .WithMessage($"Account with `{request.AccountId}` was not found");
+            await act.Should().ThrowAsync<NotFoundException>()
+                .WithMessage($"*{request.AccountId}*");
 
             _transactionRepositoryMock.Verify(repo => repo.AddAsync(It.IsAny<Transaction>()), Times.Never);
             _unitOfWorkMock.Verify(uow => uow.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
@@ -180,8 +186,8 @@ namespace ObscuraFinance.Application.UnitTests.Services
             var act = () => _transactionService.CreateAsync(request, CancellationToken.None);
 
             // Assert
-            await act.Should().ThrowAsync<KeyNotFoundException>()
-                .WithMessage($"Category with `{request.CategoryId}` was not found");
+            await act.Should().ThrowAsync<NotFoundException>()
+                .WithMessage($"*{request.CategoryId}*");
 
             _transactionRepositoryMock.Verify(repo => repo.AddAsync(It.IsAny<Transaction>()), Times.Never);
             _unitOfWorkMock.Verify(uow => uow.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
@@ -229,8 +235,8 @@ namespace ObscuraFinance.Application.UnitTests.Services
             var act = async () => await _transactionService.UpdateAsync(transactionId, request, CancellationToken.None);
 
             // Assert
-            await act.Should().ThrowAsync<KeyNotFoundException>()
-                .WithMessage($"*Transaction with '{transactionId}' was not found*");
+            await act.Should().ThrowAsync<NotFoundException>()
+                .WithMessage($"*{transactionId}*");
         }
 
         #endregion
@@ -272,8 +278,8 @@ namespace ObscuraFinance.Application.UnitTests.Services
             var act = async () => await _transactionService.DeleteAsync(transactionId, CancellationToken.None);
 
             // Assert
-            await act.Should().ThrowAsync<KeyNotFoundException>()
-                .WithMessage($"*Transaction with '{transactionId}' was not found*");
+            await act.Should().ThrowAsync<NotFoundException>()
+                .WithMessage($"*{transactionId}*");
 
             _transactionRepositoryMock.Verify(repo => repo.Delete(It.IsAny<Transaction>()), Times.Never);
             _unitOfWorkMock.Verify(uow => uow.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
@@ -319,8 +325,8 @@ namespace ObscuraFinance.Application.UnitTests.Services
             var act = async () => await _transactionService.RestoreAsync(transactionId, CancellationToken.None);
 
             // Assert
-            await act.Should().ThrowAsync<KeyNotFoundException>()
-                .WithMessage($"*Transaction with '{transactionId}' was not found*");
+            await act.Should().ThrowAsync<NotFoundException>()
+                .WithMessage($"*{transactionId}*");
 
             _transactionRepositoryMock.Verify(repo => repo.Update(It.IsAny<Transaction>()), Times.Never);
             _unitOfWorkMock.Verify(uow => uow.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);

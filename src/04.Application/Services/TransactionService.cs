@@ -7,9 +7,11 @@ using Obscura.FinanceTracker.Application.Interfaces.Repositories;
 using Obscura.FinanceTracker.Application.Interfaces.Services;
 using Obscura.FinanceTracker.Domain.Entities;
 using Obscura.FinanceTracker.Shared.Exceptions;
+using Obscura.FinanceTracker.Shared.Models;
 
 namespace Obscura.FinanceTracker.Application.Services
 {
+    /// <inheritdoc cref="ITransactionService"/>
     public class TransactionService : ITransactionService
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -18,6 +20,9 @@ namespace Obscura.FinanceTracker.Application.Services
         private readonly ILogger<TransactionService> _logger;
         private readonly IMapper _mapper;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TransactionService"/> class.
+        /// </summary>
         public TransactionService(IUnitOfWork unitOfWork, IValidator<TransactionCreateRequest> createValidator, IValidator<TransactionUpdateRequest> updateValidator, ILogger<TransactionService> logger, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
@@ -27,17 +32,27 @@ namespace Obscura.FinanceTracker.Application.Services
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<TransactionListResponse>> GetAllAsync(CancellationToken cancellationToken)
+        /// <inheritdoc/>
+        public async Task<PagedResult<TransactionListResponse>> GetAllAsync(PagedRequest request, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("Retrieving transactions");
 
-            var transactions = await _unitOfWork.Transactions.GetAllWithDetailAsync();
+            var (transactions, totalCount) = await _unitOfWork.Transactions.GetAllAsync(request.PageNumber, request.PageSize, cancellationToken);
+
+            var dtos = _mapper.Map<IEnumerable<TransactionListResponse>>(transactions);
 
             _logger.LogInformation("Retrieved {Count} transactions", transactions.Count);
 
-            return _mapper.Map<IEnumerable<TransactionListResponse>>(transactions);
+            return new PagedResult<TransactionListResponse>
+            {
+                Items = dtos,
+                PageNumber = request.PageNumber,
+                PageSize = request.PageSize,
+                TotalCount = totalCount
+            };
         }
 
+        /// <inheritdoc/>
         public async Task<TransactionDetailResponse> GetByIdAsync(Guid id, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Retrieving transaction. TransactionId: {TransactionId}", id);
@@ -55,6 +70,7 @@ namespace Obscura.FinanceTracker.Application.Services
             return _mapper.Map<TransactionDetailResponse>(transaction);
         }
 
+        /// <inheritdoc/>
         public async Task<TransactionDetailResponse> CreateAsync(TransactionCreateRequest request, CancellationToken cancellationToken)
         {
             await _createValidator.ValidateAndThrowAsync(request, cancellationToken);
@@ -86,6 +102,7 @@ namespace Obscura.FinanceTracker.Application.Services
             return _mapper.Map<TransactionDetailResponse>(transaction);
         }
 
+        /// <inheritdoc/>
         public async Task UpdateAsync(Guid id, TransactionUpdateRequest request, CancellationToken cancellationToken)
         {
             await _updateValidator.ValidateAndThrowAsync(request, cancellationToken);
@@ -128,6 +145,7 @@ namespace Obscura.FinanceTracker.Application.Services
             _logger.LogInformation("Transaction updated successfully. TransactionId: {TransactionId}", id);
         }
 
+        /// <inheritdoc/>
         public async Task DeleteAsync(Guid id, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Deleting transaction. TransactionId: {TransactionId}", id);
@@ -146,6 +164,7 @@ namespace Obscura.FinanceTracker.Application.Services
             _logger.LogInformation("Transaction deleted successfully. TransactionId: {TransactionId}", id);
         }
 
+        /// <inheritdoc/>
         public async Task RestoreAsync(Guid id, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Restoring transaction. TransactionId: {TransactionId}", id);

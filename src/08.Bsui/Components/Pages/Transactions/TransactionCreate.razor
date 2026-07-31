@@ -159,13 +159,13 @@
         try
         {
             // Load accounts and categories in parallel before rendering the form
-            var accountsTask   = AccountClient.GetAllAsync();
-            var categoriesTask = CategoryClient.GetAllAsync();
+            var accountsTask   = AccountClient.GetAllAsync(pageSize: 50);
+            var categoriesTask = CategoryClient.GetAllAsync(pageSize: 50);
 
             await Task.WhenAll(accountsTask, categoriesTask);
 
-            _accounts      = await accountsTask    ?? new();
-            _allCategories = await categoriesTask  ?? new();
+            _accounts      = (await accountsTask).Items.ToList();
+            _allCategories = (await categoriesTask).Items.ToList();
             _filteredCategories = _allCategories;
         }
         catch (Exception)

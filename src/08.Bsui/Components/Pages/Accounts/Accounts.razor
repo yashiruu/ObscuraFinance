@@ -187,7 +187,7 @@
         _errorMessage = null;
         try
         {
-            _accounts = (await AccountClient.GetAllAsync()).ToList();
+            _accounts = (await AccountClient.GetAllAsync(pageSize: 50)).Items.ToList();
         }
         catch (Exception)
         {

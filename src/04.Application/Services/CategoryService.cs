@@ -8,9 +8,11 @@ using Obscura.FinanceTracker.Application.Interfaces.Services;
 using Obscura.FinanceTracker.Domain.Entities;
 using Obscura.FinanceTracker.Domain.Enums;
 using Obscura.FinanceTracker.Shared.Exceptions;
+using Obscura.FinanceTracker.Shared.Models;
 
 namespace Obscura.FinanceTracker.Application.Services
 {
+    /// <inheritdoc cref="ICategoryService"/>
     public class CategoryService : ICategoryService
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -19,6 +21,9 @@ namespace Obscura.FinanceTracker.Application.Services
         private readonly ILogger<CategoryService> _logger;
         private readonly IMapper _mapper;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CategoryService"/> class.
+        /// </summary>
         public CategoryService(IUnitOfWork unitOfWork, IValidator<CategoryCreateRequest> createValidator, IValidator<CategoryUpdateRequest> updateValidator, ILogger<CategoryService> logger, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
@@ -28,17 +33,25 @@ namespace Obscura.FinanceTracker.Application.Services
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<CategoryResponse>> GetAllAsync(CancellationToken cancellationToken)
+        /// <inheritdoc/>
+        public async Task<PagedResult<CategoryResponse>> GetAllAsync(PagedRequest request, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Retrieving all categories");
 
-            var categories = await _unitOfWork.Categories.GetAllAsync();
+            var (categories, totalCount) = await _unitOfWork.Categories.GetAllAsync(request.PageNumber, request.PageSize, cancellationToken);
 
             _logger.LogInformation("Retrieved {Count} categories", categories.Count);
 
-            return _mapper.Map<IEnumerable<CategoryResponse>>(categories);
+            return new PagedResult<CategoryResponse>
+            {
+                Items = _mapper.Map<IEnumerable<CategoryResponse>>(categories),
+                PageNumber = request.PageNumber,
+                PageSize = request.PageSize,
+                TotalCount = totalCount
+            };
         }
 
+        /// <inheritdoc/>
         public async Task<IEnumerable<CategoryResponse>> GetByTypeAsync(TransactionType type, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Retrieving categories by type. Type: {CategoryType}", type);
@@ -50,17 +63,25 @@ namespace Obscura.FinanceTracker.Application.Services
             return _mapper.Map<IEnumerable<CategoryResponse>>(categories);
         }
 
-        public async Task<IEnumerable<CategoryResponse>> GetDeletedAsync(CancellationToken cancellationToken)
+        /// <inheritdoc/>
+        public async Task<PagedResult<CategoryResponse>> GetDeletedAsync(PagedRequest request, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Retrieving deleted categories");
 
-            var categories = await _unitOfWork.Categories.GetAllDeletedAsync();
+            var (categories, totalCount) = await _unitOfWork.Categories.GetAllDeletedAsync(request.PageNumber, request.PageSize);
 
             _logger.LogInformation("Retrieved {Count} deleted categories", categories.Count);
 
-            return _mapper.Map<IEnumerable<CategoryResponse>>(categories);
+            return new PagedResult<CategoryResponse>
+            {
+                Items = _mapper.Map<IEnumerable<CategoryResponse>>(categories),
+                PageNumber = request.PageNumber,
+                PageSize = request.PageSize,
+                TotalCount = totalCount
+            };
         }
 
+        /// <inheritdoc/>
         public async Task<CategoryResponse> GetByIdAsync(Guid id, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Retrieving category. CategoryId: {CategoryId}", id);
@@ -78,6 +99,7 @@ namespace Obscura.FinanceTracker.Application.Services
             return _mapper.Map<CategoryResponse>(category);
         }
 
+        /// <inheritdoc/>
         public async Task<CategoryResponse> CreateAsync(CategoryCreateRequest request, CancellationToken cancellationToken)
         {
             await _createValidator.ValidateAndThrowAsync(request, cancellationToken);
@@ -102,6 +124,7 @@ namespace Obscura.FinanceTracker.Application.Services
             return _mapper.Map<CategoryResponse>(category);
         }
 
+        /// <inheritdoc/>
         public async Task UpdateAsync(Guid id, CategoryUpdateRequest request, CancellationToken cancellationToken)
         {
             await _updateValidator.ValidateAndThrowAsync(request, cancellationToken);
@@ -134,6 +157,7 @@ namespace Obscura.FinanceTracker.Application.Services
             _logger.LogInformation("Category updated successfully. CategoryId: {CategoryId}", id);
         }   
 
+        /// <inheritdoc/>
         public async Task DeleteAsync(Guid id, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Soft deleting category. CategoryId: {CategoryId}", id);
@@ -152,6 +176,7 @@ namespace Obscura.FinanceTracker.Application.Services
             _logger.LogInformation("Category deleted successfully. CategoryId: {CategoryId}", id);
         }
 
+        /// <inheritdoc/>
         public async Task RestoreAsync(Guid id, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Restoring category. CategoryId: {CategoryId}", id);

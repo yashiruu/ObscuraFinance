@@ -1,4 +1,4 @@
-﻿using Asp.Versioning;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Obscura.FinanceTracker.Application.Common.Responses;
@@ -6,6 +6,7 @@ using Obscura.FinanceTracker.Application.DTOs.Categories.Requests;
 using Obscura.FinanceTracker.Application.DTOs.Categories.Responses;
 using Obscura.FinanceTracker.Application.Interfaces.Services;
 using Obscura.FinanceTracker.Domain.Enums;
+using Obscura.FinanceTracker.Shared.Models;
 
 namespace Obscura.FinanceTracker.WebApi.Controllers
 {
@@ -20,36 +21,40 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
     {
         private readonly ICategoryService _categoryService;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CategoryController"/> class.
+        /// </summary>
         public CategoryController(ICategoryService categoryService)
         {
             _categoryService = categoryService;
         }
 
         /// <summary>
-        /// Retrieves all active categories.
+        /// Retrieves a paged list of active categories.
         /// </summary>
+        /// <param name="request">Pagination parameters (settable: <c>PageNumber</c>, <c>PageSize</c>).</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A list of category summaries.</returns>
-        /// <response code="200">Returns the list of categories successfully.</response>
+        /// <response code="200">Returns the paged list of categories.</response>
+        /// <response code="400">If the pagination parameters cannot be bound.</response>
         /// <response code="500">If an unexpected internal server error occurs.</response>
         [HttpGet]
-        [ProducesResponseType(typeof(ApiResponse<IEnumerable<CategoryResponse>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<PagedResult<CategoryResponse>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<IEnumerable<CategoryResponse>>> GetAll(CancellationToken cancellationToken)
+        public async Task<ActionResult<PagedResult<CategoryResponse>>> GetAll([FromQuery] PagedRequest request, CancellationToken cancellationToken)
         {
-            var categories = await _categoryService.GetAllAsync(cancellationToken);
+            var categories = await _categoryService.GetAllAsync(request, cancellationToken);
 
-            return Ok(ApiResponse<IEnumerable<CategoryResponse>>.SuccessResponse(categories, "Categories retrieved successfully"));
+            return Ok(ApiResponse<PagedResult<CategoryResponse>>.SuccessResponse(categories, "Categories retrieved successfully"));
         }
 
         /// <summary>
         /// Retrieves a specific category by its unique identifier.
         /// </summary>
-        /// <param name="id">The unique identifier of the category.</param>
+        /// <param name="id">The category id.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>Detailed information about the requested category.</returns>
         /// <response code="200">Returns the requested category.</response>
-        /// <response code="404">If the category with the specified ID does not exist.</response>
+        /// <response code="404">If the category does not exist.</response>
         /// <response code="500">If an unexpected internal server error occurs.</response>
         [HttpGet("{id:guid}")]
         [ProducesResponseType(typeof(ApiResponse<CategoryResponse>), StatusCodes.Status200OK)]
@@ -59,36 +64,35 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
         {
             var category = await _categoryService.GetByIdAsync(id, cancellationToken);
 
-            if (category == null) return NotFound();
-
             return Ok(ApiResponse<CategoryResponse>.SuccessResponse(category, "Category retrieved successfully"));
         }
 
         /// <summary>
-        /// Retrieves all soft-deleted categories.
+        /// Retrieves a paged list of soft-deleted categories.
         /// </summary>
+        /// <param name="request">Pagination parameters (settable: <c>PageNumber</c>, <c>PageSize</c>).</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A list of deleted category summaries.</returns>
-        /// <response code="200">Returns the list of deleted categories successfully.</response>
+        /// <response code="200">Returns the paged list of deleted categories.</response>
+        /// <response code="400">If the pagination parameters cannot be bound.</response>
         /// <response code="500">If an unexpected internal server error occurs.</response>
         [HttpGet("deleted")]
-        [ProducesResponseType(typeof(ApiResponse<IEnumerable<CategoryResponse>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<PagedResult<CategoryResponse>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<IEnumerable<CategoryResponse>>> GetDeleted(CancellationToken cancellationToken)
+        public async Task<ActionResult<PagedResult<CategoryResponse>>> GetDeleted([FromQuery] PagedRequest request, CancellationToken cancellationToken)
         {
-            var categories = await _categoryService.GetDeletedAsync(cancellationToken);
+            var categories = await _categoryService.GetDeletedAsync(request, cancellationToken);
 
-            return Ok(ApiResponse<IEnumerable<CategoryResponse>>.SuccessResponse(categories, "Deleted categories retrieved successfully"));
+            return Ok(ApiResponse<PagedResult<CategoryResponse>>.SuccessResponse(categories, "Deleted categories retrieved successfully"));
         }
 
         /// <summary>
         /// Creates a new category.
         /// </summary>
-        /// <param name="request">The data required to create a new category.</param>
+        /// <param name="request">The category data to create.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The newly created category details.</returns>
         /// <response code="201">Returns the newly created category.</response>
-        /// <response code="400">If the request data is invalid or if a category with the same name already exists.</response>
+        /// <response code="400">If the request is invalid or a category with the same name already exists.</response>
         /// <response code="500">If an unexpected internal server error occurs.</response>
         [HttpPost]
         [Consumes("application/json")]
@@ -105,13 +109,12 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
         /// <summary>
         /// Updates an existing category.
         /// </summary>
-        /// <param name="id">The unique identifier of the category to update.</param>
+        /// <param name="id">The id of the category to update.</param>
         /// <param name="request">The updated category data.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>No content on success.</returns>
         /// <response code="204">If the category was updated successfully.</response>
-        /// <response code="400">If the request data is invalid or if the new name conflicts with an existing category.</response>
-        /// <response code="404">If the category with the specified ID does not exist.</response>
+        /// <response code="400">If the request is invalid or the new name conflicts with an existing category.</response>
+        /// <response code="404">If the category does not exist.</response>
         /// <response code="500">If an unexpected internal server error occurs.</response>
         [HttpPut("{id:guid}")]
         [Consumes("application/json")]
@@ -129,11 +132,10 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
         /// <summary>
         /// Soft deletes a category by its unique identifier.
         /// </summary>
-        /// <param name="id">The unique identifier of the category to delete.</param>
+        /// <param name="id">The id of the category to delete.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>No content on success.</returns>
         /// <response code="204">If the category was deleted successfully.</response>
-        /// <response code="404">If the category with the specified ID does not exist.</response>
+        /// <response code="404">If the category does not exist.</response>
         /// <response code="500">If an unexpected internal server error occurs.</response>
         [HttpDelete("{id:guid}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -149,12 +151,11 @@ namespace Obscura.FinanceTracker.WebApi.Controllers
         /// <summary>
         /// Restores a previously soft-deleted category.
         /// </summary>
-        /// <param name="id">The unique identifier of the category to restore.</param>
+        /// <param name="id">The id of the category to restore.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>No content on success.</returns>
         /// <response code="204">If the category was restored successfully.</response>
-        /// <response code="400">If restoring the category causes a name duplication.</response>
-        /// <response code="404">If the category with the specified ID does not exist.</response>
+        /// <response code="400">If restoring the category causes a name conflict.</response>
+        /// <response code="404">If the category does not exist.</response>
         /// <response code="500">If an unexpected internal server error occurs.</response>
         [HttpPatch("{id:guid}/restore")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]

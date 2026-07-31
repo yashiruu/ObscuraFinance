@@ -7,9 +7,11 @@ using Obscura.FinanceTracker.Application.Interfaces.Repositories;
 using Obscura.FinanceTracker.Application.Interfaces.Services;
 using Obscura.FinanceTracker.Domain.Entities;
 using Obscura.FinanceTracker.Shared.Exceptions;
+using Obscura.FinanceTracker.Shared.Models;
 
 namespace Obscura.FinanceTracker.Application.Services
 {
+    /// <inheritdoc cref="IAccountService"/>
     public class AccountService : IAccountService
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -18,6 +20,9 @@ namespace Obscura.FinanceTracker.Application.Services
         private readonly ILogger<AccountService> _logger;
         private readonly IMapper _mapper;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AccountService"/> class.
+        /// </summary>
         public AccountService(IUnitOfWork unitOfWork, IValidator<AccountCreateRequest> createValidator, IValidator<AccountUpdateRequest> updateValidator, ILogger<AccountService> logger, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
@@ -27,16 +32,24 @@ namespace Obscura.FinanceTracker.Application.Services
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<AccountListResponse>> GetAllAsync(CancellationToken cancellationToken)
+        /// <inheritdoc/>
+        public async Task<PagedResult<AccountListResponse>> GetAllAsync(PagedRequest request, CancellationToken cancellationToken = default)
         {
             _logger.LogInformation("Retrieving all accounts");
 
-            var accounts = await _unitOfWork.Accounts.GetAllAsync();
+            var (accounts, totalCount) = await _unitOfWork.Accounts.GetAllAsync(request.PageNumber, request.PageSize, cancellationToken);
 
             _logger.LogInformation("Retrieved {Count} accounts", accounts.Count);
 
-            return _mapper.Map<IEnumerable<AccountListResponse>>(accounts);
+            return new PagedResult<AccountListResponse>
+            {
+                Items = _mapper.Map<IEnumerable<AccountListResponse>>(accounts),
+                PageNumber = request.PageNumber,
+                PageSize = request.PageSize,
+                TotalCount = totalCount
+            };
         }
+        /// <inheritdoc/>
         public async Task<AccountDetailResponse> GetByIdAsync(Guid id, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Retrieving account. AccountId: {AccountId}", id);
@@ -53,6 +66,7 @@ namespace Obscura.FinanceTracker.Application.Services
 
             return _mapper.Map<AccountDetailResponse>(account);
         }
+        /// <inheritdoc/>
         public async Task<AccountDetailResponse> CreateAsync(AccountCreateRequest request, CancellationToken cancellationToken)
         {
             await _createValidator.ValidateAndThrowAsync(request, cancellationToken);
@@ -76,6 +90,7 @@ namespace Obscura.FinanceTracker.Application.Services
 
             return _mapper.Map<AccountDetailResponse>(account);
         }
+        /// <inheritdoc/>
         public async Task UpdateAsync(Guid id, AccountUpdateRequest request, CancellationToken cancellationToken)
         {
             await _updateValidator.ValidateAndThrowAsync(request, cancellationToken);
@@ -108,6 +123,7 @@ namespace Obscura.FinanceTracker.Application.Services
 
             _logger.LogInformation("Account updated successfully. AccountId: {AccountId}", id);
         }
+        /// <inheritdoc/>
         public async Task DeleteAsync(Guid id, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Soft deleting account. AccountId: {AccountId}", id);
@@ -125,6 +141,7 @@ namespace Obscura.FinanceTracker.Application.Services
 
             _logger.LogInformation("Account soft deleted successfully. AccountId: {AccountId}", id);
         }
+        /// <inheritdoc/>
         public async Task RestoreAsync(Guid id, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Restoring account. AccountId: {AccountId}", id);

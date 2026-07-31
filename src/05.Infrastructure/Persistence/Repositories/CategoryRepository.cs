@@ -17,12 +17,20 @@ namespace Obscura.FinanceTracker.Infrastructure.Persistence.Repositories
                 .ToListAsync();
         }
 
-        public async Task<IReadOnlyList<Category>> GetAllDeletedAsync()
+        public async Task<(IReadOnlyList<Category> Items, int TotalCount)> GetAllDeletedAsync(int pageNumber, int pageSize)
         {
-            return await _dbSet
-                .IgnoreQueryFilters()
-                .Where(c => c.IsDeleted)
+            var query = _dbSet.IgnoreQueryFilters().Where(c => c.IsDeleted);
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .OrderBy(c => c.DeletedAt)
+                .ThenBy(c => c.Id)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
+
+            return (items, totalCount);
         }
 
         public async Task<bool> IsNameTakenAsync(string name, Guid? excludeId = null)

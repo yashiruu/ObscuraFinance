@@ -170,14 +170,14 @@
         {
             // Load transaction, accounts, and categories in parallel
             var transactionTask = TransactionClient.GetByIdAsync(Id);
-            var accountsTask    = AccountClient.GetAllAsync();
-            var categoriesTask  = CategoryClient.GetAllAsync();
+            var accountsTask    = AccountClient.GetAllAsync(pageSize: 50);
+            var categoriesTask  = CategoryClient.GetAllAsync(pageSize: 50);
 
             await Task.WhenAll(transactionTask, accountsTask, categoriesTask);
 
             var transaction = transactionTask.Result;
-            var accounts = accountsTask.Result ?? new();
-            var allCategories = categoriesTask.Result ?? new();
+            var accounts = accountsTask.Result.Items.ToList();
+            var allCategories = categoriesTask.Result.Items.ToList();
 
             if (transaction is null) { _notFound = true; return; }
 

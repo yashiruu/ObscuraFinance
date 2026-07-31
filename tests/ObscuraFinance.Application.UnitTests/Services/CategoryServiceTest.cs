@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using FluentAssertions;
 using FluentValidation;
 using FluentValidation.Results;
@@ -15,7 +11,12 @@ using Obscura.FinanceTracker.Application.Services;
 using Obscura.FinanceTracker.Domain.Entities;
 using Obscura.FinanceTracker.Domain.Enums;
 using Obscura.FinanceTracker.Shared.Exceptions;
+using Obscura.FinanceTracker.Shared.Models;
 using ObscuraFinance.Application.UnitTests.Base;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace ObscuraFinance.Application.UnitTests.Services
@@ -34,19 +35,24 @@ namespace ObscuraFinance.Application.UnitTests.Services
         public async Task GetAllAsync_Should_ReturnMappedList_When_CategoriesExist()
         {
             // Arrange
+            var request = new PagedRequest { PageNumber = 1, PageSize = 10 };
             var categories = new List<Category> { new Category { Id = Guid.NewGuid(), Name = "Salary" } };
             var expectedResponse = new List<CategoryResponse> { new CategoryResponse { Name = "Salary" } };
+            var totalCount = 1;
 
-            _categoryRepositoryMock.Setup(repo => repo.GetAllAsync()).ReturnsAsync(categories);
+            _categoryRepositoryMock.Setup(repo => repo.GetAllAsync(request.PageNumber, request.PageSize, It.IsAny<CancellationToken>()))
+                .ReturnsAsync((categories, totalCount));
+
             _mapperMock.Setup(m => m.Map<IEnumerable<CategoryResponse>>(categories)).Returns(expectedResponse);
 
             // Act
-            var result = await _categoryService.GetAllAsync(CancellationToken.None);
+            var result = await _categoryService.GetAllAsync(request, CancellationToken.None);
 
             // Assert
             result.Should().NotBeNull();
-            result.Should().BeEquivalentTo(expectedResponse);
-            _categoryRepositoryMock.Verify(repo => repo.GetAllAsync(), Times.Once);
+            result.Items.Should().BeEquivalentTo(expectedResponse);
+            result.TotalCount.Should().Be(totalCount);
+            _categoryRepositoryMock.Verify(repo => repo.GetAllAsync(request.PageNumber, request.PageSize, It.IsAny<CancellationToken>()), Times.Once);
         }
 
         #endregion
@@ -116,7 +122,7 @@ namespace ObscuraFinance.Application.UnitTests.Services
             var act = async () => await _categoryService.GetByIdAsync(categoryId, CancellationToken.None);
 
             // Assert
-            await act.Should().ThrowAsync<KeyNotFoundException>()
+            await act.Should().ThrowAsync<NotFoundException>()
                 .WithMessage($"*{categoryId}*");
         }
 
@@ -213,7 +219,7 @@ namespace ObscuraFinance.Application.UnitTests.Services
             var act = async () => await _categoryService.UpdateAsync(categoryId, request, CancellationToken.None);
 
             // Assert
-            await act.Should().ThrowAsync<KeyNotFoundException>()
+            await act.Should().ThrowAsync<NotFoundException>()
                 .WithMessage($"*{categoryId}*");
         }
 
@@ -280,8 +286,8 @@ namespace ObscuraFinance.Application.UnitTests.Services
             var act = async () => await _categoryService.DeleteAsync(categoryId, CancellationToken.None);
 
             // Assert
-            await act.Should().ThrowAsync<KeyNotFoundException>()
-                .WithMessage($"Category with '{categoryId}' was not found");
+            await act.Should().ThrowAsync<NotFoundException>()
+                .WithMessage($"*{categoryId}*");
 
             _categoryRepositoryMock.Verify(repo => repo.Delete(It.IsAny<Category>()), Times.Never);
             _unitOfWorkMock.Verify(uow => uow.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);

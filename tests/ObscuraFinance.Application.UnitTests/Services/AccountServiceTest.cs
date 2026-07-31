@@ -6,6 +6,7 @@ using Obscura.FinanceTracker.Application.Interfaces.Repositories;
 using Obscura.FinanceTracker.Domain.Entities;
 using Obscura.FinanceTracker.Domain.Enums;
 using Obscura.FinanceTracker.Shared.Exceptions;
+using Obscura.FinanceTracker.Shared.Models;
 using ObscuraFinance.Application.UnitTests.Base;
 using ObscuraFinance.Application.UnitTests.Builders;
 
@@ -178,7 +179,7 @@ namespace ObscuraFinance.Application.UnitTests.Services
             var act = async () => await _accountService.GetByIdAsync(accountId, CancellationToken.None);
 
             // Assert
-            await act.Should().ThrowAsync<KeyNotFoundException>()
+            await act.Should().ThrowAsync<NotFoundException>()
                 .WithMessage($"*{accountId}*");
         }
 
@@ -197,20 +198,25 @@ namespace ObscuraFinance.Application.UnitTests.Services
         public async Task GetAllAsync_Should_ReturnEmptyList_When_NoAccountsExist()
         {
             // Arrange
+            var request = new PagedRequest { PageNumber = 1, PageSize = 10 };
+            var emptyAccounts = new List<Account>();
+            var totalCount = 0;
+
             _accountRepositoryMock
-                .Setup(repo => repo.GetAllAsync())
-                .ReturnsAsync(new List<Account>());
+                .Setup(repo => repo.GetAllAsync(request.PageNumber, request.PageSize, It.IsAny<CancellationToken>()))
+                .ReturnsAsync((emptyAccounts, totalCount));
 
             _mapperMock
                 .Setup(m => m.Map<IEnumerable<AccountListResponse>>(It.IsAny<IEnumerable<Account>>()))
                 .Returns(new List<AccountListResponse>());
 
             // Act
-            var result = await _accountService.GetAllAsync(CancellationToken.None);
+            var result = await _accountService.GetAllAsync(request, CancellationToken.None);
 
             // Assert
             result.Should().NotBeNull();
-            result.Should().BeEmpty();
+            result.Items.Should().NotBeNull();
+            result.Items.Should().BeEmpty();
         }
 
         // ============================================================
@@ -286,7 +292,7 @@ namespace ObscuraFinance.Application.UnitTests.Services
             var act = async () => await _accountService.UpdateAsync(accountId, request, CancellationToken.None);
 
             // Assert
-            await act.Should().ThrowAsync<KeyNotFoundException>()
+            await act.Should().ThrowAsync<NotFoundException>()
                 .WithMessage($"*{accountId}*");
 
             _accountRepositoryMock.Verify(
@@ -432,7 +438,7 @@ namespace ObscuraFinance.Application.UnitTests.Services
             var act = async () => await _accountService.DeleteAsync(accountId, CancellationToken.None);
 
             // Assert
-            await act.Should().ThrowAsync<KeyNotFoundException>()
+            await act.Should().ThrowAsync<NotFoundException>()
                 .WithMessage($"*{accountId}*");
 
             _unitOfWorkMock.Verify(

@@ -207,7 +207,7 @@
         _errorMessage = null;
         try
         {
-            _transactions = (await TransactionClient.GetAllAsync()).ToList();
+            _transactions = (await TransactionClient.GetAllAsync(pageSize: 50)).Items.ToList();
         }
         catch (Exception)
         {

@@ -18,9 +18,22 @@ namespace Obscura.FinanceTracker.Infrastructure.Persistence.Repositories
         }
 
         #region Read
-        public async Task<IReadOnlyList<TEntity>> GetAllAsync()
+        public async Task<(IReadOnlyList<TEntity> Items, int TotalCount)> GetAllAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default)
         {
-            return await _dbSet.AsNoTracking().ToListAsync();
+            var totalCount = await _dbSet.CountAsync(cancellationToken);
+
+            // Apply Skip/Take pattern for efficient querying. A deterministic order is required:
+            // without it the database may return rows in a different order per query, causing
+            // duplicated or skipped rows across pages.
+            var items = await _dbSet
+                .AsNoTracking() // Optimization for read-only queries
+                .OrderBy(x => x.CreatedAt)
+                .ThenBy(x => x.Id)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync(cancellationToken);
+
+            return (items, totalCount);
         }
 
         public async Task<TEntity?> GetByIdAsync(Guid id)

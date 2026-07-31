@@ -121,7 +121,7 @@
         _errorMessage = null;
         try
         {
-            _categories = (await CategoryClient.GetAllAsync()).ToList();
+            _categories = (await CategoryClient.GetAllAsync(pageSize: 50)).Items.ToList();
         }
         catch (Exception)
         {
