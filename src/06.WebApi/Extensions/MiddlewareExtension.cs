@@ -14,11 +14,12 @@ namespace Obscura.FinanceTracker.WebApi.Extensions
     // =============================================================================
     public static class MiddlewareExtensions
     {
-        // Register the global exception handling middleware.
-        // This intercepts unhandled exceptions thrown anywhere in the pipeline and
-        // returns a consistent error response instead of exposing raw stack traces.
-        // Must be registered early in the pipeline to catch exceptions from all
-        // subsequent middleware and controllers.
+        /// <summary>
+        /// Registers <see cref="ExceptionMiddleware"/>, which intercepts unhandled exceptions thrown
+        /// anywhere in the pipeline and returns a consistent <c>ApiResponse</c> error instead of exposing
+        /// raw stack traces. Must be registered early in the pipeline (before routing/controllers) so it
+        /// can catch exceptions from all subsequent middleware and controllers.
+        /// </summary>
         public static IApplicationBuilder UseApplicationMiddleware(this IApplicationBuilder app)
         {
             return app.UseMiddleware<ExceptionMiddleware>();

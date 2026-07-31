@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Mvc;
+using Obscura.FinanceTracker.Application.Common.Responses;
 using Obscura.FinanceTracker.WebApi.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,8 +11,28 @@ var builder = WebApplication.CreateBuilder(args);
 // AddControllers() enables attribute-based routing and controller discoveRGry.
 // AddEndpointsApiExplorer() + AddSwaggerGen() enable the Swagger UI for
 // exploring and testing API endpoints during development.
+//
+// ConfigureApiBehaviorOptions overrides the default automatic 400 response for
+// invalid model state (e.g. malformed query/route/body values) so it uses the
+// same ApiResponse<T> envelope as ExceptionMiddleware, instead of the framework's
+// default ValidationProblemDetails shape.
 // =============================================================================
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .ConfigureApiBehaviorOptions(options =>
+    {
+        options.InvalidModelStateResponseFactory = context =>
+        {
+            var errors = context.ModelState
+                .Where(entry => entry.Value?.Errors.Count > 0)
+                .SelectMany(entry => entry.Value!.Errors.Select(e => e.ErrorMessage))
+                .ToList();
+
+            var response = ApiResponse<object>.ErrorResponse("Validation Failed", errors);
+            response.TraceId = context.HttpContext.TraceIdentifier;
+
+            return new BadRequestObjectResult(response);
+        };
+    });
 builder.Services.AddApiVersioningConfiguration();
 builder.Services.AddSwaggerDocumentation();
 
