@@ -38,13 +38,13 @@ Current Development
 
 * 🚧 Phase 4 — CQRS Architecture (extended scope)
 
-Current Module:
-* 🚧 Module 16 — Pagination
+Just Completed:
+* ✅ Module 16 — Pagination
 
 Next Modules:
-* ⏳ Module 17 — Authentication (Identity/JWT)
-* ⏳ Module 18 — CQRS
-* ⏳ Module 19 — MediatR + Authorization Policy Enforcement
+* ⏳ Module 17 — CQRS
+* ⏳ Module 18 — MediatR
+* ⏳ Module 19 — Authentication + Authorization
 * ⏳ Module 20 — Caching
 
 ---
@@ -105,14 +105,18 @@ This project is used to learn and practice:
 * Dashboard V1
 * Enterprise Foundation
 * Data Access & Application Patterns (Repository Pattern, Unit Of Work, Validation, AutoMapper, Testing)
+* Module 16 — Pagination
 
 ### 🔄️ In Progress / Current Focus
 
-* Module 16 — CQRS
+* Preparing for Module 17 — CQRS
 
 ### 💡 Planned
 
-* Module 17 — MediatR
+* Module 17 — CQRS
+* Module 18 — MediatR
+* Module 19 — Authentication + Authorization
+* Module 20 — Caching
 * AI Integration
 * Agentic AI
 * DevOps & Deployment
@@ -130,7 +134,9 @@ This project is used to learn and practice:
 | Enterprise Foundation     | ✅    |
 | Data Access Patterns      | ✅    |
 | Automated Unit Testing    | ✅    |
-| CQRS                      | 🚧    |
+| Pagination                | ✅    |
+| CQRS                      | ⏳    |
+| Authentication & Authorization | ⏳    |
 | AI Integration            | ⏳    |
 
 ---
@@ -215,7 +221,9 @@ docs/
 ├── 07-git-workflow.md
 ├── known-issues.md
 ├── RoadmapGraph.md
-└── adr/
+├── adr/
+├── changelog/
+└── dev-notes/
 ```
 
 ---

@@ -147,6 +147,14 @@ Notes:
 * API controllers are fully documented with XML comments and enterprise-level OpenAPI specifications.
 * CancellationToken propagation has been implemented across all endpoints.
 
+Follow-up hardening (alongside Module 16 — Pagination):
+
+* A cross-controller audit of `[ProducesResponseType]` attributes against what `ExceptionMiddleware` actually returns found and fixed real gaps: a `401` on `DashboardController` that could never occur (no auth middleware exists yet), and missing `400`/`404` declarations on a few endpoints.
+* `ExceptionMiddleware` extended with a `TraceId` correlation id on every error response, explicit `DbUpdateConcurrencyException`/`DbUpdateException` → 409 handling, safe handling of client-cancelled requests, and environment-aware exception detail.
+* `InvalidModelStateResponseFactory` wired up so automatic model-binding failures (e.g. a malformed `PageSize` query value) return the same `ApiResponse<T>` envelope as every other error path, instead of the framework's default shape.
+* XML documentation completed across the domain layer, all DTOs, and the remaining service/client files that were still undocumented.
+* Full reasoning and before/after code for all of the above: `docs/dev-notes/pagination-and-enterprise-hardening-ENG.md` (also available in Indonesian).
+
 ---
 
 # Data Access & Application Patterns
@@ -192,7 +200,7 @@ Phase 2 ██████████ 100%
 
 Phase 3 ██████████ 100%
 
-Phase 4 ░░░░░░░░░░ 0%
+Phase 4 ██░░░░░░░░ 20%
 
 Phase 5 ░░░░░░░░░░ 0%
 
@@ -206,13 +214,13 @@ Phase 7 ░░░░░░░░░░ 0%
 # Current Priority
 
 ```text
-Module 16 — Pagination
+Module 16 — Pagination (✅ Completed)
 ↓
-Module 17 — Authentication (Identity/JWT)
+Module 17 — CQRS
 ↓
-Module 18 — CQRS
+Module 18 — MediatR
 ↓
-Module 19 — MediatR + Authorization Policy Enforcement
+Module 19 — Authentication + Authorization
 ↓
 Module 20 — Caching
 ```
@@ -397,18 +405,44 @@ Notes:
 
 ---
 
-# Next Module
-
 ## Module 16 — Pagination
 
 Status:
 
-🚧 Current
+✅ COMPLETED
 
 Objectives:
 
 * Introduce reusable PagedRequest/PagedResult models.
 * Apply pagination to GetAllAsync across Account, Category, Transaction.
 * Prepare data access layer for query-heavy CQRS Query handlers.
+
+Completed:
+
+* `PagedRequest` / `PagedResult<T>` in `03.Shared`, with page number/size validation.
+* Deterministic ordering added to the generic repository (previously missing — pages could return duplicate or skipped rows).
+* Pagination applied to `GetAllAsync` on Account, Category, and Transaction, plus `CategoryController.GetDeleted`.
+* Client project and Blazor UI updated to consume the new `PagedResult<T>` response shape.
+
+Notes:
+
+* This module also produced unplanned but valuable follow-up work: global exception middleware hardening and a `ProducesResponseType` accuracy audit (see the Enterprise Foundation notes above), and completion of XML documentation across layers that had been left undocumented.
+* Full write-up: `docs/dev-notes/pagination-and-enterprise-hardening-ENG.md` / `-IND.md`.
+
+---
+
+# Next Module
+
+## Module 17 — CQRS
+
+Status:
+
+⏳ Not Started
+
+Objectives:
+
+* Express Account/Category/Transaction business logic as Command/Query + Handler pairs.
+* Controllers invoke Handlers directly (no mediator yet — that's Module 18).
+* Prepare the application for MediatR without introducing it prematurely.
 
 ---

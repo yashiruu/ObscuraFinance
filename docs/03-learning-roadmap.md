@@ -26,17 +26,15 @@ Completed
 
 ✔ Module 15 — Testing
 
-Current
-
-🚧 Module 16 — CQRS
+✔ Module 16 — Pagination
 
 Next
 
-⏳ Module 17 — Authentication (Identity/JWT)
+⏳ Module 17 — CQRS
 
-⏳ Module 18 — CQRS
+⏳ Module 18 — MediatR
 
-⏳ Module 19 — MediatR + Authorization Policy Enforcement
+⏳ Module 19 — Authentication + Authorization
 
 ⏳ Module 20 — Caching
 
@@ -605,22 +603,26 @@ through CQRS and MediatR.
 
 ## Why This Phase
 
-Before introducing CQRS, three cross-cutting concerns are addressed first —
-Pagination and Authentication are infrastructure-level concerns independent
-of CQRS, so implementing them first avoids rework. Authorization enforcement
-and Caching, however, are best implemented as Pipeline Behaviors / Query
-Decorators, which only become natural once Commands, Queries, and MediatR
-are in place — so those two are sequenced after CQRS/MediatR rather than
-before.
+Pagination is addressed first as an infrastructure-level concern independent
+of CQRS. CQRS and MediatR then form the core architectural shift: Commands,
+Queries, and Handlers are introduced first (Module 17), with MediatR added
+afterward (Module 18) as the dispatch mechanism and the foundation for
+Pipeline Behaviors. Authentication and Authorization are deliberately
+sequenced after MediatR and combined into one module — Authorization
+enforcement is implemented as a Pipeline Behavior, which only becomes
+natural once that infrastructure exists, and Authorization has nothing to
+enforce without Authentication already in place. Caching closes out the
+phase for the same reason: it is naturally a Pipeline Behavior on the
+Query side, and depends on Commands/Queries already being separated.
 
 ```text
 Pagination
     ↓
-Authentication (Identity/JWT)
-    ↓
 CQRS
     ↓
-MediatR + Authorization Policy Enforcement
+MediatR
+    ↓
+Authentication + Authorization
     ↓
 Caching
 ```
@@ -636,7 +638,7 @@ while preserving existing business behavior.
 
 Status:
 
-🚧 Current
+✅ Completed
 
 Learning Objectives:
 
@@ -654,17 +656,30 @@ Skip() / Take()
 Total Count Query
 ```
 
+Completed:
+
+* Reusable `PagedRequest` / `PagedResult<T>` models in `03.Shared`, with `PageNumber`/`PageSize` clamped to valid ranges.
+* `GetAllAsync` paginated across Account, Category, and Transaction.
+* Deterministic ordering (`CreatedAt`, then `Id`) added to the generic repository so pages stay stable across requests.
+* `CategoryController.GetDeleted` paginated as well, for consistency across every list endpoint.
+* `AccountClient`, `CategoryClient`, `TransactionClient`, and the Blazor list pages updated to consume `PagedResult<T>`.
+* Global exception middleware hardened alongside this module (correlation id, DB conflict handling, consistent model-state error responses) and a `ProducesResponseType` accuracy audit performed across all controllers — see `docs/dev-notes/pagination-and-enterprise-hardening-ENG.md` for the full review and reasoning.
+
+Known Gap:
+
+* Blazor list pages request a fixed `pageSize: 50` as a stopgap; they do not yet have next/previous page navigation. Tracked as AO-008 in `known-issues.md`.
+
 ### Exit Criteria
 
 The module is considered complete when:
 
-- A reusable `PagedRequest` / `PagedResult<T>` model exists in `03.Shared`.
-- `GetAllAsync` endpoints across Account, Category, and Transaction support pagination.
-- Existing non-paged consumers (if any) are updated or intentionally deprecated.
+- ✅ A reusable `PagedRequest` / `PagedResult<T>` model exists in `03.Shared`.
+- ✅ `GetAllAsync` endpoints across Account, Category, and Transaction support pagination.
+- ✅ Existing non-paged consumers (if any) are updated or intentionally deprecated.
 
 ---
 
-## Module 17 — Authentication (Identity/JWT)
+## Module 17 — CQRS
 
 Status:
 
@@ -672,44 +687,34 @@ Status:
 
 Learning Objectives:
 
-* Identity Fundamentals
-* Token-Based Authentication
-* Login / Registration Flow
-* Securing API Endpoints
+* Command Responsibility
+* Query Responsibility
+* Read/Write Separation
 
 Topics:
 
 ```text
-ASP.NET Core Identity
-JWT Issuance & Validation
-[Authorize] Attribute
-Refresh Tokens (optional)
+Command Objects
+Query Objects
+Command Handlers
+Query Handlers
 ```
+
+MediatR is deliberately not introduced yet — Controllers invoke Handlers
+directly (constructor-injected), the same way they currently call Services.
+The mediator/dispatch layer is Module 18's concern.
 
 ### Exit Criteria
 
 The module is considered complete when:
 
-- Users can register and log in.
-- API endpoints require a valid token by default.
-- Client application handles token storage and attachment to requests.
+- Business logic for Account, Category, and Transaction is expressed as discrete Command/Query + Handler pairs.
+- Controllers invoke Handlers directly, without a mediator.
+- Existing API behavior remains functionally unchanged.
 
 ---
 
-## Module 18 — CQRS
-
-Status:
-
-⏳ Planned
-
-Learning Objectives:
-
-* Command Responsibility
-* Query Responsibility
-
----
-
-## Module 19 — MediatR + Authorization Policy Enforcement
+## Module 18 — MediatR
 
 Status:
 
@@ -720,31 +725,65 @@ Learning Objectives:
 * Mediator Pattern
 * Decoupled Architecture
 * Pipeline Behaviors
-* Policy-Based Authorization
 
 Topics:
 
 ```text
 IRequest / IRequestHandler
 Pipeline Behavior
-Authorization Behavior
-Policy-Based Authorization
 ```
-
-Why Combined:
-
-Authorization enforcement fits naturally as a Pipeline Behavior alongside
-the existing Validation Pipeline concept — introducing it in the same
-module as MediatR avoids building a temporary authorization mechanism in
-the service layer that would need to be rebuilt after CQRS.
 
 ### Exit Criteria
 
 The module is considered complete when:
 
-- Controllers dispatch Commands/Queries through MediatR instead of calling services directly.
-- An Authorization Pipeline Behavior enforces policies before a handler executes.
+- Controllers dispatch Commands/Queries through MediatR instead of invoking Handlers directly.
+- Pipeline Behavior infrastructure exists and is proven with at least one cross-cutting behavior (e.g. logging or validation).
 - Existing API behavior remains functionally unchanged.
+
+---
+
+## Module 19 — Authentication + Authorization
+
+Status:
+
+⏳ Planned
+
+Learning Objectives:
+
+* Identity Fundamentals
+* Token-Based Authentication
+* Login / Registration Flow
+* Securing API Endpoints
+* Policy-Based Authorization
+
+Topics:
+
+```text
+ASP.NET Core Identity
+JWT Issuance & Validation
+[Authorize] Attribute
+Refresh Tokens (optional)
+Authorization Pipeline Behavior
+Policy-Based Authorization
+```
+
+Why Combined:
+
+Authentication (who the user is) and Authorization (what the user can do)
+are a natural pair — Authorization enforcement has nothing to enforce until
+Authentication exists. Sequencing them together, on top of the Pipeline
+Behavior infrastructure Module 18 already established, avoids building a
+temporary authorization mechanism that would need to be rebuilt later.
+
+### Exit Criteria
+
+The module is considered complete when:
+
+- Users can register and log in.
+- API endpoints require a valid token by default.
+- Client application handles token storage and attachment to requests.
+- An Authorization Pipeline Behavior enforces policies before a handler executes.
 
 ---
 

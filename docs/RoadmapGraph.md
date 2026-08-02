@@ -161,19 +161,19 @@ Operate
 │ • PagedRequest / PagedResult<T>                              │
 │ • Skip/Take Query Pattern                                   │
 │                                                             │
-│ Module 17 — Authentication                                  │
-│ • ASP.NET Core Identity                                     │
-│ • JWT Issuance & Validation                                 │
-│                                                             │
-│ Module 18 — CQRS                                            │
+│ Module 17 — CQRS                                            │
 │ • Commands                                                  │
 │ • Queries                                                   │
 │ • Handlers                                                  │
 │                                                             │
-│ Module 19 — MediatR + Authorization                         │
+│ Module 18 — MediatR                                         │
 │ • Request                                                   │
 │ • Handler                                                   │
 │ • Pipeline Behavior                                         │
+│                                                             │
+│ Module 19 — Authentication + Authorization                  │
+│ • ASP.NET Core Identity                                     │
+│ • JWT Issuance & Validation                                 │
 │ • Policy-Based Authorization                                │
 │                                                             │
 │ Module 20 — Caching                                         │

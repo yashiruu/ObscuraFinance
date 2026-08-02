@@ -429,6 +429,55 @@ test naming convention.
 
 ---
 
+## AO-008 — Blazor List Pages Lack Real Pagination UI
+
+Status:
+
+🟡 Open — Planned
+
+Priority:
+
+Medium
+
+Target:
+
+Alongside or after Module 17/18
+
+Observation:
+
+Module 16 (Pagination) implemented pagination correctly end-to-end at the API layer —
+`PagedRequest`/`PagedResult<T>`, page validation, deterministic ordering, and paginated
+`GetAllAsync`/`GetDeleted` endpoints. The Blazor list pages (`Accounts.razor`,
+`Categories.razor`, `Transactions.razor`, and the account/category pickers in the
+transaction create/edit forms) were updated to consume the new `PagedResult<T>` response
+shape so the solution keeps building, but they request a fixed `pageSize: 50` as a stopgap
+rather than exposing real pagination controls.
+
+Impact:
+
+No next/previous page navigation exists in the UI. If any list grows past 50 rows, the
+Blazor UI will silently show only the first 50 — no error, no indication that more data
+exists.
+
+Reason for Deferral:
+
+Current dataset size is well under 50 rows per entity, so there is no user-visible impact
+yet. Module 16's exit criteria only required existing consumers to be updated to the new
+response shape, not a full pagination UI — building that now, before Authentication and
+CQRS reshape the client/UI layer, risks rework.
+
+Suggested Fix:
+
+Add page-number controls (next/previous, or a page-size selector) to the three list pages,
+backed by the `PageNumber`/`PageSize`/`TotalPages`/`HasNextPage`/`HasPreviousPage` fields
+already present on `PagedResult<T>`.
+
+Note:
+
+Full context: `docs/dev-notes/pagination-and-enterprise-hardening-ENG.md`, section 1.
+
+---
+
 # AI-Assisted Test Authoring
 
 Status:
@@ -475,7 +524,7 @@ Release Readiness:
 
 Technical Debt:
 
-Low to Medium — AO-006 and AO-007 remain open and on hold by deliberate choice
+Low to Medium — AO-006 and AO-007 remain open and on hold by deliberate choice. AO-008 was added during Module 16 (Pagination) and is planned rather than blocking.
 
 Architectural Readiness:
 
